@@ -1,7 +1,7 @@
 # «ночь.log» — treatment
 
 Style: **CRT ASCII Terminal** (`ascii-crt`). P3 amber phosphor; one soft second colour (a pale green) used once, at the end.
-Format: 1920×1080, 24 fps, ≈ 48 s. Russian first-person voice-over: Gemini TTS (Google AI Studio), voice «Puck». Subtitles are terminal output in the LOG strip, `subtitles_ru.srt`.
+Format: 1920×1080, 24 fps, ≈ 48 s. Russian first-person voice-over: Gemini TTS (Google AI Studio, gemini-3.1-flash-tts-preview), voice «Fenrir». Subtitles are terminal output in the LOG strip, `subtitles_ru.srt`.
 Font: IBM Plex Mono (OFL) — VT323, the style's font, has no Cyrillic.
 
 Same story as «Первая страница» (a 14-year-old C-student trying to earn on his own with AI), told a different way.
@@ -13,6 +13,10 @@ Same story as «Первая страница» (a 14-year-old C-student trying 
 3. **Boot-to-shutdown day.** One machine's scheduled jobs from morning to night. Loses the human typing, the best thing this style has for him.
 
 **Chosen: 1.** The chat log puts his uneven human typing against the machine's even output — which is exactly his story: an ordinary kid working with AI. The ending holds a state (cursor blinking) instead of a triumph.
+
+## Cold open (added after the first cut)
+
+0–5 s, before the night starts: a flash-forward. Three «попытка … ОШИБКА» lines with error beeps, then «БАЛАНС: 0 ₽» lands huge with a low hit and a bell; the voice: «Мне 14. Я пытаюсь заработать сам — и пока у меня ноль.» At 4.35 s the buffer races backwards («<< 23:58») and the film proper starts. Everything below is in film time after the cold open (add 5 s for the final file).
 
 ## Logline and arc
 

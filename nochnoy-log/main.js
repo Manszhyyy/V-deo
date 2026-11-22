@@ -35,7 +35,8 @@ const T = {
   head3: 24.45, have: 25.0, enter3: 27.45, fall0: 27.7, fall1: 30.6, clr3: 31.6, scroll0: 31.8, scroll1: 36.4,
   head5: 36.7, nq: 37.6, push2: 38.6, push3: 40.4, enter5: 40.55, clr4: 40.85, head6: 41.0, green: 41.35, dur: 47.0,
 };
-const VOT = { l1: 1.00, l2: 5.95, l3: 14.60, l4: 18.10, l5: 24.70, l6: 31.10, l7: 37.10, l8: 41.70 };
+const HOOK = 5.0;   // the cold open (a flash-forward to «0 ₽») plays before the night starts; everything else is shifted by HOOK
+const VOT = { h0: .25 - HOOK, l1: 1.00, l2: 5.95, l3: 14.60, l4: 18.10, l5: 24.70, l6: 31.10, l7: 37.10, l8: 41.70 };
 const DUR = T.dur;
 const EV = [];
 const ev = (t, type, o = {}) => EV.push({ t: +t.toFixed(4), type, ...o });
@@ -315,7 +316,7 @@ function voChars(v, t) {
   return n;
 }
 function strip(t) {
-  if (NOSUB || t < T.on1) return;
+  if (NOSUB) return;
   blackRect(0, STRIP.y - 26, W, H - STRIP.y + 26);
   text(g, A_SEP, 0, 0, { ox: V.ox, oy: STRIP.y - 46, cw: V.cw }, .2);
   const v = { ox: STRIP.ox, oy: STRIP.y, cw: STRIP.cw };
@@ -334,6 +335,42 @@ function box(id, str, col, row, v) {
 }
 
 // ═══════════ render
+// ═══════════ the cold open (hook-local seconds 0…HOOK): three errors, «БАЛАНС: 0 ₽» huge, then a rewind to 23:58
+const H_TRY = ['попытка_1 ............ ', 'попытка_2 ............ ', 'попытка_3 ............ '].map((s, i) => machine(s, .05 + i * .3 - HOOK, .006));
+H_TRY.forEach(ty => ev(ty.t1 + .04, 'err'));
+const H_BAL = 1.05, H_REW = 4.35;
+ev(H_BAL - HOOK, 'bel'); ev(H_BAL - HOOK, 'hit'); ev(H_REW - HOOK, 'rewind', { d: HOOK - H_REW });
+const BIG = { cw: 92 }; BIG.ox = (W - 11 * BIG.cw) / 2; BIG.oy = 450;
+function hook(th) {
+  begin();
+  const tf = th - HOOK, rew = seg(th, H_REW, HOOK), dim = th < H_BAL ? 1 : .32;
+  if (rew > 0) {                                   // rewind: the buffer races backwards, glyph noise, «<< 23:58»
+    const sh = Math.floor(rew * 40);
+    for (let r = 0; r < 13; r++) { let s = ''; for (let c = 0; c < 52; c++) s += hsh(r + sh * 13, c) > .55 ? 'ОШИБКА0₽.:#'[Math.floor(hsh(c + sh, r) * 11)] : ' '; text(g, s, 0, r, V, .25 + .25 * hsh(r, sh)); }
+    inverse(g, ' << 23:58 ', 21, 6, V, 1);
+  } else {
+    H_TRY.forEach((ty, i) => {
+      typedLine(ty, tf, 2, 2 + i, V, { a: .8 * dim, cur: false });
+      if (tf >= ty.t1 + .04) inverse(g, ' ОШИБКА ', 2 + ty.s.length, 2 + i, V, .9 * dim);
+    });
+    if (th >= H_BAL) {
+      const k = Math.exp(-(th - H_BAL) / .18);     // lands overexposed, settles
+      text(g, 'БАЛАНС: 0 ₽', 0, 0, BIG, 1.5 + .5 * k);
+      cursor(g, 0, 11, V, blink(th, H_BAL + .6) * .8);
+    }
+  }
+  strip(tf);
+  g.globalAlpha = 1;
+  crt.render(scene, Math.round(th * 24), { power: 1, expo: 1, earthSat: 1 });
+}
+function textsHook(th) {
+  if (th >= H_REW) return [];
+  const o = [], tf = th - HOOK;
+  H_TRY.forEach((ty, i) => { if (tf >= ty.t0) o.push(box('h-try' + i, ty.s.join('') + ' ОШИБКА ', 2, 2 + i, V)); });
+  if (th >= H_BAL) o.push(box('h-bal', 'БАЛАНС: 0 ₽', 0, 0, BIG));
+  return o;
+}
+
 let FRAME = 0;
 function renderFilm(t) {
   begin();
@@ -345,9 +382,9 @@ function renderFilm(t) {
   crt.render(scene, Math.round(t * 24), { power: 1, expo: 1, earthSat: 1 });
 }
 
-window.DUR = DUR;
-window.render = t => renderFilm(t);
-window.EV = EV.filter(e => e.t >= 0 && e.t < DUR).sort((a, b) => a.t - b.t);
-window.SUBS_CUES = VO.map((v, k) => ({ t0: v.t, t1: voEnd(v, k), text: v.sub }));
-window.TEXTS = t => { const i = SECS.findIndex(s => t >= s.a && t < s.b); return i < 0 ? [] : SECS[i].texts(t); };
+window.DUR = DUR + HOOK;
+window.render = t => t < HOOK ? hook(t) : renderFilm(t - HOOK);
+window.EV = EV.map(e => ({ ...e, t: +(e.t + HOOK).toFixed(4) })).filter(e => e.t >= 0 && e.t < DUR + HOOK).sort((a, b) => a.t - b.t);
+window.SUBS_CUES = VO.map((v, k) => ({ t0: v.t + HOOK, t1: voEnd(v, k) + HOOK, text: v.sub }));
+window.TEXTS = t => { if (t < HOOK) return textsHook(t); t -= HOOK; const i = SECS.findIndex(s => t >= s.a && t < s.b); return i < 0 ? [] : SECS[i].texts(t).map(x => ({ ...x })); };
 window.READY = true;

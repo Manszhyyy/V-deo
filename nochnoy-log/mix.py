@@ -96,6 +96,15 @@ def landtick(n, v=1.0):
         x += np.sin(2 * np.pi * f * t) * np.exp(-np.maximum(0, t - o) / .003) * (t >= o)
     return x * v * min(1.6, np.sqrt(n) / 3)
 
+HOOK = 5.0   # main.js: the cold open before the night; the score starts after it
+def hit(v=1.0):              # the «0 ₽» landing: a low synth thump with a gated tail
+    d = 1.4; t = T(d); f = 46 * (1 + 1.4 * np.exp(-t / .05))
+    x = np.sin(np.cumsum(2 * np.pi * f / SR)) * np.exp(-t / .5) + lp(nz(d), 300) * np.exp(-t / .06) * .8
+    return np.tanh(x * 1.5) * v
+def rewind(d, v=1.0):        # tape racing backwards: a falling whine over chattering ticks
+    t = T(d + .1); f = np.linspace(2600, 500, len(t)) ** 1.0
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR) * .25 + bp(nz(d + .1), 1500, 6000) * (.5 + .5 * np.sign(np.sin(2 * np.pi * 38 * t))) * .4
+    return x * np.sin(np.pi * np.clip(t / (d + .1), 0, 1)) ** .5 * v
 for e in E['ev']:
     t, ty = e['t'], e['type']
     pan = rng.uniform(-.25, .25)
@@ -114,6 +123,8 @@ for e in E['ev']:
     elif ty == 'zoomIn': add('sfx', swell(e['d'] + .3), t, .25 if 'soft' not in e else .15)
     elif ty == 'zoomOut': add('sfx', swell(e['d'] + .3, down=True), t, .22)
     elif ty == 'poweroff': add('sfx', poweroff(), t, .6)
+    elif ty == 'hit': add('sfx', hit(), t, .9)
+    elif ty == 'rewind': add('sfx', rewind(e['d']), t, .5)
     elif ty == 'land': add('sfx', landtick(e['n']), t, .09, rng.uniform(-.5, .5))
 
 # ---------- Machine noise floor: fan + 120Hz + picture-tube high-voltage whine (very faint) ----------
@@ -121,7 +132,7 @@ t = np.arange(N) / SR
 fan = lp(rng.standard_normal(N), 700) * .05 + lp(rng.standard_normal(N), 180) * .05
 fan += np.sin(2 * np.pi * 120 * t) * .006
 on = np.ones_like(t)
-off = np.clip(1 - (t - 46.0) / 1.0, 0, 1)
+off = np.clip(1 - (t - 46.0 - HOOK) / 1.0, 0, 1)
 fan *= on * off
 whf = 15734 + 0 * t
 whine = np.sin(2 * np.pi * np.cumsum(whf) / SR) * .0022 * (t > .35) * (1 + .15 * np.sin(2 * np.pi * .3 * t)) * off
@@ -145,7 +156,7 @@ duck = 1 - .6 * np.clip(np.convolve(vo_env, ker, 'same') * 1.5, 0, 1)      # abo
 # ---------- Score ----------
 m, sr = sf.read(os.path.join(D, 'music', 'score.wav'))
 if sr != SR: m = resample_poly(m, SR, sr, axis=0)
-m = m[:N]; bus['music'][:len(m)] += m * 1.25
+i0 = int(HOOK * SR); m = m[:N - i0]; bus['music'][i0:i0 + len(m)] += m * 1.25
 bus['music'] *= duck[:, None]
 
 mix = bus['music'] + bus['vo'] * 1.25 + bus['sfx'] * .9 + bus['bed']
