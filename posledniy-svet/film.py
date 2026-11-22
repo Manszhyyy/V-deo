@@ -312,6 +312,8 @@ class Model:
                (T_STORM, .8, mk('far', .35, 1.4, -1.0), dict(wind=(220, 0), scatter=30)),
                (T_ROOF, 1.0, mk('below', .8, .3, -.5), dict(wind=(0, 60), scatter=50))]
         s = self.staged(t, stg, r)
+        if t > T_ROOF:                                   # keep the subtitle band dark: the lowest windows fade out
+            s['lum'] = s['lum'] * (1 - .85 * sstep(905, 960, s['pos'][:, 1]))
         if t > T_ROOF:                                   # the roof hides the city behind it
             behind = (s['pos'][:, 0] < 784) & (s['pos'][:, 1] > 726)
             s['lum'] = np.where(behind, s['lum'] * (1 - float(sstep(T_ROOF, T_ROOF + 1.2, t))), s['lum'])
@@ -383,7 +385,7 @@ class Model:
             lum = np.where(ground, .14, .075 * (1 - .8 * sstep(T_ROOF - .4, T_ROOF + .8, tt)))
             return self.st(np.stack([x, y], 1), np.where(ground, .35, .3), lum, np.where(ground[:, None], [.55, .78, .40], RAIN_C), 0.0)
         def roof(tt):
-            s = self.W_roof; lum = s['lum'] * (1 + .5 * sstep(T_FLASH, T_FLASH + 1.0, tt))
+            s = self.W_roof; lum = s['lum'] * (1 + .5 * sstep(T_FLASH, T_FLASH + 1.0, tt)) * (1 - .85 * sstep(905, 960, s['y']))
             return self.st(np.stack([s['x'] + 1.5 * np.sin(r['p1'] + tt), s['y']], 1), np.where(s['kind'] == 2, 1.6, .3), lum, [.58, .80, .44])
         stg = [(0.0, .1, emb, {}), (T_RUN, .7, street, dict(wind=(-200, 0), scatter=50)),
                (C2[0], .5, lambda tt: self._dim(street(tt), .3), dict(wind=(260, -30), scatter=80)),
