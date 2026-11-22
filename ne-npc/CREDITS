@@ -1,0 +1,26 @@
+«НЕ NPC» — a trailer in the Firefly Pointillism style (Lemo-Opuscar library). An original story.
+
+IMAGES, FOOTAGE, MODELS
+- None. Every point of light (the city, the crowd, the boy, the door, the roof, the titles) is computed in code
+  (film.py, engine.py). No photographs, no AI-generated images.
+
+FONTS (SIL Open Font License 1.1)
+- Cormorant Garamond — Christian Thalmann (Catharsis Fonts) — https://github.com/google/fonts/tree/main/ofl/cormorantgaramond
+  (fonts/CormorantGaramond-OFL.txt); SemiBold and Medium instances made from the variable font with fontTools.
+
+VOICE
+- Russian narration: Gemini text-to-speech (model gemini-3.1-flash-tts-preview, voice "Charon") through the Gemini API
+  (Google AI Studio), tools/tts_gemini.py, with the film owner's API key. Synthetic voice. Check Google's Gemini API terms
+  for how generated audio may be used.
+
+MUSIC SAMPLES, through the library's core/audio/sampler.py (see core/audio/INSTRUMENTS.md for each library's licence)
+- strings (violins, violas, cellos, spiccato, tremolo), horn, flute, timpani, harp, glockenspiel, gran cassa, suspended cymbal,
+  crash, gong, hand chimes, tubular bells: VS Chamber Orchestra: Community Edition and Versilian Community Sample
+  Library (Versilian Studios, CC0 1.0); glass harp, contrabass: FreePats or VSCO 2 CE (freepats.zenvoid.org, CC0 1.0).
+
+SOUND EFFECTS
+- Street murmur, footsteps, the glitch, hum, wind, deletion ticks, gusts and whooshes: synthesised in mix.py.
+
+CODE
+- engine.py and the render() pipeline in film.py are from the Lemo-Opuscar library's styles/firefly-pointillism/demo
+  (MIT License, Copyright (c) 2026 Lemomo (LemoLab); text in LICENSE-MIT.txt).
