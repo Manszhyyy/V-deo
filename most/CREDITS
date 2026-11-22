@@ -1,0 +1,13 @@
+«Мост» — a trailer in the Low-poly Isometric Island style (Lemo-Opuscar library). An original story.
+
+IMAGES: none — the islands, houses, trees, the bridge, the people, the sea, rain and lanterns are built in code with three.js
+  (world.js, main.js); no textures, no photographs, no AI-generated images.
+FONTS (SIL OFL 1.1): Comfortaa — Johan Aakerlund — github.com/google/fonts/tree/main/ofl/comfortaa (fonts/Comfortaa-OFL.txt).
+VOICE: Russian narration — Gemini text-to-speech (gemini-2.5-flash-preview-tts, voice "Kore") through the Gemini API (Google AI Studio),
+  with the film owner's API key; tools/tts_gemini_one.py; checked with faster-whisper. Synthetic voice; check Google's Gemini API terms.
+MUSIC SAMPLES through the library's core/audio/sampler.py (core/audio/INSTRUMENTS.md lists each library's licence): marimba, vibraphone,
+  glockenspiel, hand chimes, shaker, bass drum, crash, gong, soft organ (VCSL / VSCO 2 CE, CC0 1.0); kalimba (FreePats, CC0 1.0).
+  The pad is synthesised in mix.py.
+SOUND EFFECTS: splashes, wood knocks, rain, wind, waves, thunder, gulls, crowd murmur, crickets — synthesised in mix.py.
+CODE: three.js (MIT). post.js and sea.js, and the house/tree/hex helpers in world.js, are from the Lemo-Opuscar library's
+  styles/lowpoly-island/demo (MIT License, Copyright (c) 2026 Lemomo (LemoLab); text in LICENSE-MIT.txt).
