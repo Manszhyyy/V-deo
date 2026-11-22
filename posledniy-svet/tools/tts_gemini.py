@@ -33,7 +33,11 @@ def tts(text):
 
 dur, words = {}, {}
 for L in json.load(open(os.path.join(VO, 'lines.json'), encoding='utf-8')):
-    x, sr = tts(L.get('say', L['text']))
+    only = [s for s in os.environ.get('ONLY', '').split(',') if s]
+    if only and L['id'] not in only:                         # keep this line's existing take
+        x, sr = sf.read(os.path.join(VO, L['id'] + '.wav'), dtype='float32')
+    else:
+        x, sr = tts(L.get('say', L['text']))
     e = np.convolve(np.abs(x), np.ones(240) / 240, 'same'); on = np.nonzero(e > .02 * e.max())[0]
     x = x[max(0, on[0] - 240): on[-1] + 2400]
     sf.write(os.path.join(VO, L['id'] + '.wav'), x, sr)

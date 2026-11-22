@@ -17,7 +17,7 @@ In a city that went dark in one night, a boy carries the last light to the highe
 
 - Hook (0–4.5 s): lit city → blackout wave → one green light breathing in the dark.
 - Setup (4.5–16 s): card «КОГДА ГАСНЕТ ВСЁ»; the boy gathers out of the embers; the light lands on his palm; the rule (voice).
-- Stakes + montage (16–27 s): card «НО ТОЛЬКО ОДИН РАЗ»; gusts cut street run → bridge over the river (reflection) → storm (head wind, the light nearly goes out).
+- Stakes + montage (16–27 s): card «НО ОГОНЁК НЕ ВЕРНЁТСЯ»; gusts cut street run → bridge over the river (reflection) → storm (head wind, the light nearly goes out).
 - Breath (27–29 s): the roof, near-silence, he lifts the light.
 - Release (29–33 s): it flies up; a synchronous flash ripples across the skyline; every window relights.
 - Title (33–38 s): the windows swap identity into «ПОСЛЕДНИЙ СВЕТ».
@@ -37,7 +37,7 @@ Animated-feature teaser trailers (one image hook, two or three cards, a music bu
 | 4 | 4.6–7.6 | embers gather into «КОГДА ГАСНЕТ ВСЁ» | locked | card 1 |
 | 5 | 7.6–12.0 | the boy forms from embers (focus pull), looks up, the light lands on his palm | slow push to medium | meeting |
 | 6 | 12.0–16.0 | he runs along the street, the light leads | lateral tracking, parallax | the quest |
-| 7 | 16.0–18.8 | gust → «НО ТОЛЬКО ОДИН РАЗ» | locked | stakes |
+| 7 | 16.0–18.8 | gust → «НО ОГОНЁК НЕ ВЕРНЁТСЯ» | locked | stakes |
 | 8 | 18.8–21.5 | gust → bridge over the river, reflection | tracking | journey |
 | 9 | 21.5–26.8 | gust (head wind) → storm: rain streaks, he leans in, the light flickers | shake-free push | danger |
 | 10 | 26.8–29.2 | roof, he lifts the light; near-silence | locked medium | breath |
@@ -45,13 +45,17 @@ Animated-feature teaser trailers (one image hook, two or three cards, a music bu
 | 12 | 33.0–38.0 | windows swap into the title «ПОСЛЕДНИЙ СВЕТ» | locked wide | title |
 | 13 | 38.0–45.0 | dark; the boy on the roof; a new green star; «СКОРО» | locked wide | button |
 
-## Voice-over (Russian narrator, deep, calm)
+## Voice-over (Russian narrator, Gemini «Charon»)
 
-1. 1.2 s — В ту ночь погас весь город.
-2. 3.0 s — Кроме одного огонька.
-3. 12.2 s — Говорят, если отпустить его в небо, город снова загорится.
-4. 21.8 s — Но тогда у него не останется ничего.
-5. 38.6 s — Иногда, чтобы вернуть свет, его нужно отдать.
+Rewritten after the first cut so the logic reads at once: the light *is* what can relight the city, and the price is losing it.
+
+1. 1.15 s — В ту ночь погас весь город.
+2. 3.05 s — Остался только один огонёк.
+3. 12.25 s — Если отпустить его в небо — он зажжёт весь город.
+4. 22.0 s — Но огонёк станет звездой и больше не вернётся.
+5. 38.75 s — Он отдал свой свет — чтобы светло стало всем.
+
+Card 2 changed from «НО ТОЛЬКО ОДИН РАЗ» to «НО ОГОНЁК НЕ ВЕРНЁТСЯ».
 
 ## Cue map
 

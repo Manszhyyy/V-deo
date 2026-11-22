@@ -223,7 +223,7 @@ class Model:
         widx = np.nonzero(self.C['win'])[0]; self.iT = rng.choice(widx, len(self.title), replace=False)
         # ---- cards from the sky points
         self.card1 = grid_sample(text_mask([('КОГДА ГАСНЕТ ВСЁ', 104, 190, 250, 6)]), 2600, rng)
-        self.card2 = grid_sample(text_mask([('НО ТОЛЬКО ОДИН РАЗ', 104, 190, 250, 6)]), 2800, rng)
+        self.card2 = grid_sample(text_mask([('НО ОГОНЁК НЕ ВЕРНЁТСЯ', 100, 190, 250, 5)]), 3000, rng)
         self.card3 = grid_sample(text_mask([('СКОРО', 120, 1290, 300, 14)]), 1500, rng)
         # ---- sky (X): stars, power-law towards the top, clear of the card area a little
         n = self.nX
