@@ -14,7 +14,9 @@ cd "$LIB"
 node core/render/events.mjs "$HERE" --out "$HERE/out/events.json"
 node core/render/video.mjs "$HERE" --fps 24 --workers "${WORKERS:-4}" --out "$HERE/out/video.mp4"
 "$PY" "$HERE/mix.py"
-sh core/render/mux.sh "$HERE/out/video.mp4" "$HERE/out/mix.wav" "$HERE/$NAME.mp4" 24 0
+ffmpeg -v error -y -i "$HERE/out/video.mp4" -c:v libx264 -preset slow -crf 30 -tune grain -pix_fmt yuv420p "$HERE/out/video_small.mp4"   # fine hatching inflates the file
+ffmpeg -v error -y -i "$HERE/out/mix.wav" -af "aresample=192000,alimiter=limit=0.5:attack=1:release=60:level=false,aresample=48000" -c:a pcm_s24le "$HERE/out/mix_lim.wav"   # tame the thunder peaks
+sh core/render/mux.sh "$HERE/out/video_small.mp4" "$HERE/out/mix_lim.wav" "$HERE/$NAME.mp4" 24 0
 node -e "
   import('$LIB/core/render/page.mjs').then(async ({ openDemo, closeServer }) => {
     const { browser, page } = await openDemo('$HERE', { w: 1920, h: 1080 });
