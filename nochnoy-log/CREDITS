@@ -1,0 +1,22 @@
+«ночь.log» — a film in the CRT ASCII Terminal style (Lemo-Opuscar library).
+
+IMAGES, FOOTAGE, MODELS
+- None. Every character, the picture made of letters, the screen glass and glow are drawn in code (term.js, main.js, crt.js).
+  No photographs, no AI-generated images.
+
+FONT (SIL Open Font License 1.1)
+- IBM Plex Mono Medium — IBM — https://github.com/google/fonts/tree/main/ofl/ibmplexmono (fonts/IBMPlexMono-OFL.txt)
+
+VOICE
+- Russian narration: RHVoice (https://github.com/RHVoice/RHVoice), voice "Pavel" (pavel), raised 2.5 semitones with
+  ffmpeg's rubberband filter (Rubber Band Library); tools/tts_ru.py. Synthetic voice, not a recording of a person.
+
+MUSIC
+- Original analogue-synth score synthesised in code (music/score.py); no samples.
+
+SOUND EFFECTS
+- Keys, teletype ticks, relay, degauss, error beeps, bell, particle ticks, fan and hum: synthesised in mix.py.
+
+CODE
+- term.js, crt.js, mix.py and the synth kernels in music/score.py are adapted from the Lemo-Opuscar library's
+  styles/ascii-crt/demo (MIT License, Copyright (c) 2026 Lemomo (LemoLab); text in LICENSE-MIT.txt).
