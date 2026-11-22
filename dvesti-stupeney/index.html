@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Двести ступеней</title>
+<style>@font-face{font-family:"Old Standard";src:url(fonts/OldStandard-Regular.ttf);font-weight:400}
+@font-face{font-family:"Old Standard";src:url(fonts/OldStandard-Bold.ttf);font-weight:700}
+html,body{margin:0;background:#EFE8D8;overflow:hidden}canvas{display:block}</style></head>
+<body><canvas id="cv" width="1920" height="1080"></canvas>
+<script type="module">
+const cv = document.getElementById('cv'), g = cv.getContext('2d');
+await document.fonts.load('400 44px "Old Standard"'); await document.fonts.load('700 120px "Old Standard"');
+const m = await import('./film.js');
+await m.init();
+window.DUR = m.DUR; window.EV = m.EV; window.render = t => m.render(g, t);
+window.TEXTS = t => [];
+window.READY = true;
+</script></body></html>
