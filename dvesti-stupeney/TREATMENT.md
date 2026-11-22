@@ -22,13 +22,13 @@ In the night the lighthouse goes dark, a ten-year-old girl climbs two hundred st
 | 1 | 0–2.3 | the lighthouse on its rock, the orange beam carved in radial cuts sweeping the sea; lightning; the beam dies — orange withdraws to nothing | locked wide, slight push | light is carved / the colour withdraws |
 | 2 | 2.3–5.0 | a small boat between huge carved waves, a man at the oars | snap in, rocking | |
 | 3 | 5.0–7.8 | a window from inside, rain cuts; lightning reveals a girl's silhouette pressed to the glass | frame in a frame | |
-| 4 | 7.8–10.4 | carved panel «ЕЙ ДЕСЯТЬ ЛЕТ» | locked | carved title |
-| 5 | 10.4–20.0 | the climb: a spiral staircase seen from below, her silhouette higher on every cut; letterpress counter in the margin 30 → 80 → 120 → 170 → 200; cut back to the boat nearer the rocks between | hard cuts on the beat (new impressions) | carving = time |
+| 4 | 7.8–10.4 | the door: she throws it open, the storm outside, her silhouette runs out against the carved opening | slow push | frame in a frame |
+| 5 | 10.4–20.0 | the climb: a spiral staircase seen from below, her silhouette higher on every cut; cut back to the boat nearer the rocks between | hard cuts on the beat (new impressions) | carving = time |
 | 6 | 20.0–23.6 | the boat lifted toward black rocks, white spray stabs | snap zoom and hold | stab cuts |
 | 7 | 23.6–26.6 | the lamp room, all black; near-silence; she strikes a match — a tiny orange flame, the first colour since plate 1 | slow push | |
 | 8 | 26.6–31.0 | the flame catches the lamp: rays carved outward, orange spreads; pull back to the whole lighthouse, the beam sweeps and finds the boat; the boat turns | pull back | light is carved; the colour plate spreads |
 | 9 | 31.0–36.0 | the title carved mirrored «ДВЕСТИ СТУПЕНЕЙ» → the paper is pulled, it reads true | locked | mirrored block → true print (the peel) |
-| 10 | 36.0–45 | dawn, the pier: a man lifts the girl; the beam still turning, small; «СКОРО» in the margin | locked plate | the colour shrinks to the lamp |
+| 10 | 36.0–45 | dawn, the pier: father and daughter hand in hand, she points at the lighthouse far off, its lamp still burning; no words | locked plate | the colour shrinks to the lamp |
 
 ## Voice-over
 
@@ -36,7 +36,8 @@ In the night the lighthouse goes dark, a ten-year-old girl climbs two hundred st
 2. 2.8 s — А в море остался её отец.
 3. 11.0 s — Ей десять лет. До огня — двести ступеней.
 4. 20.4 s — И шторм не будет ждать.
-5. 37.5 s — Есть свет, который зажигают ради одного человека.
+
+After the first cut: no words inside the pictures (no card, no count, no «СКОРО» in the sky) and no closing line — the ending is wordless; only the title is printed, on its own plate.
 
 ## Benchmark
 

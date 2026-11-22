@@ -17,7 +17,7 @@ export const T = {
 };
 // the climb: impressions cut on the beat (100 bpm → a cut every 1.2 s); s = stairwell plate with a step count, b = boat
 export const CLIMB = [[10.4, 's', 30], [11.6, 'b', 0], [12.8, 's', 80], [14.0, 'side', 0], [15.2, 'b', 1], [16.4, 's', 120], [17.6, 's', 170], [18.8, 's', 200]];
-export const VO_T = { v1: .5, v2: 3.4, v3: 11.0, v4: 20.4, v5: 37.6 };
+export const VO_T = { v1: .5, v2: 3.4, v3: 11.0, v4: 20.4 };   // the ending is wordless
 const LINES = { v1: 'В ту ночь маяк погас.', v2: 'А в море остался её отец.', v3: 'Ей десять лет. До огня — двести ступеней.', v4: 'И шторм не будет ждать.', v5: 'Есть свет, который зажигают ради одного человека.' };
 
 // ---------------------------------------------------------------- canvases, camera, print
@@ -239,7 +239,7 @@ shot(T.win, T.card, (g, t, lt) => {
   G.draw(m);
   end(); print(g, t, { seed: 13, jolt: jolt(lt), reg: regJ(lt) });
 });
-// 4 · carved card «ЕЙ ДЕСЯТЬ ЛЕТ» (7.8–10.4)
+// 4 · the door: she throws it open and runs out into the storm (7.8–10.4)
 function carvedText(key, text, x, y, size, t0, t1) {
   return once('txt' + key, () => {
     const font = `700 ${size}px "Old Standard"`;
@@ -248,9 +248,27 @@ function carvedText(key, text, x, y, size, t0, t1) {
   });
 }
 shot(T.card, T.climb, (g, t, lt) => {
-  begin({ x: 960, y: 492, z: 1 + .02 * lt });
-  WC.drawStrokes(m, carvedText('ten', 'ЕЙ ДЕСЯТЬ ЛЕТ', 960, 470, 150, T.card + .15, T.card + 1.2), { t });
-  WC.drawStrokes(m, WC.cutAlong([[620, 580], [1300, 580]], { w: 4, kind: 'k', seg: [600, 700], reveal: { t0: T.card + 1.2, t1: T.card + 1.5, speed: 2000 } }), { t });
+  begin({ x: 960, y: 492, z: 1.0 + .05 * eio(seg(lt, 0, 2.6)) });
+  const dx = 1040, dy = 180, dw = 300, dh = 700, open = eio(seg(lt, .15, .6));
+  const doorway = WC.rect(dx, dy, dw, dh);
+  const fl = Math.exp(-(((t - (T.card + .4)) / .06) ** 2)) + .6 * Math.exp(-(((t - (T.card + 1.6)) / .05) ** 2));
+  // outside, through the opening: rain and the storm sky, bright on lightning
+  const reg = once('doorReg', () => new WC.Region([doorway], { res: 2 }));
+  WC.drawStrokes(m, WC.hatch(reg, { dir: () => 1.25, tone: (x, y) => clamp(.45 + .55 * fl + .1 * Math.sin(y * .02)), sp: 7, wmax: 9, seg: [60, 200], gap: [1, 4], seed: Math.floor(t * 12) % 3 + 1, kind: 'v' }));
+  WC.drawStrokes(m, rain(t, { n: 90, seed: 12, area: [dx, dy, dw, dh], w: 2.4 }), { color: '#000' });
+  // the door leaf swinging in (seen edge-on as it opens), and the floor light spilling into the room
+  const leafW = dw * (1 - open);
+  WC.fillPoly(m, [WC.rect(dx, dy, leafW, dh)], '#000');
+  WC.drawStrokes(m, WC.cutAlong([[dx + leafW, dy], [dx + leafW, dy + dh]], { w: 4, kind: 'k', seg: [300, 700], seed: 4 }));
+  const spill = [[dx, dy + dh], [dx + dw, dy + dh], [dx + dw - 520 * open, 960], [dx - 260 * open, 960]];
+  WC.drawStrokes(m, WC.hatch(once('spill', () => new WC.Region([[[dx, dy + dh], [dx + dw, dy + dh], [dx + dw - 520, 960], [dx - 260, 960]]], { res: 2 })), { dir: () => 1.9, tone: () => .55 * open, sp: 8, wmax: 8, seg: [40, 120], gap: [2, 6], seed: 6, kind: 'v' }));
+  WC.drawStrokes(m, WC.cutAlong([[dx - 20, dy - 10], [dx + dw + 20, dy - 10]], { w: 5, kind: 'v', seg: [300, 400], seed: 7 }));
+  // she runs from the room through the door and out: a black silhouette against the carved opening
+  const u = seg(lt, .5, 2.2), gx = lerp(560, 1250, u), gyb = lerp(1000, dy + dh - 30, u), s = lerp(1.9, .9, u);
+  const R = (lt * 7) % 1, leg = Math.sin(lt * 14);
+  const body = WC.spline(GIRL.map(([x, y]) => [gx + x * s + (y > -60 ? leg * 10 * s * Math.sign(x) : 0), gyb + y * s]), 3, true);
+  WC.drawStrokes(m, WC.cutAlong(WC.offsetPoly(body, 3), { closed: true, w: 4, kind: 'v', seg: [60, 200], gap: [0, 2], seed: 9 }));
+  WC.fillPoly(m, [body], '#000');
   end(); print(g, t, { seed: 14, jolt: jolt(lt), reg: regJ(lt) });
 });
 // 5 · the climb: stairwell impressions (looking up the spiral) and a side view, cut against the boat
@@ -267,8 +285,6 @@ function stairwell(g, t, lt, count) {
   // the girl on ring k (smaller the higher she is)
   const k = 1 + 9 * prog, r = 860 * Math.pow(.79, k), a = -PI / 2 + count * .05;
   tinyGirl(m, cx + Math.cos(a) * r, cy + Math.sin(a) * r * .92, 3.4 * Math.pow(.87, k), lt * 1.6);
-  // the count, carved in the top right corner
-  WC.drawStrokes(m, carvedText('n' + count, String(count), 1640, 170, 130, -1, -.5));
   end(); print(g, t, { seed: 15 + count, jolt: jolt(lt), reg: regJ(lt) });
 }
 function sideClimb(g, t, lt) {
@@ -389,8 +405,6 @@ shot(T.dawn, DUR + 1, (g, t, lt) => {
   const gArm = armPoly(gx + 10, my - 205, px, py, 9);
   for (const poly of [manP, girlP, ...arms, gArm]) WC.drawStrokes(m, WC.cutAlong(WC.offsetPoly(poly, 3.5), { closed: true, w: 6, kind: 'v', seg: [60, 200], gap: [0, 2], seed: 33 }));
   for (const poly of [manP, girlP, ...arms, gArm]) WC.fillPoly(m, [poly], '#000');
-  // «СКОРО», carved into the sky
-  if (t > T.soon) WC.drawStrokes(m, carvedText('soon', 'СКОРО', 1240, 230, 110, T.soon, T.soon + .9), { t });
   end(); print(g, t, { seed: 21 });
 });
 
