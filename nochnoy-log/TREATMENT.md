@@ -1,8 +1,7 @@
 # «ночь.log» — treatment
 
 Style: **CRT ASCII Terminal** (`ascii-crt`). P3 amber phosphor; one soft second colour (a pale green) used once, at the end.
-Format: 1920×1080, 24 fps, ≈ 48 s. Russian first-person voice-over: RHVoice voice «Pavel», raised 2.5 semitones to sound younger
-(the planned Microsoft neural voice needs a WebSocket connection this environment's proxy doesn't carry). Subtitles are terminal output in the LOG strip, `subtitles_ru.srt`.
+Format: 1920×1080, 24 fps, ≈ 48 s. Russian first-person voice-over: Gemini TTS (Google AI Studio), voice «Puck». Subtitles are terminal output in the LOG strip, `subtitles_ru.srt`.
 Font: IBM Plex Mono (OFL) — VT323, the style's font, has no Cyrillic.
 
 Same story as «Первая страница» (a 14-year-old C-student trying to earn on his own with AI), told a different way.

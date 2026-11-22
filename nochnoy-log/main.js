@@ -35,7 +35,7 @@ const T = {
   head3: 24.45, have: 25.0, enter3: 27.45, fall0: 27.7, fall1: 30.6, clr3: 31.6, scroll0: 31.8, scroll1: 36.4,
   head5: 36.7, nq: 37.6, push2: 38.6, push3: 40.4, enter5: 40.55, clr4: 40.85, head6: 41.0, green: 41.35, dur: 47.0,
 };
-const VOT = { l1: 1.40, l2: 5.40, l3: 14.60, l4: 18.10, l5: 24.70, l6: 31.10, l7: 37.10, l8: 41.70 };
+const VOT = { l1: 1.00, l2: 5.95, l3: 14.60, l4: 18.10, l5: 24.70, l6: 31.10, l7: 37.10, l8: 41.70 };
 const DUR = T.dur;
 const EV = [];
 const ev = (t, type, o = {}) => EV.push({ t: +t.toFixed(4), type, ...o });

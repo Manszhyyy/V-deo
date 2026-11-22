@@ -11,7 +11,8 @@ PY=${PY:-$LIB/.venv/bin/python}
 NAME=nochnoy-log
 mkdir -p "$HERE/out"
 [ -f "$HERE/fonts/IBMPlexMono-Medium.ttf" ] || curl -sfL -o "$HERE/fonts/IBMPlexMono-Medium.ttf" https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Medium.ttf
-[ -f "$HERE/vo/l1.wav" ] || "$PY" "$HERE/tools/tts_ru.py"
+# voice: vo/*.wav are kept in the project (Gemini TTS, tools/tts_gemini.py needs GEMINI_API_KEY); offline fallback: tools/tts_ru.py
+[ -f "$HERE/vo/l1.wav" ] || { [ -n "$GEMINI_API_KEY" ] && "$PY" "$HERE/tools/tts_gemini.py" gemini-2.5-flash-preview-tts Puck || "$PY" "$HERE/tools/tts_ru.py"; }
 "$PY" "$HERE/music/score.py"
 cd "$LIB"
 node core/render/events.mjs "$HERE" --out "$HERE/out/events.json"

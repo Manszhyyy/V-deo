@@ -8,8 +8,10 @@ FONT (SIL Open Font License 1.1)
 - IBM Plex Mono Medium — IBM — https://github.com/google/fonts/tree/main/ofl/ibmplexmono (fonts/IBMPlexMono-OFL.txt)
 
 VOICE
-- Russian narration: RHVoice (https://github.com/RHVoice/RHVoice), voice "Pavel" (pavel), raised 2.5 semitones with
-  ffmpeg's rubberband filter (Rubber Band Library); tools/tts_ru.py. Synthetic voice, not a recording of a person.
+- Russian narration: Gemini text-to-speech (model gemini-2.5-flash-preview-tts, voice "Puck") through the Gemini API
+  (Google AI Studio), tools/tts_gemini.py, with the film owner's API key. Synthetic voice, not a recording of a person.
+  Check Google's Gemini API terms for how generated audio may be used.
+- Earlier draft voice (tools/tts_ru.py): RHVoice "Pavel", pitched up; not used in the final film.
 
 MUSIC
 - Original analogue-synth score synthesised in code (music/score.py); no samples.
