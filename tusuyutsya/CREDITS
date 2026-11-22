@@ -1,0 +1,11 @@
+«пока они тусуются btw» — a vertical TikTok in the Firefly Pointillism style (Lemo-Opuscar library), on the
+"while they're out partying btw" trend (November 2026). An original video; the trend's own sound is not included —
+tusuyutsya_nosound.mp4 is for adding a sound inside TikTok.
+
+IMAGES: none — every point of light (the party, the dancers, the room, the boy, the laptop, the counter) is computed in code.
+FONTS (SIL OFL 1.1): Montserrat Bold (caption; Julieta Ulanovsky et al., github.com/google/fonts/tree/main/ofl/montserrat);
+  Cormorant Garamond SemiBold (the counter; Christian Thalmann). Licences in fonts/.
+MUSIC: an original 124 bpm beat — kick, hi-hat, claps from the library's sampler (VCSL / VSCO 2 CE, CC0 1.0 — see the library's
+  core/audio/INSTRUMENTS.md), bass and stabs synthesised in mix.py. Keyboard, gust and the coin ding synthesised in mix.py.
+CODE: engine.py and the render pipeline in film.py are from the Lemo-Opuscar library's styles/firefly-pointillism/demo
+  (MIT License, Copyright (c) 2026 Lemomo (LemoLab); text in LICENSE-MIT.txt).
