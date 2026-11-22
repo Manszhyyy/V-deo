@@ -1,0 +1,24 @@
+«Первая страница» — a film in the Marker on Paper style (Lemo-Opuscar library), on a squared notebook page.
+
+IMAGES, FOOTAGE, MODELS
+- None. The paper and its grid, every stroke, the figures, the laptop, the stairs, the peel and the subtitle slip are drawn
+  in code (pen.js, film.js). No photographs, no scans, no AI-generated images.
+
+FONTS (SIL Open Font License 1.1)
+- Caveat — Impallari Type — https://github.com/google/fonts/tree/main/ofl/caveat (fonts/Caveat-OFL.txt)
+  Bold and Regular instances made from the variable font with fontTools; glyph centre lines by tools/skeleton.py.
+
+VOICE
+- Russian narration: RHVoice (GPL/LGPL speech synthesizer, https://github.com/RHVoice/RHVoice), voice "Aleksandr" (aleksandr-hq),
+  through tools/tts_ru.py. Synthetic voice, not a recording of a person.
+
+MUSIC SAMPLES (CC0 1.0), through the library's core/audio/sampler.py
+- contrabass pizzicato, clarinet, bassoon (sustained and staccato): VS Chamber Orchestra: Community Edition (Versilian Studios)
+- shaker, claves, woodblock, glockenspiel, harp: Versilian Community Sample Library (Versilian Studios)
+
+SOUND EFFECTS
+- Felt-marker strokes, touch-downs, the peels and the push: synthesised in mix.py (filtered noise and envelopes).
+
+CODE
+- pen.js, the peel, the camera and mix.py are adapted from the Lemo-Opuscar library's styles/marker-paper/demo
+  (MIT License, Copyright (c) 2026 Lemomo (LemoLab); text in LICENSE-MIT.txt). Stroke geometry there adapted from its styles/whiteboard/demo/engine/wb.js.
