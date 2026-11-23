@@ -35,43 +35,59 @@ const box = (w, h, d, m, x = 0, y = 0, z = 0, cast = true) => { const b = M(new 
 
 // ---------------------------------------------------------------- people
 function person(shirt, legs, skin, hair, s = 1, o = {}) {
-  // realistic proportions (~7.5 heads tall, 0.76 units before scaling): hips, knees, shoulders, elbows, hands, neck, a face
-  const g = new THREE.Group(), P = { g }, sm = (hex) => mat(hex, { flatShading: false });
-  const limb = (r0, r1, len, m) => { const x = M(new THREE.CylinderGeometry(r0, r1, len, 7), m); x.position.y = -len / 2; return x; };
-  const shoe = o.shoes ?? '#22252c';
-  for (const [k, x] of [['L', -.043], ['R', .043]]) {
+  // stylised-realistic build: smooth shading, rounded capsule limbs, a slightly larger head (~6 heads tall), a chest that tapers to the waist,
+  // shoulders, hands with a thumb, rounded trainers, big readable eyes; same rig as before (hips, knees, shoulders, elbows, head), 0.76 units tall
+  const g = new THREE.Group(), P = { g }, sm = (hex, o2 = {}) => mat(hex, { flatShading: false, roughness: .7, ...o2 });
+  const cap = (r, len, m, y = -len / 2 - r * .3) => { const x = M(new THREE.CapsuleGeometry(r, len, 4, 10), m); x.position.y = y; return x; };
+  const cl = sm(shirt), lg = sm(legs), sk = sm(skin, { roughness: .55 }), hr = sm(hair, { roughness: .9 }), shoeM = sm(o.shoes ?? '#f2f2f2'), soleM = sm('#2a2c34');
+  for (const [k, x] of [['L', -.045], ['R', .045]]) {
     const hip = new THREE.Group(); hip.position.set(x, .37, 0); g.add(hip);
-    hip.add(limb(.033, .026, .17, mat(legs)));
-    const knee = new THREE.Group(); knee.position.y = -.17; hip.add(knee);
-    knee.add(limb(.025, .02, .165, mat(legs)));
-    knee.add(box(.05, .034, .1, mat(shoe), 0, -.17, .02));
+    hip.add(cap(.036, .12, lg));
+    const knee = new THREE.Group(); knee.position.y = -.175; hip.add(knee);
+    knee.add(cap(.029, .12, lg, -.075));
+    const sh = M(new THREE.CapsuleGeometry(.03, .06, 4, 8), shoeM); sh.rotation.x = Math.PI / 2; sh.scale.set(1.15, 1, .8); sh.position.set(0, -.168, .022); knee.add(sh);
+    knee.add(box(.064, .012, .118, soleM, 0, -.19, .022));
     P['leg' + k] = hip; P['knee' + k] = knee;
   }
-  g.add(box(.15, .07, .085, mat(legs), 0, .375, 0));                                     // pelvis
-  const torso = M(new THREE.CylinderGeometry(.088, .07, .23, 8), mat(shirt)); torso.scale.z = .62; torso.position.y = .515; g.add(torso);
-  if (o.vest) { const v = M(new THREE.CylinderGeometry(.093, .076, .2, 8), mat(o.vest)); v.scale.z = .66; v.position.y = .51; g.add(v); }
-  const nk = M(new THREE.CylinderGeometry(.021, .024, .05, 7), sm(skin)); nk.position.y = .645; g.add(nk);
+  const pel = M(new THREE.SphereGeometry(.08, 14, 10), lg); pel.scale.set(1.05, .62, .7); pel.position.y = .375; g.add(pel);
+  // torso: a lathe profile (waist → chest → shoulders), flattened front-to-back
+  const prof = [[.0, 0], [.07, 0], [.074, .04], [.08, .1], [.092, .16], [.096, .2], [.086, .235], [.05, .255], [.0, .26]].map(([r, y]) => new THREE.Vector2(r, y));
+  const tor = M(new THREE.LatheGeometry(prof, 16), cl); tor.scale.z = .66; tor.position.y = .385; g.add(tor);
+  if (o.hood) { const hd = M(new THREE.TorusGeometry(.05, .022, 8, 14, Math.PI * 1.2), cl); hd.rotation.set(-.5, 0, Math.PI * .9); hd.position.set(0, .63, -.035); g.add(hd);
+    for (const x of [-.022, .022]) g.add(box(.006, .07, .006, sm('#e8e8e8'), x, .57, .062, false)); }
+  if (o.vest) { const v = M(new THREE.LatheGeometry(prof.slice(1, 7), 16), sm(o.vest)); v.scale.set(1.05, 1, .7); v.position.y = .385; g.add(v); }
+  const nk = M(new THREE.CylinderGeometry(.024, .028, .06, 10), sk); nk.position.y = .655; g.add(nk);
   for (const [k, x] of [['L', -.1], ['R', .1]]) {
-    const sh = new THREE.Group(); sh.position.set(x, .61, 0); g.add(sh);
-    sh.add(M(new THREE.SphereGeometry(.03, 8, 6), mat(shirt)));
-    sh.add(limb(.026, .022, .15, mat(shirt)));
-    const el = new THREE.Group(); el.position.y = -.15; sh.add(el);
-    el.add(limb(.021, .017, .13, o.sleeves === false ? sm(skin) : mat(shirt)));
-    const hand = M(new THREE.SphereGeometry(.02, 8, 6), sm(skin)); hand.scale.set(.8, 1.3, .6); hand.position.y = -.15; el.add(hand);
-    if (o.bandage && k === 'R') { const bd = limb(.025, .023, .08, mat('#f4f4f0')); bd.position.y = -.07; el.add(bd, box(.026, .02, .008, mat('#b0222a'), 0, -.07, .023)); }
-    P['arm' + k] = sh; P['elb' + k] = el;
+    const shd = new THREE.Group(); shd.position.set(x, .605, 0); g.add(shd);
+    const ball = M(new THREE.SphereGeometry(.036, 12, 8), cl); ball.scale.set(1, .9, .85); shd.add(ball);
+    shd.add(cap(.028, .1, cl));
+    const el = new THREE.Group(); el.position.y = -.15; shd.add(el);
+    el.add(cap(.024, .09, o.sleeves === false ? sk : cl, -.06));
+    const cuff = M(new THREE.CylinderGeometry(.025, .025, .014, 10), cl); cuff.position.y = -.12; el.add(cuff);
+    const hand = M(new THREE.SphereGeometry(.024, 12, 8), sk); hand.scale.set(.75, 1.25, .5); hand.position.y = -.15; el.add(hand);
+    const th = M(new THREE.CapsuleGeometry(.008, .016, 3, 6), sk); th.position.set(x < 0 ? .016 : -.016, -.14, .01); th.rotation.z = x < 0 ? -.5 : .5; el.add(th);
+    P['arm' + k] = shd; P['elb' + k] = el;
   }
-  P.head = new THREE.Group(); P.head.position.y = .7; g.add(P.head);
-  const hd = M(new THREE.SphereGeometry(.05, 14, 10), sm(skin)); hd.scale.set(.88, 1.1, .95); P.head.add(hd);
-  const jaw = M(new THREE.SphereGeometry(.04, 12, 8), sm(skin)); jaw.scale.set(.85, .7, .9); jaw.position.set(0, -.028, .008); P.head.add(jaw);
-  P.head.add(box(.012, .02, .014, sm(skin), 0, -.003, .05));                          // nose
-  for (const x of [-.045, .045]) { const ear = M(new THREE.SphereGeometry(.012, 6, 5), sm(skin)); ear.scale.set(.5, 1, .8); ear.position.set(x, 0, 0); P.head.add(ear); }
-  if (o.eyes) for (const x of [-.018, .018]) P.head.add(box(.014, .007, .004, glow('#ffe86a', 2.4), x, .012, .047, false));
-  else for (const x of [-.018, .018]) P.head.add(box(.017, .01, .004, mat('#f4f0ea'), x, .012, .046, false), box(.008, .008, .004, mat('#16100c'), x, .012, .049, false));
-  P.mouth = box(.022, .005, .004, mat('#5a2a24'), 0, -.031, .043, false); P.head.add(P.mouth);
-  P.brows = [-.018, .018].map(x => { const b = box(.018, .005, .004, mat(hair), x, .025, .047, false); P.head.add(b); return b; });      // brows (tilted for worry)
-  const hr = M(new THREE.SphereGeometry(.054, 14, 8, 0, TAU, 0, Math.PI * .5), mat(hair)); hr.scale.set(.92, 1.05, 1); hr.position.set(0, .012, -.006); hr.rotation.x = -.25; P.head.add(hr);
-  if (o.messy) for (let i = 0; i < 5; i++) P.head.add(box(.012, .03, .012, mat(hair), (hash(i * 13 + s) - .5) * .07, .05, (hash(i * 7 + s) - .5) * .06));
+  // the head: slightly larger, smooth; big eyes (white, iris, pupil, a catch-light), brows, nose, mouth, ears, hair
+  P.head = new THREE.Group(); P.head.position.y = .725; g.add(P.head);
+  const hd = M(new THREE.SphereGeometry(.062, 20, 16), sk); hd.scale.set(.9, 1.06, .96); P.head.add(hd);
+  const jaw = M(new THREE.SphereGeometry(.05, 16, 12), sk); jaw.scale.set(.86, .72, .9); jaw.position.set(0, -.03, .01); P.head.add(jaw);
+  const nose = M(new THREE.SphereGeometry(.011, 8, 6), sk); nose.scale.set(.9, 1, 1.1); nose.position.set(0, -.008, .062); P.head.add(nose);
+  for (const x of [-.056, .056]) { const ear = M(new THREE.SphereGeometry(.014, 8, 6), sk); ear.scale.set(.45, 1, .75); ear.position.set(x, -.002, 0); P.head.add(ear); }
+  const eyeW = sm('#fbf8f2', { roughness: .3 }), iris = sm(o.iris ?? '#5a3a24', { roughness: .3 }), pup = sm('#0c0806', { roughness: .2 });
+  for (const x of [-.022, .022]) {
+    const w = M(new THREE.SphereGeometry(.013, 12, 8), eyeW, false); w.scale.set(1, 1.15, .45); w.position.set(x, .012, .053); P.head.add(w);
+    const ir = M(new THREE.SphereGeometry(.0085, 10, 8), o.eyes ? glow('#ffe86a', 2.4) : iris, false); ir.scale.set(1, 1.1, .4); ir.position.set(x, .011, .058); P.head.add(ir);
+    if (!o.eyes) { const pp = M(new THREE.SphereGeometry(.0045, 8, 6), pup, false); pp.scale.z = .4; pp.position.set(x, .011, .0605); P.head.add(pp);
+      P.head.add(box(.003, .003, .002, glow('#ffffff', 1.5), x + .003, .015, .0625, false)); }
+  }
+  P.brows = [-.022, .022].map(x => { const b = box(.022, .0055, .006, hr, x, .031, .056, false); P.head.add(b); return b; });
+  P.mouth = box(.024, .0055, .006, sm('#8a3a34'), 0, -.034, .052, false); P.head.add(P.mouth);
+  const cap0 = M(new THREE.SphereGeometry(.066, 18, 10, 0, TAU, 0, Math.PI * .52), hr); cap0.scale.set(.93, 1.04, 1.0); cap0.position.set(0, .012, -.006); cap0.rotation.x = -.18; P.head.add(cap0);
+  const fr = M(new THREE.SphereGeometry(.05, 14, 8), hr); fr.scale.set(1.12, .42, .62); fr.position.set(.008, .047, .036); fr.rotation.z = -.12; P.head.add(fr);   // a soft fringe swept to one side
+  for (const x of [-.054, .054]) { const sb = M(new THREE.SphereGeometry(.02, 8, 6), hr); sb.scale.set(.5, 1.3, 1.2); sb.position.set(x, .02, -.008); P.head.add(sb); }
+  if (o.messy) for (let i = 0; i < 7; i++) { const t2 = M(new THREE.ConeGeometry(.014, .04, 5), hr); t2.position.set((hash(i * 13 + s) - .5) * .09, .066, (hash(i * 7 + s) - .5) * .07); t2.rotation.set((hash(i) - .5), 0, (hash(i * 3) - .5) * 1.2); P.head.add(t2); }
+  if (o.long) { const bk = M(new THREE.CapsuleGeometry(.05, .07, 4, 10), hr); bk.scale.set(1.15, 1, .6); bk.position.set(0, -.04, -.03); P.head.add(bk); }
   g.scale.setScalar(s); return P;
 }
 function pose(P, { walk = 0, ph = 0, zombie = 0, sway = 0, look = 0, reach = 0 } = {}) {
@@ -130,10 +146,10 @@ for (const dx of DX) for (const dz of DZ) {
 }
 // the people
 const CLR = ['#e05a7a', '#4ab0e0', '#f0a030', '#7a5ac8', '#5ac08a', '#e0703a', '#c84ab0', '#3a8a8a'];
-const you = person('#2fa8a0', '#2e3a55', '#e8b896', '#5a3a1a', 2.2, {}), mark = person('#24242c', '#3a3d48', '#ead2c2', '#121214', 2.2, { messy: 1 });
+const you = person('#2fa8a0', '#2e3a55', '#e8b896', '#5a3a1a', 2.2, { iris: '#6a4a2a', shoes: '#f4f4f4' }), mark = person('#24242c', '#3a3d48', '#ead2c2', '#121214', 2.2, { messy: 1, hood: 1, iris: '#4a6a7a', shoes: '#2a2a30' });
 G.add(you.g, mark.g);
 const SEATS = [[-3.58, -1.4], [-2.82, -1.4], [.38, -1.4], [2.82, -1.4], [-2.82, .8], [2.82, .8], [3.58, .8], [-3.58, 3.0], [.38, 3.0], [2.82, 3.0]];
-const mates = SEATS.map(([x, z], i) => { const P = person(CLR[i % CLR.length], ['#2e3a55', '#3a3a44', '#5a4a3a'][i % 3], ['#f0c8a8', '#c89070', '#e8c0a0', '#8a5a3a'][i % 4], ['#2a1a12', '#1a1a1a', '#8a5a2a', '#d8b060'][(i * 3) % 4], 2.2, { messy: i % 3 === 0 }); P.g.position.set(x, -.3, z + .6); P.g.rotation.y = Math.PI; G.add(P.g); return P; });
+const mates = SEATS.map(([x, z], i) => { const P = person(CLR[i % CLR.length], ['#2e3a55', '#3a3a44', '#5a4a3a'][i % 3], ['#f0c8a8', '#c89070', '#e8c0a0', '#8a5a3a'][i % 4], ['#2a1a12', '#1a1a1a', '#8a5a2a', '#d8b060'][(i * 3) % 4], 2.2, { messy: i % 3 === 0, long: i % 3 === 1, hood: i % 4 === 3, shoes: ['#f4f4f4', '#ff5a7a', '#3a8ad8', '#2a2a30'][i % 4] }); P.g.position.set(x, -.3, z + .6); P.g.rotation.y = Math.PI; G.add(P.g); return P; });
 const flash = new THREE.Group(); flash.add(box(.03, .03, .12, mat('#2a2a30'), 0, 0, 0, false), box(.034, .034, .01, glow('#fff8e0', 4), 0, 0, .065, false)); flash.position.set(0, -.15, .05); mark.elbR.add(flash);
 const torch = new THREE.SpotLight('#fff4dc', 0, 9, .32, .45, 1.2); scene.add(torch, torch.target);
 
