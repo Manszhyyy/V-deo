@@ -5,7 +5,7 @@ import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 import { makePost } from './post.js';
 
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search), SSAA = +(QS.get('ssaa') ?? 1.5);
-export const DUR = 44.0;
+export const DUR = 46.0;
 const T = { hook: 0, class: 4.2, sitc: 7.0, heads: 8.4, stare: 10.2, evening: 12.4, window: 15.1, night: 17.0, hands: 20.4, morning: 22.5, niche: 25.6,
   behind: 30.0, reveal: 31.5, mark: 33.0, choice: 37.2 };
 const VO = [
@@ -13,7 +13,7 @@ const VO = [
   ['v3', 8.5, 'Он ни с кем не говорит. И всё время смотрит на карту на стене.'], ['v4', 12.6, 'Вечером ты возвращаешься за забытым телефоном.'],
   ['v5', 15.3, 'В вашем классе горит свет.'], ['v6', 17.2, 'Марк стоит у карты с фонариком. И что-то прячет за ней.'],
   ['v7', 22.8, 'Утром ты приходишь первым и поднимаешь карту.'], ['v8', 25.8, 'Там тайник. Ключи от всех кабинетов. И пропуск директора.'],
-  ['v9', 30.1, 'И тут за спиной ты слышишь его голос.'], ['v10', 33.1, '«Никому не говори. Завтра ты всё поймёшь».'],
+  ['v9', 30.1, 'И тут за спиной ты слышишь его голос.'], ['v10', 33.1, '«Никому не говори. Завтра ты всё поймёшь».'], ['v11', 37.8, 'Вариант А: рассказать всё директору. Вариант Б: промолчать и проследить за Марком ночью.'],
 ].map(([id, t, text]) => ({ id, t, text }));
 
 
@@ -156,10 +156,19 @@ const torch = new THREE.SpotLight('#fff4dc', 0, 9, .32, .45, 1.2); scene.add(tor
 // ---------------------------------------------------------------- the school from outside (night / dusk), far off at x = 80
 const EX = 80, EZ = 0;
 G.add(box(70, .1, 50, mat('#2f5a3a'), EX, -.2, EZ + 10, false), box(4, .05, 22, mat('#8a8a90'), EX, -.14, EZ + 16, false), box(60, .05, 3, mat('#5a5e6a'), EX, -.14, EZ + 15, false));
-G.add(box(28, 10.5, 10, mat('#d8c4a0'), EX, 5.25, EZ), box(28.6, .5, 10.6, mat('#8a4a3a'), EX, 10.7, EZ), box(28.2, .4, .2, mat('#efe2c8'), EX, 3.6, EZ + 5.05), box(28.2, .4, .2, mat('#efe2c8'), EX, 6.8, EZ + 5.05));
-G.add(box(3.6, 3.0, .2, mat('#6a4a2a'), EX, 1.5, EZ + 5.05), box(5, .25, 2, mat('#c8c0b0'), EX, 3.3, EZ + 6), box(5, .3, 1.6, mat('#bab2a2'), EX, .15, EZ + 5.8), box(4, .3, 1, mat('#bab2a2'), EX, .45, EZ + 5.5));
-const EWIN = [], LIT = { f: 1, c: 3 };
-for (let f = 0; f < 3; f++) for (let c = 0; c < 9; c++) { if (f === 0 && (c === 4)) continue; if (f === LIT.f && c === LIT.c) continue; EWIN.push([EX - 12 + c * 3, 2 + f * 3.2, EZ + 5.03]); }
+G.add(box(28, 10.5, 10, mat('#d8c4a0'), EX, 5.25, EZ),  box(28.2, .4, .2, mat('#efe2c8'), EX, 3.6, EZ + 5.05), box(28.2, .4, .2, mat('#efe2c8'), EX, 6.8, EZ + 5.05));
+const tri = (w, h) => { const sh = new THREE.Shape(); sh.moveTo(-w / 2, 0); sh.lineTo(w / 2, 0); sh.lineTo(0, h); sh.closePath(); return sh; };
+{ const roofM = mat('#a84a3a'); const r = M(new THREE.ExtrudeGeometry(tri(11, 3.2), { depth: 28.8, bevelEnabled: false }), roofM); r.rotation.y = Math.PI / 2; r.position.set(EX - 14.4, 10.5, EZ); G.add(r);
+  G.add(box(7.2, 12.6, 1.4, mat('#e4d2ae'), EX, 6.3, EZ + 5.6), box(7.6, .4, 1.6, mat('#efe2c8'), EX, 12.7, EZ + 5.6));
+  const gab = M(new THREE.ExtrudeGeometry(tri(7.8, 2.6), { depth: 1.7, bevelEnabled: false }), roofM); gab.position.set(EX, 12.9, EZ + 4.75); G.add(gab);
+  const clk = M(new THREE.CylinderGeometry(.85, .85, .1, 28), mat('#f8f4ea')); clk.rotation.x = Math.PI / 2; clk.position.set(EX, 11.1, EZ + 6.33); G.add(clk);
+  G.add(box(.07, .6, .04, mat('#2a2a30'), EX, 11.32, EZ + 6.4, false), box(.45, .07, .04, mat('#2a2a30'), EX + .2, 11.1, EZ + 6.4, false));
+  G.add(box(3.0, 2.8, .12, mat('#6a4a2a'), EX, 1.4, EZ + 6.33), box(.06, 2.8, .14, mat('#4a3020'), EX, 1.4, EZ + 6.36), box(5.4, .25, 2.2, mat('#c8c0b0'), EX, 3.3, EZ + 7.3));
+  for (const x of [-2.4, 2.4]) { const c = M(new THREE.CylinderGeometry(.18, .2, 3.2, 10), mat('#f4ece0')); c.position.set(EX + x, 1.6, EZ + 8.2); G.add(c); }
+  G.add(box(5.6, .3, 1.6, mat('#bab2a2'), EX, .15, EZ + 7.4), box(4.6, .3, 1, mat('#bab2a2'), EX, .45, EZ + 7.0)); }
+const EWIN = [], LIT = { f: 1, c: 2 };
+for (let f = 0; f < 3; f++) for (let c = 0; c < 9; c++) { if (c >= 3 && c <= 5) continue; if (f === LIT.f && c === LIT.c) continue; EWIN.push([EX - 12 + c * 3, 2 + f * 3.2, EZ + 5.03]); }
+for (const f of [1, 2]) for (const x of [-1.7, 1.7]) EWIN.push([EX + x, 2 + f * 3.2, EZ + 6.33]);
 { const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1.8, 1.7, .05), mat('#1c2844', { roughness: .2, metalness: .3 }), EWIN.length); const dm = new THREE.Object3D();
   EWIN.forEach((p, i) => { dm.position.set(...p); dm.updateMatrix(); im.setMatrixAt(i, dm.matrix); }); G.add(im); }
 const LWX = EX - 12 + LIT.c * 3, LWY = 2 + LIT.f * 3.2, LWZ = EZ + 5.03;
@@ -198,13 +207,13 @@ function cam(t) {
   const [t0, t1, name, ph] = SHOTS.find(s => t >= s[0] && t < s[1]); const u = seg(t, t0, t1);
   let tg = [0, 1.2, 0], az = 30, el = 40, fh = 9, nearCut = 0;
   switch (name) {
-    case 'hook': tg = [lerp(EX, LWX, eio(u)), lerp(5, LWY, eio(u)), LWZ]; az = lerp(18, 8, u); el = lerp(16, 8, u); fh = lerp(26, 4.2, eio(seg(t, .2, 3.6))); break;
+    case 'hook': tg = [lerp(EX, LWX, eio(u)), lerp(7, LWY, eio(u)), LWZ]; az = 0; el = lerp(10, 5, u); fh = lerp(26, 4.2, eio(seg(t, .2, 3.6))); break;
     case 'class': tg = [1.2, 1, -.6]; az = lerp(32, 26, u); el = lerp(44, 40, u); fh = lerp(13, 11.5, u); break;
     case 'markSit': { const h = headW(mark); tg = [h.x - .3, h.y - .15, h.z]; az = lerp(194, 186, u); el = 8; fh = lerp(2.4, 2.1, u); nearCut = .55; break; }
     case 'heads': tg = [0, 1, .4]; az = lerp(-14, -6, u); el = lerp(34, 30, u); fh = lerp(8.5, 7.5, u); break;
     case 'stare': { const h = headW(mark); tg = [h.x, h.y - .05, h.z]; az = lerp(208, 200, u); el = 7; fh = lerp(1.8, 1.5, eio(u)); nearCut = .55; break; }
-    case 'evening': tg = [EX + 5, 3.2, EZ + 9]; az = lerp(30, 24, u); el = lerp(18, 16, u); fh = lerp(18, 16, u); break;
-    case 'window': tg = [LWX, LWY, LWZ]; az = lerp(6, 2, u); el = lerp(10, 8, u); fh = lerp(3.6, 3.0, eio(u)); break;
+    case 'evening': tg = [EX + 3, 5.5, EZ + 9]; az = 0; el = lerp(12, 10, u); fh = lerp(24, 21, u); break;
+    case 'window': tg = [LWX, LWY, LWZ]; az = 0; el = lerp(8, 6, u); fh = lerp(3.6, 3.0, eio(u)); break;
     case 'night': tg = [-3.4, 1.6, -4.2]; az = lerp(36, 28, u); el = lerp(28, 24, u); fh = lerp(5.6, 4.6, eio(u)); break;
     case 'hands': tg = [-3.6, 2.0, -4.7]; az = lerp(26, 18, u); el = lerp(20, 16, u); fh = lerp(2.6, 2.1, eio(u)); break;
     case 'morning': tg = [-1.8, 1.4, -3.6]; az = lerp(30, 22, u); el = lerp(30, 26, u); fh = lerp(6.5, 5.2, eio(u)); break;
@@ -263,7 +272,7 @@ function act(t) {
     if (t > T.stare) { mark.head.rotation.y = -.9 * ss(seg(t, T.stare, T.stare + .5)); mark.head.rotation.x = -.05; face(mark, { brow: .05, mouth: .8 }); }
     face(mark, { brow: .05, mouth: .8 });
   } else if (ph === 'dusk') {
-    const w = walkPath([[EX + 12, EZ + 15], [EX + 2, EZ + 15], [EX + 1, EZ + 9]], T.evening, 2.6, t); you.g.position.set(w.x, 0, w.z); you.g.rotation.set(0, w.h, 0); pose(you, { walk: w.moving ? 1 : 0, ph: t * 1.9 });
+    const w = walkPath([[EX + 12, EZ + 15], [EX + 1.2, EZ + 15], [EX + .8, EZ + 10]], T.evening, 2.6, t); you.g.position.set(w.x, 0, w.z); you.g.rotation.set(0, w.h, 0); pose(you, { walk: w.moving ? 1 : 0, ph: t * 1.9 });
     if (t > 14.4) { you.g.rotation.y = Math.PI; you.head.rotation.x = -.35; pose(you, {}); }
     mark.g.visible = false;
   } else if (ph === 'night') {
@@ -305,7 +314,7 @@ function choice(t) {
   const tk = eo(seg(t, T.choice + .1, T.choice + .5)); g2.globalAlpha = tk; g2.font = '700 76px Comfortaa'; g2.fillStyle = '#ffffff';
   g2.fillText('ЧТО ТЫ СДЕЛАЕШЬ?', W / 2, 720 - 30 * (1 - tk));
   CH.forEach(([L, txt, col], i) => {
-    const t0 = T.choice + .7 + i * .45, u = eo(seg(t, t0, t0 + .4)); if (u <= 0) return;
+    const t0 = 37.8 + [0, 2.74][i], u = eo(seg(t, t0, t0 + .4)); if (u <= 0) return;
     const y = 870 + i * 230, x = 90, w = W - 180, h = 190, pulse = 1 + .02 * Math.sin((t - t0) * 5) * (t > T.choice + 2.2 ? 1 : 0);
     g2.save(); g2.globalAlpha = u; g2.translate(W / 2, y + h / 2); g2.scale(pulse * (.85 + .15 * u), pulse * (.85 + .15 * u)); g2.translate(-W / 2, -(y + h / 2));
     rr(x, y, w, h, 40); g2.fillStyle = 'rgba(20,20,40,.82)'; g2.fill(); g2.lineWidth = 7; g2.strokeStyle = col; g2.shadowColor = col; g2.shadowBlur = 30; g2.stroke();
@@ -315,7 +324,7 @@ function choice(t) {
     const ls = wrap(txt, w - 230); ls.forEach((ln, j) => g2.fillText(ln, x + 190, y + h / 2 + (j - (ls.length - 1) / 2) * 60));
     g2.restore();
   });
-  const fk = ss(seg(t, T.choice + 2.0, T.choice + 2.5)); g2.globalAlpha = fk; g2.textAlign = 'center'; g2.font = '600 46px Comfortaa'; g2.fillStyle = '#ffe0c8';
+  const fk = ss(seg(t, 43.9, 44.4)); g2.globalAlpha = fk; g2.textAlign = 'center'; g2.font = '600 46px Comfortaa'; g2.fillStyle = '#ffe0c8';
   g2.fillText('Пиши А или Б в комментариях', W / 2, 1400); g2.font = '600 40px Comfortaa'; g2.fillStyle = 'rgba(255,255,255,.75)'; g2.fillText('Серия 2 — по вашему выбору', W / 2, 1470);
   g2.restore();
 }
@@ -350,7 +359,7 @@ function render(t) {
 }
 function events() {
   const ev = [{ t: 4.0, type: 'door' }, { t: 7.0, type: 'chair' }, { t: 17.1, type: 'click' }, { t: 18.2, type: 'map' }, { t: 19.3, type: 'keys' }, { t: 21.0, type: 'map' },
-    { t: 22.1, type: 'click' }, { t: 24.4, type: 'map' }, { t: 25.9, type: 'chime' }, { t: 31.4, type: 'sting' }, { t: T.choice + .7, type: 'pop' }, { t: T.choice + 1.15, type: 'pop' }];
+    { t: 22.1, type: 'click' }, { t: 24.4, type: 'map' }, { t: 25.9, type: 'chime' }, { t: 31.4, type: 'sting' }, { t: 37.8, type: 'pop' }, { t: 40.54, type: 'pop' }];
   for (let k = 0; k < 6; k++) ev.push({ t: 4.2 + k * .42, type: 'step' });
   for (let k = 0; k < 5; k++) ev.push({ t: 12.5 + k * .4, type: 'step' });
   for (let k = 0; k < 4; k++) ev.push({ t: 22.5 + k * .42, type: 'step' });
