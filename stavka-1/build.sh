@@ -1,11 +1,11 @@
 #!/bin/sh
-# One command: «Ночная смена» · серия 2 (vertical 1080×1920, three.js)
+# One command: «Ставка» · серия 1 (vertical 1080×1920, three.js)
 #   LIB=/path/to/lemo-opuscar sh build.sh   → zapravka-1.mp4, subtitles_ru.srt, poster.jpg
 set -e
 HERE=$(cd "$(dirname "$0")" && pwd)
 LIB=${LIB:-/home/user/lemomo-ai/lemo-opuscar}; export LIB
 PY=${PY:-$LIB/.venv/bin/python}
-NAME=smena-2
+NAME=stavka-1
 mkdir -p "$HERE/out"
 cd "$LIB"
 node core/render/events.mjs "$HERE" --size 1080x1920 --out "$HERE/out/events.json"
@@ -22,5 +22,5 @@ node -e "
     await browser.close(); closeServer();
   });"
 "$PY" core/render/srt.py "$HERE/out/cues.json" "$HERE/subtitles_ru.srt"
-ffmpeg -v error -y -ss 12 -i "$HERE/$NAME.mp4" -frames:v 1 -q:v 3 "$HERE/poster.jpg"
+ffmpeg -v error -y -ss 32 -i "$HERE/$NAME.mp4" -frames:v 1 -q:v 3 "$HERE/poster.jpg"
 echo done
