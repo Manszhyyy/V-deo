@@ -1,0 +1,8 @@
+«Водитель» · серия 2 «Маячок» — a vertical TikTok micro-series episode (the viewers chose Б in part 1) with an A/Б choice at the end (low-poly 3D, Lemo-Opuscar's Low-poly Isometric style). Original story.
+
+IMAGES: none — the port, the containers, the crane, the cars, the truck and the people are built in code with three.js (main.js).
+FONTS (SIL OFL 1.1): Comfortaa — Johan Aakerlund (fonts/Comfortaa-OFL.txt).
+VOICE: Russian narration — Gemini text-to-speech (gemini-2.5-flash-preview-tts, voice "Charon") through the Gemini API (Google AI Studio), with the
+  owner's API key; every line checked word for word with faster-whisper (models small and medium). Synthetic voice; check Google's Gemini API terms.
+SOUND AND MUSIC: all synthesised in mix.py (alarm, doors, engine, tyres, sirens, the 120 bpm beat, drones, the sting, the phone buzz).
+CODE: three.js (MIT). post.js is from the Lemo-Opuscar library's styles/lowpoly-island/demo (MIT License, Copyright (c) 2026 Lemomo (LemoLab); LICENSE-MIT.txt).
