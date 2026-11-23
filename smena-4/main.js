@@ -243,6 +243,7 @@ const faceShot = (name, u, side = 1, k = .8) => { const h = youHead(); return { 
 // ---------------------------------------------------------------- episode 4: sets, shots and action
 const MONSHOTS = [];
 cctv.length = 0;
+const unusedLights = [monL, lamp, radioL, manL, red7, ...mallLights.slice(1)]; unusedLights.forEach(l => { l.visible = false; l.castShadow = false; });   // the room isn't in this episode: fewer lights, faster frames
 // the fire-alarm button by the shop's entrance; red strobes; fire shutters
 const AL = V(SHOP.x + 4.15, SHOP.y + 1.35, -9.0);
 G.add(box(.06, .16, .16, mat('#d82020'), AL.x, AL.y, AL.z), box(.03, .1, .1, mat('#f4f4f0'), AL.x - .035, AL.y, AL.z));
@@ -342,7 +343,7 @@ function act(t) {
   // the photo's camera: framing the van, then zooming into the side mirror
   photoCam.fov = lerp(42, 24, ss(seg(t, b0('zoom') + .4, b1('zoom')))); photoCam.updateProjectionMatrix(); photoCam.lookAt(lerp(DX0 + 4.6, mirW.x, ss(seg(t, b0('zoom') + .4, b1('zoom')))), lerp(.6, mirW.y, ss(seg(t, b0('zoom') + .4, b1('zoom')))), lerp(-.3, mirW.z, ss(seg(t, b0('zoom') + .4, b1('zoom')))));
   director.g.visible = true; director.g.lookAt(mirW.x, 0, mirW.z); director.head.rotation.set(-.05, 0, 0); dirL.intensity = 5; face(director, { brow: .2, mouth: 1.1, open: .6 }); pose(director, {});
-  if (t > b0('office') || t > b0('mirror')) { const savedHemi = hemi.intensity; dockL.intensity = 22; hemi.intensity = 1.4; mirror.visible = false; iphone.visible = false; renderer.setRenderTarget(RTm); renderer.render(scene, mirrorCam); mirror.visible = true; if (t < b0('mirror')) { renderer.setRenderTarget(RTph); renderer.render(scene, photoCam); } iphone.visible = morning; renderer.setRenderTarget(null); hemi.intensity = savedHemi; dockL.intensity = 9; }
+  if (t > b0('zoom') - .05 && t < b0('director')) { const savedHemi = hemi.intensity; dockL.intensity = 22; hemi.intensity = 1.4; mirror.visible = false; iphone.visible = false; renderer.setRenderTarget(RTm); renderer.render(scene, mirrorCam); mirror.visible = true; if (t < b0('mirror') + .05) { renderer.setRenderTarget(RTph); renderer.render(scene, photoCam); } iphone.visible = morning; renderer.setRenderTarget(null); hemi.intensity = savedHemi; dockL.intensity = 9; }
 }
 function epEvents() {
   return [{ t: b0('alarm') + .3, type: 'thud' }, { t: b0('alarm') + .95, type: 'click' }, { t: b0('alarm') + 1.0, type: 'firealarm', d: b0('office') - b0('alarm') - 1.0 },

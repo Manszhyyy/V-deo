@@ -243,6 +243,7 @@ const faceShot = (name, u, side = 1, k = .8) => { const h = youHead(); return { 
 // ---------------------------------------------------------------- episode 3: sets, shots and action
 const MONSHOTS = [];
 cctv.length = 0;
+const unusedLights = [radioL, manL, red7]; unusedLights.forEach(l => { l.visible = false; });
 // the room's vent grille (kicked out), a duct for the crawl (far off at x −30), the grate in the dock ceiling
 const grille = new THREE.Group(); grille.position.set(-1.84, .38, .7); G.add(grille); grille.add(box(.03, .34, .56, mat('#8a8e96', { metalness: .5 })));
 for (let i = 0; i < 6; i++) grille.add(box(.05, .02, .52, mat('#5a5e66'), .01, -.14 + i * .056, 0, false));
