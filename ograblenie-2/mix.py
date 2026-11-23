@@ -58,6 +58,7 @@ for e in EV:
     elif ty == 'whoosh': u = U(.6); place(fol, bp(nz(.6), 500, 3000) * np.exp(-((u - .25) / .12) ** 2) * .3, t, 1.0, .4)
     elif ty == 'clunk': u = U(.3); place(fol, (np.sin(2 * np.pi * 180 * u) * np.exp(-u / .04) + bp(nz(.3), 800, 4000) * np.exp(-u / .01)) * .35, t, 1.0, .3)
     elif ty == 'pop': u = U(.25); place(fol, np.sin(2 * np.pi * (520 + 900 * np.exp(-u / .03)) * u) * np.exp(-u / .06) * .35, t, .7, 0)
+for k in range(int(cue['tracker'] / .75), int(cue['land'] / .75) + 1): u = U(.09); place(fol, tone(2400, .09) * np.clip((.09 - u) / .02, 0, 1) * .05, k * .75, 1.0, -.15)
 # music: a hit on the swerve, a low drone in the port, a quiet ticking pulse through the phones, a faster pulse from the tracker to the throw, a sting at the end
 def drone(t0, t1, notes, amp, cut=900):
     i0, i1 = int(t0 * SR), min(N, int(t1 * SR)); u = np.arange(i1 - i0) / SR
@@ -94,7 +95,8 @@ m_ = vm > 0
 vo *= 10 ** ((-16.0 - 20 * np.log10(rms(vo[m_]))) / 20)
 bed = amb + mus * .9 + fol * .9
 bed *= 10 ** ((-26.0 - 20 * np.log10(rms(bed[m_]))) / 20)
-duck = 1 - .4 * np.clip(np.convolve(vm, np.ones(int(.25 * SR)) / int(.25 * SR), 'same') * 1.5, 0, 1)
+K = int(.25 * SR); cs_ = np.cumsum(np.r_[np.zeros(K // 2 + 1), vm, np.zeros(K)])
+duck = 1 - .4 * np.clip((cs_[K:K + N] - cs_[:N]) / K * 1.5, 0, 1)          # a 0.25 s moving average of 'voice on'
 mix = vo + bed * duck[:, None]
 mix *= np.clip((DUR - tt) / 1.2, 0, 1)[:, None] ** 1.2
 mix = np.stack([limit(mix[:, c], .92) for c in range(2)], 1)

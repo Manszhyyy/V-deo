@@ -376,7 +376,6 @@ function events() {
     { t: 6.2, type: 'horn' }, { t: 12.6, type: 'tap' }, { t: 13.3, type: 'tap' }, { t: 15.6, type: 'tap' }, { t: T.call, type: 'tap' },
     { t: 26.5, type: 'siren', d: 15.5 }, { t: TT0, type: 'truck', d: 7.6 }, { t: T.rip, type: 'rip' }, { t: T.throw, type: 'whoosh' }, { t: T.land, type: 'clunk' },
     { t: T.choice + .7, type: 'pop' }, { t: T.choice + 1.15, type: 'pop' }];
-  for (let b = T.tracker + .02; b < T.land; b += .75) ev.push({ t: b - b % .75, type: 'beep' });
   VO.forEach(v => ev.push({ t: v.t, type: 'vo', id: v.id }));
   for (const [k, v] of Object.entries(T)) ev.push({ t: v, type: 'cue', name: k });
   return ev.sort((a, b) => a.t - b.t);
