@@ -75,6 +75,20 @@ for e in EV:
     elif ty == 'crash':
         u = U(1.2); place(fol, bp(nz(1.2), 1500, 5000) * (1 + .6 * np.sin(2 * np.pi * 37 * u)) * np.exp(-u / .5) * .25, t, 1.0, -.3)        # cable screech
         u = U(2.5); place(fol, np.tanh((np.sin(2 * np.pi * 45 * u) * np.exp(-u / .4) * 2 + lp(nz(2.5), 400) * np.exp(-u / .25) * 1.5)) * .8, t + 1.0, 1.0, -.2)   # the impact far below
+    elif ty == 'music':                                 # a cheap, cheerful tune for musical chairs (makes the silence hit harder)
+        u = U(d); notes = [72, 76, 79, 76, 74, 77, 81, 77]; x = np.zeros(len(u))
+        for k in range(int(d / .25)):
+            f = 440 * 2 ** ((notes[k % 8] - 69) / 12); i0 = int(k * .25 * SR); n = min(int(.22 * SR), len(u) - i0)
+            if n > 0: v = np.arange(n) / SR; x[i0:i0 + n] += (np.sign(np.sin(2 * np.pi * f * v)) * .3 + np.sin(2 * np.pi * f * v)) * np.exp(-v / .12)
+        place(mus, lp(x, 3000) * .07, t, 1.0, 0)
+    elif ty == 'scratch': u = U(.5); place(fol, bp(nz(.5), 600, 4000) * np.sin(2 * np.pi * (8 - 12 * u) * u) * np.exp(-u / .2) * .4, t, 1.0, 0)
+    elif ty == 'crack': u = U(.4); place(fol, (bp(nz(.4), 1000, 6000) * np.exp(-u / .03) + np.sin(2 * np.pi * 160 * u) * np.exp(-u / .06) * .4) * .5, t, 1.0, .2)
+    elif ty == 'cough':
+        for k in range(3): u = U(.25); place(fol, bp(nz(.25), 300, 2500) * np.exp(-u / .06) * .3, t + k * .35, 1.0, -.3)
+    elif ty == 'twist': u = U(.6); place(fol, bp(nz(.6), 2000, 7000) * (np.sin(2 * np.pi * 25 * u) > .3) * .12, t, 1.0, .1)
+    elif ty == 'rise': u = U(d); place(fol, (np.sin(2 * np.pi * np.cumsum(60 + 40 * u / d) / SR) * .2 + bp(nz(d), 100, 800) * .2) * np.clip(u / .2, 0, 1) * np.clip((d - u) / .2, 0, 1), t, 1.0, 0)
+    elif ty == 'glitch': u = U(.35); place(fol, bp(nz(.35), 300, 6000) * (np.sin(2 * np.pi * 37 * u) > 0) * .3, t, 1.0, 0)
+    elif ty == 'shout': u = U(.6); place(fol, bp(nz(.6), 400, 1800) * np.exp(-u / .25) * .15, t, 1.0, 0)
     elif ty == 'pop': u = U(.25); place(fol, np.sin(2 * np.pi * (520 + 900 * np.exp(-u / .03)) * u) * np.exp(-u / .06) * .35, t, .7, 0)
 def drone(t0, t1, notes, amp, cut=900):
     i0, i1 = int(t0 * SR), min(N, int(t1 * SR)); u = np.arange(i1 - i0) / SR

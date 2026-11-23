@@ -132,7 +132,7 @@ const LX = [-6, -2, 2, 6], LIFT = LX.map((x, i) => {
 // the giant screen (a canvas texture: the mask, or the timer, or "1")
 const scv = document.createElement('canvas'); scv.width = 1024; scv.height = 512; const sc = scv.getContext('2d');
 const scTex = new THREE.CanvasTexture(scv); scTex.colorSpace = THREE.SRGBColorSpace;
-const screen = M(new THREE.PlaneGeometry(10, 5), new THREE.MeshBasicMaterial({ map: scTex }), false); screen.position.set(0, 6.0, -9.98); G.add(screen);
+const screen = M(new THREE.PlaneGeometry(10, 5), new THREE.MeshBasicMaterial({ map: scTex }), false); screen.position.set(0, 6.0, -9.94); G.add(screen);
 G.add(box(10.4, 5.4, .1, mat('#101014'), 0, 6.0, -10.03));
 const redL = new THREE.PointLight('#ff2020', 0, 8, 1.4); redL.position.set(-2, 3.2, -8.6); scene.add(redL);
 const screenL = new THREE.PointLight('#e8ecff', 0, 16, 1.4); screenL.position.set(0, 5.5, -7.5); scene.add(screenL);

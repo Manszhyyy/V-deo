@@ -1,0 +1,7 @@
+«Ставка» · серия 4 — a vertical 3D survival-game short with an A/Б choice at the end. Original series and story.
+
+IMAGES: none — the hall, the lifts, the screen and the players are built in code with three.js (main.js); the CCTV feeds are rendered live.
+FONTS (SIL OFL 1.1): Comfortaa — Johan Aakerlund (fonts/Comfortaa-OFL.txt).
+VOICE: Russian narration — Gemini text-to-speech (gemini-2.5-flash-preview-tts, voice "Charon"; two lines with gemini-3.8-flash-tts, same voice) through the Gemini API (Google AI Studio). Every line checked with faster-whisper.
+SOUND & MUSIC: synthesised in mix.py (numpy) with the library's core/audio/sfx helpers.
+CODE: post.js and the renderer set-up follow the Lemo-Opuscar library's styles/lowpoly-island/demo (MIT, LICENSE-MIT.txt).
