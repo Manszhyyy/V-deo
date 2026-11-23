@@ -101,19 +101,35 @@ for (const [k, col, I] of [['warm', '#ffd27a', 1.6], ['cool', '#7fd8ff', 1.6], [
   G.add(im);
 }
 // street lamps
-for (let x = -36; x < X1 + 60; x += 12) for (const z of [-3.3, 3.3]) { if (z > 0 && inGap(x, GAPS)) continue; if (z < 0 && (inGap(x, GAPN) || (x > -9 && x < 9))) continue;
+for (let x = -36; x < X1 + 60; x += 12) for (const z of [-3.3, 3.3]) { if (z > 0 && (inGap(x, GAPS) || (x > -6 && x < 6))) continue; if (z < 0 && (inGap(x, GAPN) || (x > -9 && x < 9))) continue;
   G.add(box(.1, 4, .1, mat('#2a2c38'), x, 2, z), box(.5, .12, .25, mat('#2a2c38'), x, 4, z * .9), box(.36, .06, .2, glow('#ffe6b0', 3), x, 3.93, z * .9, false)); }
 // the museum: a white classical front, columns, steps; red alarm lamps
 const MUS = new THREE.Group(); G.add(MUS);
-MUS.add(box(16, 7, 10, mat('#e6e0d4'), 0, 3.5, -11.2), box(17, .5, 11, mat('#cfc8ba'), 0, 7.2, -11.2));
+// the building is hollow behind the doors: a lit hall (x −4…4, z −6.6…−14, floor at .55, ceiling at 5)
+const stoneM = mat('#e6e0d4');
+MUS.add(box(4, 7, 10, stoneM, -6, 3.5, -11.2), box(4, 7, 10, stoneM, 6, 3.5, -11.2), box(8, 2, 10, stoneM, 0, 6, -11.2), box(8, 7, 2.2, stoneM, 0, 3.5, -15.1));
+MUS.add(box(2.5, 4.45, .4, stoneM, -2.75, 2.775, -6.4), box(2.5, 4.45, .4, stoneM, 2.75, 2.775, -6.4), box(3, 1.4, .4, stoneM, 0, 4.3, -6.4), box(8, .55, 7.6, stoneM, 0, .275, -10.2));
+MUS.add(box(17, .5, 11, mat('#cfc8ba'), 0, 7.2, -11.2));
+const HALL = new THREE.Group(); MUS.add(HALL);
+for (let i = 0; i < 8; i++) for (let j = 0; j < 7; j++) HALL.add(box(1, .02, 1, mat((i + j) % 2 ? '#f0ebe2' : '#8a3a3a'), -3.5 + i, .56, -7.1 - j, false));   // marble floor
+HALL.add(box(7.9, .02, .1, mat('#c8a050'), 0, 4.98, -10.2, false));
+for (const [x, col] of [[-2.4, '#3a6aa8'], [0, '#c8902a'], [2.4, '#4a8a5a']]) { HALL.add(box(1.5, 1.1, .08, mat('#b8903a'), x, 3.0, -13.95), box(1.25, .85, .04, mat(col), x, 3.0, -13.9)); }   // paintings
+for (const x of [-3.9, 3.9]) for (let k = 0; k < 2; k++) HALL.add(box(.06, 1.0, 1.3, mat('#b8903a'), x, 2.9, -8.6 - k * 3), box(.04, .75, 1.05, mat(['#a84a6a', '#5a5ab0', '#3a8a8a', '#b07a3a'][k + (x > 0 ? 2 : 0)]), x * .99, 2.9, -8.6 - k * 3));
+// the empty display case in the middle: the diamond is gone
+HALL.add(box(.9, 1.0, .9, mat('#2a2a34'), 0, 1.05, -11.0), box(.95, .06, .95, mat('#c8a050'), 0, 1.58, -11.0));
+HALL.add(M(new THREE.BoxGeometry(.8, .7, .8), new THREE.MeshStandardMaterial({ color: '#bfe8ff', transparent: true, opacity: .2, roughness: .05, depthWrite: false }), false)); HALL.children[HALL.children.length - 1].position.set(0, 1.96, -11.0);
+const caseLight = new THREE.SpotLight('#fff4dc', 0, 8, .5, .4, 1); caseLight.position.set(0, 4.9, -11.0); caseLight.target.position.set(0, 1, -11.0); HALL.add(caseLight, caseLight.target);
+for (const x of [-2.8, 2.8]) { const c = M(new THREE.CylinderGeometry(.22, .25, 4.4, 10), mat('#f2ede4')); c.position.set(x, 2.75, -9.6); HALL.add(c); }
+// a red velvet rope knocked over
+HALL.add(box(.06, .7, .06, mat('#c8a050'), -.9, .9, -9.6), box(.06, .7, .06, mat('#c8a050'), .9, .9, -9.6)); const rope = box(1.8, .05, .05, mat('#b02030'), 0, .62, -9.4); rope.rotation.z = .1; HALL.add(rope);
 const ped = M(new THREE.CylinderGeometry(1, 1, 1, 3), mat('#e6e0d4')); ped.scale.set(9.5, 1.2, 2.2); ped.rotation.set(-Math.PI / 2, 0, 0); ped.position.set(0, 8.55, -6.4); MUS.add(ped);
 for (let i = 0; i < 3; i++) MUS.add(box(12 - i * .8, .18, 1.6 - i * .5, mat('#d8d2c6'), 0, .09 + i * .18, -5.6 - i * .25));
 for (let i = 0; i < 6; i++) { if (i === 2 || i === 3) continue; const c = M(new THREE.CylinderGeometry(.32, .36, 6.2, 10), mat('#f2ede4')); c.position.set(-5.5 + i * 2.2, 3.6, -6.0); MUS.add(c); }
 for (const x of [-2.0, 2.0]) { const c = M(new THREE.CylinderGeometry(.32, .36, 6.2, 10), mat('#f2ede4')); c.position.set(x, 3.6, -6.0); MUS.add(c); }
-MUS.add(box(3.0, 3.1, .15, mat('#2a2230'), 0, 1.55 + .5, -6.15));                                  // the doorway (dark)
-const doorL = new THREE.Group(), doorR = new THREE.Group(); doorL.position.set(-1.4, .55, -6.05); doorR.position.set(1.4, .55, -6.05);
+const doorL = new THREE.Group(), doorR = new THREE.Group(); doorL.position.set(-1.45, .55, -6.25); doorR.position.set(1.45, .55, -6.25);
 doorL.add(box(1.4, 3.0, .12, mat('#7a4a2a'), .7, 1.5, 0)); doorR.add(box(1.4, 3.0, .12, mat('#7a4a2a'), -.7, 1.5, 0)); MUS.add(doorL, doorR);
-const doorLight = new THREE.PointLight('#ffd9a0', 0, 9, 1.6); doorLight.position.set(0, 2, -6.8); MUS.add(doorLight);
+const doorLight = new THREE.PointLight('#ffd9a0', 0, 12, 1.2); doorLight.position.set(0, 3.8, -9.0); MUS.add(doorLight);
+const hallRed = new THREE.PointLight('#ff2a2a', 0, 12, 1.2); hallRed.position.set(0, 4.2, -12.5); MUS.add(hallRed);
 const alarmM = glow('#ff2a2a', 0), alarmL = new THREE.PointLight('#ff2a2a', 0, 18, 1.4); alarmL.position.set(0, 5, -4.5); MUS.add(alarmL);
 for (const x of [-4.4, 4.4]) MUS.add(box(.5, .3, .3, alarmM, x, 5.2, -6.1, false));
 // the overpass (along x, high over the side street)
@@ -128,7 +144,14 @@ function makeCar(col, o = {}) {
   const g = new THREE.Group(), C = { g, wheels: [] };
   g.add(box(4.4, .55, 1.9, mat(col, { roughness: .4, metalness: .2 }), 0, .62, 0), box(4.5, .18, 1.95, mat('#1e2028'), 0, .4, 0));
   C.roof = new THREE.Group(); g.add(C.roof);
-  C.roof.add(box(2.3, .55, 1.72, mat('#141a26', { roughness: .2, metalness: .4 }), -.25, 1.17, 0), box(2.0, .1, 1.6, mat(col, { roughness: .4, metalness: .2 }), -.3, 1.5, 0));
+  C.roof.add(box(2.3, .66, 1.72, mat('#141a26', { roughness: .2, metalness: .4 }), -.25, 1.22, 0), box(2.0, .1, 1.6, mat(col, { roughness: .4, metalness: .2 }), -.3, 1.6, 0));
+  C.glass = new THREE.Group(); g.add(C.glass); C.glass.visible = false;
+  const gm = new THREE.MeshStandardMaterial({ color: '#9fd0ff', transparent: true, opacity: .14, roughness: .05, metalness: .1, depthWrite: false });
+  C.glass.add(M(new THREE.BoxGeometry(2.3, .66, 1.72), gm, false)); C.glass.children[0].position.set(-.25, 1.22, 0);
+  const fr = mat(col, { roughness: .4, metalness: .2 });
+  for (const [x, z] of [[.88, -.84], [.88, .84], [-1.38, -.84], [-1.38, .84], [-.25, -.84], [-.25, .84]]) C.glass.add(box(.08, .66, .06, fr, x, 1.22, z));
+  for (const z of [-.84, .84]) C.glass.add(box(2.3, .06, .06, fr, -.25, 1.56, z));
+  for (const x of [.88, -1.38]) C.glass.add(box(.06, .06, 1.72, fr, x, 1.56, 0));
   if (o.stripe) g.add(box(4.42, .14, 1.92, mat(o.stripe), 0, .7, 0));
   // inside (seen with the roof off): seats, dash, wheel
   C.inside = new THREE.Group(); g.add(C.inside);
@@ -200,18 +223,18 @@ function pose(P, { walk = 0, ph = 0, zombie = 0, sway = 0, look = 0, reach = 0 }
   P.g.rotation.z = Math.sin(ph * TAU * .5) * .06 * zombie + sway;
   P.head.rotation.set(-look * .5 + zombie * .3, 0, zombie * .22 * Math.sin(ph * 2));
 }
-const you = person('#2a2c34', '#2e3a55', '#e8b896', '#2a1a12', 1.9, { vest: '#3a3d48' });
+const you = person('#2a2c34', '#2e3a55', '#e8b896', '#2a1a12', 1.72, { vest: '#3a3d48' });
 const crew = [person('#c8302e', '#23252e', '#f0c8a8', '#1a1a1a', 2.2, {}), person('#6a4ab0', '#2a2a34', '#c89070', '#3a2a1a', 2.2, {}), person('#e0b030', '#2e3a55', '#e8c0a0', '#5a3a1a', 2.2, {})];
-const seated = [person('#c8302e', '#23252e', '#f0c8a8', '#1a1a1a', 1.9, {}), person('#6a4ab0', '#2a2a34', '#c89070', '#3a2a1a', 1.9, {}), person('#e0b030', '#2e3a55', '#e8c0a0', '#5a3a1a', 1.9, {})];
+const seated = [person('#c8302e', '#23252e', '#f0c8a8', '#1a1a1a', 1.72, {}), person('#6a4ab0', '#2a2a34', '#c89070', '#3a2a1a', 1.72, {}), person('#e0b030', '#2e3a55', '#e8c0a0', '#5a3a1a', 1.72, {})];
 crew.forEach(P => G.add(P.g));
 const SEATS = [[.15, .45], [-.95, -.45], [-.95, .45]];
-you.g.position.set(.15, .03, -.45); you.g.rotation.y = Math.PI / 2; car.g.add(you.g);
-seated.forEach((P, i) => { P.g.position.set(SEATS[i][0], .03, SEATS[i][1]); P.g.rotation.y = Math.PI / 2; car.g.add(P.g); });
+you.g.position.set(.15, .22, -.45); you.g.rotation.y = Math.PI / 2; car.g.add(you.g);
+seated.forEach((P, i) => { P.g.position.set(SEATS[i][0], .22, SEATS[i][1]); P.g.rotation.y = Math.PI / 2; car.g.add(P.g); });
 const caseM = mat('#c8ccd4', { roughness: .3, metalness: .7 });
 const kase = box(.12, .26, .34, caseM, 0, -.2, 0); crew[0].elbR.add(kase); kase.scale.setScalar(1 / 1);
 const kase2 = box(.42, .1, .3, caseM, .1, .78, 0); seated[0].g.parent.add(kase2); kase2.position.set(.35, .82, .45);
 const phoneM = glow('#bfe8ff', 0); const phone = box(.035, .006, .06, phoneM, 0, -.16, .03, false); you.elbR.add(phone);
-const phoneL = new THREE.PointLight('#a8dcff', 0, 2.2, 1.5); phoneL.position.set(.7, 1.3, -.45); car.g.add(phoneL);
+const phoneL = new THREE.PointLight('#a8dcff', 0, 2.2, 1.5); phoneL.position.set(.6, 1.35, -.45); car.g.add(phoneL);
 function sit(P, { wheel = 0, lap = 0 } = {}) {
   P.legL.rotation.x = P.legR.rotation.x = -1.45; P.kneeL.rotation.x = P.kneeR.rotation.x = 1.5;
   P.armL.rotation.x = -wheel * 1.0 - lap * .6; P.armR.rotation.x = -wheel * 1.0 - lap * .6; P.elbL.rotation.x = -wheel * .7 - lap * .8; P.elbR.rotation.x = -wheel * .7 - lap * .8;
@@ -258,21 +281,24 @@ function cam(t) {
 const DOORX = [-.5, .1, .7], ARRIVE = [[2.3, -3.25], [1.0, -3.25], [.3, -3.25]];
 function act(t) {
   const cut = CAM.cut;
-  car.roof.visible = cut !== 1; OVER.visible = cut !== 1;
+  car.roof.visible = cut !== 1; car.glass.visible = cut === 1; OVER.visible = cut !== 1;
   // museum doors + alarm (hook: a flash-forward of the same moment)
   const dOpen = t < T.wait ? ss(seg(t, .2, .5)) : ss(seg(t, T.open, T.open + .35));
-  doorL.rotation.y = dOpen * 1.6; doorR.rotation.y = -dOpen * 1.6; doorLight.intensity = 6 * dOpen;
+  doorL.rotation.y = dOpen * 1.6; doorR.rotation.y = -dOpen * 1.6; doorLight.intensity = 2 + 5 * dOpen; caseLight.intensity = 12;
   const alarmOn = t < T.wait ? t > .3 : t > T.open + .2 && t < T.turn + 1;
-  const ab = alarmOn ? (Math.sin(t * 9) > 0 ? 1 : .15) : 0; alarmM.emissiveIntensity = 5 * ab; alarmL.intensity = 30 * ab;
+  const ab = alarmOn ? (Math.sin(t * 9) > 0 ? 1 : .15) : 0; alarmM.emissiveIntensity = 5 * ab; alarmL.intensity = 30 * ab; hallRed.intensity = 9 * ab;
   // the crew: running out of the doors to the car
   crew.forEach((P, i) => {
     let vis = false, x = 0, z = 0, run = 0, hd = 0;
-    if (t < T.wait) { const u = seg(t, .35 + i * .14, 2.2 + i * .14); vis = t > .35 + i * .14; x = DOORX[i] * 1.4; z = lerp(-6.4, -3.0, u); run = 1; hd = 0; }
-    else { const t0 = T.open + .35 + i * .3, u = seg(t, t0, t0 + 2.1); vis = t >= t0 && u < 1; x = lerp(DOORX[i], ARRIVE[i][0], eio(u)); z = lerp(-6.4, ARRIVE[i][1], eio(u)); run = 1; hd = Math.atan2(ARRIVE[i][0] - DOORX[i], ARRIVE[i][1] + 6.4); }
+    if (t < T.wait) { const u = seg(t, .35 + i * .14, 2.2 + i * .14); vis = t > .35 + i * .14; x = DOORX[i] * 1.4; z = lerp(-10.5 + i * .6, -3.0, u); run = 1; hd = 0; }
+    else { const t0 = T.open + .1 + i * .3, u = seg(t, t0, t0 + 2.6); vis = t >= t0 && u < 1;
+      if (u < .45) { const v = u / .45; x = DOORX[i]; z = lerp(-11 + i * .5, -5.4, v); hd = 0; }
+      else { const v = eo((u - .45) / .55); x = lerp(DOORX[i], ARRIVE[i][0], v); z = lerp(-5.4, ARRIVE[i][1], v); hd = Math.atan2(ARRIVE[i][0] - DOORX[i], ARRIVE[i][1] + 5.4); }
+      run = 1; }
     P.g.visible = vis; if (!vis) return;
-    P.g.position.set(x, 0, z); P.g.rotation.y = hd; pose(P, { walk: run * 1.3, ph: t * 2.6 + i * .3 }); P.armR.rotation.x = i === 0 ? -.2 : P.armR.rotation.x;
+    P.g.position.set(x, z < -6.2 ? .56 : z < -5.2 ? .56 * (-5.2 - z) : 0, z); P.g.rotation.y = hd; pose(P, { walk: run * 1.3, ph: t * 2.6 + i * .3 }); P.armR.rotation.x = i === 0 ? -.2 : P.armR.rotation.x;
   });
-  const inCar = i => t >= T.open + .35 + i * .3 + 2.1;
+  const inCar = i => t >= T.open + .1 + i * .3 + 2.6;
   seated.forEach((P, i) => { P.g.visible = inCar(i); sit(P, { lap: 1 }); });
   kase2.visible = inCar(0);
   // the car
@@ -353,7 +379,7 @@ function events() {
     { t: T.go - .5, type: 'engine' }, { t: T.go, type: 'screech' }, { t: T.police, type: 'siren', d: 31 - T.police }, { t: T.police2, type: 'siren', d: 31 - T.police2 },
     { t: T.turn - .4, type: 'screech' }, { t: T.stop - 1.2, type: 'brake' }, { t: T.under + .45, type: 'click' }, { t: T.over, type: 'pass' }, { t: T.over + .5, type: 'pass' },
     { t: T.phone + .1, type: 'buzz' }, { t: T.choice + .7, type: 'pop' }, { t: T.choice + 1.15, type: 'pop' }, { t: T.chase, type: 'drive', d: T.stop - T.chase }];
-  [0, 1, 2].forEach(i => ev.push({ t: T.open + .35 + i * .3 + 2.1, type: 'slam' }));
+  [0, 1, 2].forEach(i => ev.push({ t: T.open + .1 + i * .3 + 2.6, type: 'slam' }));
   VO.forEach(v => ev.push({ t: v.t, type: 'vo', id: v.id }));
   for (const [k, v] of Object.entries(T)) ev.push({ t: v, type: 'cue', name: k });
   return ev.sort((a, b) => a.t - b.t);
