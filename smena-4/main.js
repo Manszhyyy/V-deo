@@ -342,7 +342,7 @@ function act(t) {
   // the photo's camera: framing the van, then zooming into the side mirror
   photoCam.fov = lerp(42, 24, ss(seg(t, b0('zoom') + .4, b1('zoom')))); photoCam.updateProjectionMatrix(); photoCam.lookAt(lerp(DX0 + 4.6, mirW.x, ss(seg(t, b0('zoom') + .4, b1('zoom')))), lerp(.6, mirW.y, ss(seg(t, b0('zoom') + .4, b1('zoom')))), lerp(-.3, mirW.z, ss(seg(t, b0('zoom') + .4, b1('zoom')))));
   director.g.visible = true; director.g.lookAt(mirW.x, 0, mirW.z); director.head.rotation.set(-.05, 0, 0); dirL.intensity = 5; face(director, { brow: .2, mouth: 1.1, open: .6 }); pose(director, {});
-  if (t > b0('office') || t > b0('mirror')) { const savedHemi = hemi.intensity; dockL.intensity = 22; hemi.intensity = 1.4; renderer.setRenderTarget(RTm); renderer.render(scene, mirrorCam); if (t < b0('mirror')) { renderer.setRenderTarget(RTph); renderer.render(scene, photoCam); } renderer.setRenderTarget(null); hemi.intensity = savedHemi; dockL.intensity = 9; }
+  if (t > b0('office') || t > b0('mirror')) { const savedHemi = hemi.intensity; dockL.intensity = 22; hemi.intensity = 1.4; mirror.visible = false; iphone.visible = false; renderer.setRenderTarget(RTm); renderer.render(scene, mirrorCam); mirror.visible = true; if (t < b0('mirror')) { renderer.setRenderTarget(RTph); renderer.render(scene, photoCam); } iphone.visible = morning; renderer.setRenderTarget(null); hemi.intensity = savedHemi; dockL.intensity = 9; }
 }
 function epEvents() {
   return [{ t: b0('alarm') + .3, type: 'thud' }, { t: b0('alarm') + .95, type: 'click' }, { t: b0('alarm') + 1.0, type: 'firealarm', d: b0('office') - b0('alarm') - 1.0 },
