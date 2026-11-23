@@ -5,8 +5,8 @@ import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 import { makePost } from './post.js';
 
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search), SSAA = +(QS.get('ssaa') ?? 1.5);
-export const DUR = 42.0;
-const T = { hook: 0, wide: 1.9, radio: 10.0, man: 13.2, door: 13.5, fridge: 20.4, empty: 24.2, knock: 27.2, reveal: 33.8, end: 38.5 };
+export const DUR = 45.0;
+const T = { hook: 0, wide: 1.9, radio: 10.0, man: 13.2, door: 13.5, fridge: 20.4, empty: 24.2, knock: 27.2, reveal: 33.8, end: 38.2 };
 const KNOCKS = [27.3, 28.25, 29.0, 30.1, 30.5];
 const VO = [
   ['v1', 2.0, 'Три часа ночи. Ты один на заправке у трассы.'], ['v2', 5.6, 'Весь последний час машины едут только в одну сторону. Из города.'],
@@ -91,36 +91,64 @@ for (let i = 0; i < 18; i++) {
 }
 // ---------------------------------------------------------------- people
 function person(shirt, legs, skin, hair, s = 1, o = {}) {
-  const g = new THREE.Group(), P = { g };
-  P.legL = new THREE.Group(); P.legR = new THREE.Group();
-  for (const [L, x] of [[P.legL, -.05], [P.legR, .05]]) { L.add(box(.07, .24, .08, mat(legs), 0, -.12, 0)); L.position.set(x, .24, 0); g.add(L); }
-  g.add(box(.2, .28, .13, mat(shirt), 0, .38, 0));
-  if (o.vest) g.add(box(.21, .2, .14, mat(o.vest), 0, .4, 0));
-  P.armL = new THREE.Group(); P.armR = new THREE.Group();
-  for (const [A, x] of [[P.armL, -.13], [P.armR, .13]]) { A.add(box(.06, .24, .07, mat(shirt), 0, -.11, 0)); A.position.set(x, .5, 0); g.add(A); }
-  if (o.bandage) P.armR.add(box(.075, .1, .085, mat('#f4f4f0'), 0, -.2, 0));
-  P.head = new THREE.Group(); P.head.position.y = .62; g.add(P.head);
-  P.head.add(M(new THREE.IcosahedronGeometry(.1, 0), mat(skin))); const hr = M(new THREE.IcosahedronGeometry(.105, 0), mat(hair)); hr.position.set(0, .035, -.025); hr.scale.set(1, .7, 1); P.head.add(hr);
-  if (o.eyes) for (const x of [-.035, .035]) P.head.add(box(.025, .018, .01, glow('#ffe86a', 2.2), x, .01, .095, false));
+  // realistic proportions (~7.5 heads tall, 0.76 units before scaling): hips, knees, shoulders, elbows, hands, neck, a face
+  const g = new THREE.Group(), P = { g }, sm = (hex) => mat(hex, { flatShading: false });
+  const limb = (r0, r1, len, m) => { const x = M(new THREE.CylinderGeometry(r0, r1, len, 7), m); x.position.y = -len / 2; return x; };
+  const shoe = o.shoes ?? '#22252c';
+  for (const [k, x] of [['L', -.043], ['R', .043]]) {
+    const hip = new THREE.Group(); hip.position.set(x, .37, 0); g.add(hip);
+    hip.add(limb(.033, .026, .17, mat(legs)));
+    const knee = new THREE.Group(); knee.position.y = -.17; hip.add(knee);
+    knee.add(limb(.025, .02, .165, mat(legs)));
+    knee.add(box(.05, .034, .1, mat(shoe), 0, -.17, .02));
+    P['leg' + k] = hip; P['knee' + k] = knee;
+  }
+  g.add(box(.15, .07, .085, mat(legs), 0, .375, 0));                                     // pelvis
+  const torso = M(new THREE.CylinderGeometry(.088, .07, .23, 8), mat(shirt)); torso.scale.z = .62; torso.position.y = .515; g.add(torso);
+  if (o.vest) { const v = M(new THREE.CylinderGeometry(.093, .076, .2, 8), mat(o.vest)); v.scale.z = .66; v.position.y = .51; g.add(v); }
+  const nk = M(new THREE.CylinderGeometry(.021, .024, .05, 7), sm(skin)); nk.position.y = .645; g.add(nk);
+  for (const [k, x] of [['L', -.1], ['R', .1]]) {
+    const sh = new THREE.Group(); sh.position.set(x, .61, 0); g.add(sh);
+    sh.add(M(new THREE.SphereGeometry(.03, 8, 6), mat(shirt)));
+    sh.add(limb(.026, .022, .15, mat(shirt)));
+    const el = new THREE.Group(); el.position.y = -.15; sh.add(el);
+    el.add(limb(.021, .017, .13, o.sleeves === false ? sm(skin) : mat(shirt)));
+    const hand = M(new THREE.SphereGeometry(.02, 8, 6), sm(skin)); hand.scale.set(.8, 1.3, .6); hand.position.y = -.15; el.add(hand);
+    if (o.bandage && k === 'R') { const bd = limb(.025, .023, .08, mat('#f4f4f0')); bd.position.y = -.07; el.add(bd, box(.026, .02, .008, mat('#b0222a'), 0, -.07, .023)); }
+    P['arm' + k] = sh; P['elb' + k] = el;
+  }
+  P.head = new THREE.Group(); P.head.position.y = .7; g.add(P.head);
+  const hd = M(new THREE.SphereGeometry(.05, 14, 10), sm(skin)); hd.scale.set(.88, 1.1, .95); P.head.add(hd);
+  const jaw = M(new THREE.SphereGeometry(.04, 12, 8), sm(skin)); jaw.scale.set(.85, .7, .9); jaw.position.set(0, -.028, .008); P.head.add(jaw);
+  P.head.add(box(.012, .02, .014, sm(skin), 0, -.003, .05));                          // nose
+  for (const x of [-.045, .045]) { const ear = M(new THREE.SphereGeometry(.012, 6, 5), sm(skin)); ear.scale.set(.5, 1, .8); ear.position.set(x, 0, 0); P.head.add(ear); }
+  if (o.eyes) for (const x of [-.018, .018]) P.head.add(box(.014, .007, .004, glow('#ffe86a', 2.4), x, .012, .047, false));
+  else for (const x of [-.018, .018]) P.head.add(box(.009, .007, .004, mat('#1a1414'), x, .012, .047, false));
+  for (const x of [-.018, .018]) P.head.add(box(.016, .004, .004, mat(hair), x, .024, .047, false));      // brows
+  const hr = M(new THREE.SphereGeometry(.054, 14, 8, 0, TAU, 0, Math.PI * .5), mat(hair)); hr.scale.set(.92, 1.05, 1); hr.position.set(0, .012, -.006); hr.rotation.x = -.25; P.head.add(hr);
+  if (o.messy) for (let i = 0; i < 5; i++) P.head.add(box(.012, .03, .012, mat(hair), (hash(i * 13 + s) - .5) * .07, .05, (hash(i * 7 + s) - .5) * .06));
   g.scale.setScalar(s); return P;
 }
 function pose(P, { walk = 0, ph = 0, zombie = 0, sway = 0, look = 0, reach = 0 } = {}) {
-  const a = Math.sin(ph * TAU) * .55 * walk;
-  P.legL.rotation.x = a; P.legR.rotation.x = -a;
-  P.armL.rotation.x = -a * .7 - zombie * 1.45 - reach * 1.2; P.armR.rotation.x = a * .7 - zombie * 1.4 - reach * .3;
+  const a = Math.sin(ph * TAU) * .5 * walk, kb = (q) => Math.max(0, q) * .9 * walk;
+  P.legL.rotation.x = -a; P.legR.rotation.x = a;
+  P.kneeL.rotation.x = kb(Math.sin(ph * TAU + 1.6)) + zombie * .12; P.kneeR.rotation.x = kb(-Math.sin(ph * TAU + 1.6)) + zombie * .08;
+  P.armL.rotation.x = a * .6 - zombie * 1.35 - reach * 1.2; P.armR.rotation.x = -a * .6 - zombie * 1.3 - reach * .4;
+  P.armL.rotation.z = -.06 - zombie * .1; P.armR.rotation.z = .06 + zombie * .1;
+  P.elbL.rotation.x = -.15 - .25 * walk - zombie * .15 - reach * .2; P.elbR.rotation.x = -.15 - .25 * walk - zombie * .2 - reach * .6;
   P.g.rotation.z = Math.sin(ph * TAU * .5) * .06 * zombie + sway;
-  P.head.rotation.set(-look * .5 + zombie * .25, 0, zombie * .2 * Math.sin(ph * 2));
+  P.head.rotation.set(-look * .5 + zombie * .3, 0, zombie * .22 * Math.sin(ph * 2));
 }
-const you = person('#f4f4f0', '#3d4250', '#f2c6a0', '#4a2e1c', 1.85, { vest: '#2fb3a0' });
-const man = person('#6a6f7a', '#3d4250', '#d9b49a', '#5a5a5a', 1.9, { bandage: 1 });
+const you = person('#f4f4f0', '#2e3a55', '#f2c6a0', '#4a2e1c', 1.95, { vest: '#2fb3a0' });
+const man = person('#6a6f7a', '#3d4250', '#d9b49a', '#5a5a5a', 2.0, { bandage: 1, messy: 1 });
 SHOP.add(you.g, man.g);
 const horde = [];
 for (let i = 0; i < 34; i++) {
   const row = Math.floor(i / 9), x = -3.6 + (i % 9) * .9 + (row % 2) * .45 + (hash(i) - .5) * .3, z = 2.65 + row * .75 + hash(i * 3) * .25;
-  const Z = person(['#4a5a4a', '#5a4a4a', '#4a4a5a', '#6a6050', '#3a4a52'][i % 5], '#2a2e36', '#8aa38a', '#2a2a2a', 1.4 + hash(i * 5) * .15, { eyes: 1 });
+  const Z = person(['#4a5a4a', '#5a4a4a', '#4a4a5a', '#6a6050', '#3a4a52'][i % 5], '#2a2e36', '#8aa38a', '#2a2a2a', 1.8 + hash(i * 5) * .2, { eyes: 1, messy: 1 });
   Z.g.position.set(x, 0, z); Z.g.rotation.y = Math.PI + (hash(i * 7) - .5) * .4; G.add(Z.g); horde.push({ Z, x, z, i, t0: T.reveal - 1.2 + hash(i * 9) * .9 });
 }
-const slapper = person('#4a5a4a', '#2a2e36', '#8aa38a', '#2a2a2a', 1.5, { eyes: 1 }); G.add(slapper.g);
+const slapper = person('#4a5a4a', '#2a2e36', '#8aa38a', '#2a2a2a', 1.95, { eyes: 1, messy: 1 }); G.add(slapper.g);
 
 // ---------------------------------------------------------------- lights (night)
 const hemi = new THREE.HemisphereLight('#5a6aa8', '#1a2020', .55); scene.add(hemi);
@@ -156,7 +184,7 @@ function cam(t) {
 // ---------------------------------------------------------------- the action
 function act(t) {
   const cut = CAM.cut;
-  roof.visible = cut !== 1; front.children.forEach(c => { if (c.material === glassM) c.visible = cut !== 1; });
+  roof.visible = cut !== 1; front.children.forEach(c => { c.visible = cut !== 1; });
   CAN.visible = SIGN.visible = cut === 0;      // inside shots: the canopy, pumps and sign would block the view
   // cars: all heading out of the city (towards -x); they stop coming at the end
   cars.forEach(C => { const x = 30 - ((t * C.sp + C.off) % 60); C.c.position.set(x, 0, C.lane); C.c.visible = t < T.reveal + 2; });
@@ -189,12 +217,37 @@ const ov = document.getElementById('ov'), g2 = ov.getContext('2d');
 let DURS = {}; try { DURS = await (await fetch('vo/dur.json')).json(); } catch (e) { }
 const span = v => { const i = VO.indexOf(v), nx = VO[i + 1]; let b = v.t + Math.max(1.6, (DURS[v.id] ?? 2.5) + .5); if (nx) b = Math.min(b, nx.t - .05); return [v.t - .05, b]; };
 function wrap(text, maxW) { const ws = text.split(' '), lines = []; let cur = ''; for (const w of ws) { const tr = cur ? cur + ' ' + w : w; if (g2.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr; } lines.push(cur); return lines; }
+function rr(x, y, w, h, r) { g2.beginPath(); g2.moveTo(x + r, y); g2.arcTo(x + w, y, x + w, y + h, r); g2.arcTo(x + w, y + h, x, y + h, r); g2.arcTo(x, y + h, x, y, r); g2.arcTo(x, y, x + w, y, r); g2.closePath(); }
+// the end card: what would YOU do? A / Б (Б leads into part 2 «Подсобка»)
+const CH = [['А', 'Выключить свет, чтобы тебя не видели', '#ff4fa3'], ['Б', 'Спрятаться в подсобке', '#2fd3b8']];
+function choice(t) {
+  const k = ss(seg(t, T.end, T.end + .5));
+  g2.save(); const gr = g2.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, 'rgba(8,8,24,.0)'); gr.addColorStop(.3, 'rgba(8,8,24,.55)'); gr.addColorStop(.75, 'rgba(8,8,24,.7)'); gr.addColorStop(1, 'rgba(8,8,24,.3)');
+  g2.globalAlpha = k; g2.fillStyle = gr; g2.fillRect(0, 0, W, H);
+  g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.shadowColor = 'rgba(0,0,0,.7)'; g2.shadowBlur = 16;
+  const tk = eo(seg(t, T.end + .1, T.end + .5)); g2.globalAlpha = tk; g2.font = '700 76px Comfortaa'; g2.fillStyle = '#ffffff';
+  g2.fillText('ЧТО ТЫ СДЕЛАЕШЬ?', W / 2, 720 - 30 * (1 - tk));
+  CH.forEach(([L, txt, col], i) => {
+    const t0 = T.end + .7 + i * .45, u = eo(seg(t, t0, t0 + .4)); if (u <= 0) return;
+    const y = 870 + i * 230, x = 90, w = W - 180, h = 190, pulse = 1 + .02 * Math.sin((t - t0) * 5) * (t > T.end + 2.2 ? 1 : 0);
+    g2.save(); g2.globalAlpha = u; g2.translate(W / 2, y + h / 2); g2.scale(pulse * (.85 + .15 * u), pulse * (.85 + .15 * u)); g2.translate(-W / 2, -(y + h / 2));
+    rr(x, y, w, h, 40); g2.fillStyle = 'rgba(20,20,40,.82)'; g2.fill(); g2.lineWidth = 7; g2.strokeStyle = col; g2.shadowColor = col; g2.shadowBlur = 30; g2.stroke();
+    g2.shadowBlur = 0; g2.beginPath(); g2.arc(x + 100, y + h / 2, 58, 0, TAU); g2.fillStyle = col; g2.fill();
+    g2.fillStyle = '#10101e'; g2.font = '700 76px Comfortaa'; g2.fillText(L, x + 100, y + h / 2 + 4);
+    g2.fillStyle = '#ffffff'; g2.font = '700 50px Comfortaa'; g2.textAlign = 'left';
+    const ls = wrap(txt, w - 230); ls.forEach((ln, j) => g2.fillText(ln, x + 190, y + h / 2 + (j - (ls.length - 1) / 2) * 60));
+    g2.restore();
+  });
+  const fk = ss(seg(t, T.end + 2.0, T.end + 2.5)); g2.globalAlpha = fk; g2.textAlign = 'center'; g2.font = '600 46px Comfortaa'; g2.fillStyle = '#ffd6f0';
+  g2.fillText('Пиши А или Б в комментариях', W / 2, 1400); g2.font = '600 40px Comfortaa'; g2.fillStyle = 'rgba(255,255,255,.75)'; g2.fillText('Часть 2 — по вашему выбору', W / 2, 1470);
+  g2.restore();
+}
 function hud(t) {
   g2.clearRect(0, 0, W, H);
   // part label, top
-  if (t < 3.2 || t >= T.end) { g2.save(); g2.globalAlpha = t < 3.2 ? 1 - ss(seg(t, 2.6, 3.2)) : ss(seg(t, T.end, T.end + .4)); g2.font = '700 52px Comfortaa'; g2.textAlign = 'center'; g2.fillStyle = '#ffffff';
-    g2.shadowColor = 'rgba(0,0,0,.7)'; g2.shadowBlur = 14; g2.fillText(t < 3.2 ? 'ПОСЛЕДНЯЯ ЗАПРАВКА · ЧАСТЬ 1' : 'ЧАСТЬ 2 — СКОРО', W / 2, 230); g2.restore(); }
-  if (t >= T.end) { g2.save(); g2.globalAlpha = ss(seg(t, T.end + .3, T.end + .8)); g2.font = '600 42px Comfortaa'; g2.textAlign = 'center'; g2.fillStyle = '#ffd6f0'; g2.shadowColor = 'rgba(0,0,0,.7)'; g2.shadowBlur = 12; g2.fillText('пиши «часть 2», если хочешь продолжение', W / 2, 300); g2.restore(); }
+  if (t < 3.2) { g2.save(); g2.globalAlpha = 1 - ss(seg(t, 2.6, 3.2)); g2.font = '700 52px Comfortaa'; g2.textAlign = 'center'; g2.fillStyle = '#ffffff';
+    g2.shadowColor = 'rgba(0,0,0,.7)'; g2.shadowBlur = 14; g2.fillText('ПОСЛЕДНЯЯ ЗАПРАВКА · ЧАСТЬ 1', W / 2, 230); g2.restore(); }
+  if (t >= T.end) choice(t);
   const v = VO.find(v => { const [a, b] = span(v); return t >= a && t < b; }); if (!v) return;
   const [a, b] = span(v), al = ss(seg(t, a, a + .12)) * (1 - ss(seg(t, b - .15, b)));
   g2.save(); g2.globalAlpha = al; g2.font = '700 58px Comfortaa'; g2.textAlign = 'center'; g2.textBaseline = 'middle';
@@ -209,7 +262,7 @@ function render(t) {
   post.composer.render(); hud(t);
 }
 function events() {
-  const ev = [{ t: .45, type: 'slap' }, { t: T.door, type: 'bell' }, { t: T.door + .05, type: 'door' }, { t: T.empty + .2, type: 'door2' }, { t: T.empty, type: 'flicker' }, { t: T.reveal, type: 'reveal' }, { t: T.end, type: 'end' }, { t: T.fridge, type: 'fridge' }, { t: T.radio, type: 'radio' }];
+  const ev = [{ t: .45, type: 'slap' }, { t: T.door, type: 'bell' }, { t: T.door + .05, type: 'door' }, { t: T.empty + .2, type: 'door2' }, { t: T.empty, type: 'flicker' }, { t: T.reveal, type: 'reveal' }, { t: T.end, type: 'end' }, { t: T.end + .7, type: 'pop' }, { t: T.end + 1.15, type: 'pop' }, { t: T.fridge, type: 'fridge' }, { t: T.radio, type: 'radio' }];
   KNOCKS.forEach(k => ev.push({ t: k, type: 'knock' }));
   VO.forEach(v => ev.push({ t: v.t, type: 'vo', id: v.id }));
   for (const [k, v] of Object.entries(T)) ev.push({ t: v, type: 'cue', name: k });

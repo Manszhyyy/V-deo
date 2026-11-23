@@ -53,6 +53,8 @@ for e in EV:
     elif ty == 'door2': place(fol, bellx() * .5, t, .35, .5)
     elif ty == 'knock': place(fol, thud(int(t * 10), .9, 85), t, .9, rng.uniform(-.4, .4))
     elif ty == 'flicker': place(fol, np.sign(np.sin(2 * np.pi * 120 * np.arange(int(.3 * SR)) / SR)) * .05 * (rng.random(int(.3 * SR)) > .5), t, .5, 0)
+    elif ty == 'pop':
+        n = int(.25 * SR); u = np.arange(n) / SR; place(fol, np.sin(2 * np.pi * (520 + 900 * np.exp(-u / .03)) * u) * np.exp(-u / .06) * .35, t, .7, 0)
     elif ty == 'fridge': place(fol, lp(nz(3.5), 200) * .08, t, .6, .4)
 for k in range(9): place(fol, step(k), cue['door'] + .3 + k * .38, .5, .4 - k * .08)          # the man's dragging steps
 place(fol, step(50), cue['fridge'] + .1, .4, 0); place(fol, step(51), cue['fridge'] + .45, .4, .1)
