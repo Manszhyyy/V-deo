@@ -317,6 +317,7 @@ function hud(t) {
 
 function render(t) {
   cam(t); act(t);
+  renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;          // shadows once per frame, shared by the CCTV feeds
   if (CAM.monitors) { cctv.forEach((c, i) => { renderer.setRenderTarget(RT[i]); renderer.render(scene, c); }); renderer.setRenderTarget(null); }
   const cc = CAM.cctv >= 0, gd = post.grade;
   post.comp.zen.value.set('#05060c'); post.comp.hor.value.set('#0a0c16'); post.comp.stars.value = 0; post.comp.time.value = t;
