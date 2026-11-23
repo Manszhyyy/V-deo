@@ -15,7 +15,7 @@ const BT = {}, VO = []; { let tc = .25;
   for (const [id, shot, minD] of BEATS) { const d = id ? (DURS[id] ?? 3) : 0, t0 = tc, t1 = t0 + Math.max(id ? d + .4 : 0, minD || 0); BT[shot] = { t0, t1 }; if (id) VO.push({ id, t: t0 + .1, text: TEXT[id] }); tc = t1; } }
 const T = { choice: BT.choice.t0 };
 export const DUR = +(BT.choice.t0 + (DURS.v10 ?? 4.5) + 3.4).toFixed(2);
-const SHOTS = BEATS.map(([, shot]) => [BT[shot].t0, shot === 'choice' ? DUR + 1 : BT[shot].t1, shot]);
+const SHOTS = BEATS.map(([, shot], i) => [i ? BT[shot].t0 : -1, shot === 'choice' ? DUR + 1 : BT[shot].t1, shot]);
 const b0 = n => BT[n].t0, b1 = n => BT[n].t1;
 
 const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
