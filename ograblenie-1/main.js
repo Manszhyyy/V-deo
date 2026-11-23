@@ -141,34 +141,36 @@ for (let x = XS - 64; x <= XS + 64; x += 3.2) OVER.add(box(1.4, .02, .1, dashM, 
 
 // ---------------------------------------------------------------- cars
 function makeCar(col, o = {}) {
-  const g = new THREE.Group(), C = { g, wheels: [] };
-  g.add(box(4.4, .55, 1.9, mat(col, { roughness: .4, metalness: .2 }), 0, .62, 0), box(4.5, .18, 1.95, mat('#1e2028'), 0, .4, 0));
-  C.roof = new THREE.Group(); g.add(C.roof);
-  C.roof.add(box(2.3, .66, 1.72, mat('#141a26', { roughness: .2, metalness: .4 }), -.25, 1.22, 0), box(2.0, .1, 1.6, mat(col, { roughness: .4, metalness: .2 }), -.3, 1.6, 0));
-  C.glass = new THREE.Group(); g.add(C.glass); C.glass.visible = false;
-  const gm = new THREE.MeshStandardMaterial({ color: '#9fd0ff', transparent: true, opacity: .14, roughness: .05, metalness: .1, depthWrite: false });
+  // a hollow body (hood, trunk, doors, floor) and a glass cabin with body-coloured pillars: the people inside are always visible, from any side
+  const g = new THREE.Group(), C = { g, wheels: [] }, bm = mat(col, { roughness: .4, metalness: .2 }), dk = mat('#1e2028');
+  g.add(box(4.5, .18, 1.95, dk, 0, .4, 0));                                   // underbody
+  g.add(box(1.32, .55, 1.9, bm, 1.54, .62, 0), box(.82, .55, 1.9, bm, -1.79, .62, 0));   // hood, trunk
+  for (const z of [-.9, .9]) g.add(box(2.26, .55, .1, bm, -.25, .62, z));      // doors
+  g.add(box(2.26, .06, 1.7, mat('#24252e'), -.25, .5, 0));                     // cabin floor
+  C.glass = new THREE.Group(); g.add(C.glass);
+  const gm = new THREE.MeshStandardMaterial({ color: '#8cc4f0', transparent: true, opacity: .2, roughness: .05, metalness: .1, depthWrite: false });
   C.glass.add(M(new THREE.BoxGeometry(2.3, .66, 1.72), gm, false)); C.glass.children[0].position.set(-.25, 1.22, 0);
-  const fr = mat(col, { roughness: .4, metalness: .2 });
-  for (const [x, z] of [[.88, -.84], [.88, .84], [-1.38, -.84], [-1.38, .84], [-.25, -.84], [-.25, .84]]) C.glass.add(box(.08, .66, .06, fr, x, 1.22, z));
-  for (const z of [-.84, .84]) C.glass.add(box(2.3, .06, .06, fr, -.25, 1.56, z));
-  for (const x of [.88, -1.38]) C.glass.add(box(.06, .06, 1.72, fr, x, 1.56, 0));
-  if (o.stripe) g.add(box(4.42, .14, 1.92, mat(o.stripe), 0, .7, 0));
-  // inside (seen with the roof off): seats, dash, wheel
+  for (const [x, z] of [[.88, -.84], [.88, .84], [-1.38, -.84], [-1.38, .84], [-.25, -.84], [-.25, .84]]) C.glass.add(box(.08, .66, .06, bm, x, 1.22, z));
+  for (const z of [-.84, .84]) C.glass.add(box(2.3, .06, .06, bm, -.25, 1.56, z));
+  for (const x of [.88, -1.38]) C.glass.add(box(.06, .06, 1.72, bm, x, 1.56, 0));
+  if (o.stripe) for (const z of [-.96, .96]) g.add(box(4.42, .14, .02, mat(o.stripe), 0, .7, z));
   C.inside = new THREE.Group(); g.add(C.inside);
-  for (const [x, z] of [[.15, -.45], [.15, .45], [-.95, -.45], [-.95, .45]]) C.inside.add(box(.5, .14, .6, mat('#2a2a34'), x, .78, z), box(.1, .46, .56, mat('#2a2a34'), x - .3, .98, z));
-  C.inside.add(box(.4, .3, 1.7, mat('#1e1f28'), 1.0, 1.0, 0));
-  const sw = M(new THREE.TorusGeometry(.16, .025, 6, 14), mat('#111')); sw.position.set(.72, 1.07, -.45); sw.rotation.y = Math.PI / 2; sw.rotation.x = .4; C.inside.add(sw);
+  for (const [x, z] of [[.15, -.45], [.15, .45], [-.95, -.45], [-.95, .45]]) C.inside.add(box(.5, .14, .6, mat('#2a2a34'), x, .78, z), box(.1, .46, .56, mat('#2a2a34'), x - .3, .98, z), box(.4, .2, .45, mat('#1a1a22'), x, .61, z));
+  C.inside.add(box(.22, .3, 1.7, mat('#1e1f28'), .78, 1.0, 0));
+  const sw = M(new THREE.TorusGeometry(.16, .025, 6, 14), mat('#111')); sw.position.set(.62, 1.07, -.45); sw.rotation.y = Math.PI / 2; sw.rotation.x = .4; C.inside.add(sw);
   for (const [x, z] of [[1.4, -.95], [1.4, .95], [-1.4, -.95], [-1.4, .95]]) { const wg = new THREE.Group(); wg.position.set(x, .36, z); const w = M(new THREE.CylinderGeometry(.36, .36, .28, 12), mat('#15161c')); w.rotation.x = Math.PI / 2; wg.add(w, box(.3, .3, .3, mat('#8a8e98'), 0, 0, 0)); g.add(wg); C.wheels.push(wg); }
   C.headM = glow('#fff6d8', 4); C.tailM = glow('#ff3040', 2.5);
   g.add(box(.06, .16, .4, C.headM, 2.21, .7, .62, false), box(.06, .16, .4, C.headM, 2.21, .7, -.62, false), box(.06, .14, .45, C.tailM, -2.21, .7, .6, false), box(.06, .14, .45, C.tailM, -2.21, .7, -.6, false));
   if (o.police) {
     C.redM = glow('#ff2030', 3); C.bluM = glow('#2a6aff', 3);
-    g.add(box(.3, .14, .6, C.redM, -.3, 1.62, -.35, false), box(.3, .14, .6, C.bluM, -.3, 1.62, .35, false));
+    g.add(box(.3, .14, .6, C.redM, -.3, 1.64, -.35, false), box(.3, .14, .6, C.bluM, -.3, 1.64, .35, false));
+    const cop = person('#1c2a52', '#1c2a52', '#e0b090', '#1a1a1a', 1.72, {}); cop.g.position.set(.15, .22, -.45); cop.g.rotation.y = Math.PI / 2; sit(cop, { wheel: 1 }); g.add(cop.g);
     C.pl = new THREE.PointLight('#ff2030', 0, 12, 1.3); C.pl.position.set(-.3, 2.2, 0); g.add(C.pl);
   } else { C.spot = new THREE.SpotLight('#fff2d0', 0, 30, .45, .5, 1.2); C.spot.position.set(2.3, .8, 0); C.spot.target.position.set(12, 0, 0); g.add(C.spot, C.spot.target); }
   G.add(g); return C;
 }
 const car = makeCar('#ff7a1a');
+const cabinL = new THREE.PointLight('#ffd6a8', 2.2, 3.2, 1.5); cabinL.position.set(-.4, 1.45, 0); car.g.add(cabinL);   // a dim cabin light: faces readable through the glass
 const pol = [makeCar('#eef1f6', { police: 1, stripe: '#2a4aa8' }), makeCar('#eef1f6', { police: 1, stripe: '#2a4aa8' })];
 const opol = [makeCar('#eef1f6', { police: 1, stripe: '#2a4aa8' }), makeCar('#eef1f6', { police: 1, stripe: '#2a4aa8' })];
 function siren(C, t, k) { const a = Math.sin(t * 18 + k) > 0; C.redM.emissiveIntensity = a ? 5 : .3; C.bluM.emissiveIntensity = a ? .3 : 5; C.pl.color.set(a ? '#ff2030' : '#2a6aff'); C.pl.intensity = 14; }
@@ -281,7 +283,7 @@ function cam(t) {
 const DOORX = [-.5, .1, .7], ARRIVE = [[2.3, -3.25], [1.0, -3.25], [.3, -3.25]];
 function act(t) {
   const cut = CAM.cut;
-  car.roof.visible = cut !== 1; car.glass.visible = cut === 1; OVER.visible = cut !== 1;
+  OVER.visible = cut !== 1;
   // museum doors + alarm (hook: a flash-forward of the same moment)
   const dOpen = t < T.wait ? ss(seg(t, .2, .5)) : ss(seg(t, T.open, T.open + .35));
   doorL.rotation.y = dOpen * 1.6; doorR.rotation.y = -dOpen * 1.6; doorLight.intensity = 2 + 5 * dOpen; caseLight.intensity = 12;
