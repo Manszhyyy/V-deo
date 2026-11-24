@@ -1,0 +1,3 @@
+«31-й ученик» · серия 1 — flat 2D horror short (vertical 1080×1920), drawn on a 2D canvas.
+Narration: Gemini TTS (voice «Charon»), sped up 1.12×. Font: Rubik (SIL OFL 1.1, via @fontsource/rubik).
+Render pipeline: Lemo-Opuscar (MIT) — events.mjs / video.mjs / mux.sh / srt.py.
