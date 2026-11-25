@@ -247,7 +247,7 @@ function scene(t) {
         crowdRow(t, 1600, 6, 1.5, '#120c0e', true); vignette(.6); }
       else { basement(t); shade(.2); push(540, 900, lerp(1.0, 1.08, seg(u, .62, 1))); kid(540, 950, 3.0, { ...ME, hood: '#e8c0a0', neck: '#d8b090', look: [-.9, -.2], turn: -.4, brow: .5, blink: blinkAt(t, 4), sweat: true, mouth: 'flat' }); vignette(.6); }
       break; }
-    case 'offer': { const talk = t > WT('v4', 3) - .05 && t < VEND('v4');
+    case 'offer': { const talk = t > WT('v4', 4) - .05 && t < VEND('v4');
       if (u < .3) { basement(t); P(R(760, 640, 260, 860), '#f4e6c0', 6); const k = ss(seg(u, 0, .3)); push(560, 1300, lerp(1.0, 1.06, u / .3)); scout(lerp(900, 680, k), 1780, .95, { look: [-.6, 0] }); kid(300, 1380, 1.25, { ...ME, hood: '#f4f0e6', neck: '#d8d4cc', look: [.8, -.2], brow: .3, blink: blinkAt(t, 4), sweat: true }); vignette(.55); }
       else { basement(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); scout(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
         const ck = ss(seg(u, .55, .8)); g.save(); g.translate(540, lerp(2100, 1450, ck)); g.rotate(-.06); P(R(-260, -170, 520, 340, 12), '#f8f4e8', 6); textC('КОНТРАКТ', 0, -100, 56, INK, 900); textC('BELLATOR · ДЕБЮТ', 0, -20, 36, '#b8322a', 900); textC('соперник: дебютант', 0, 30, 30, INK, 700); line([[-200, 80], [200, 80]], 3); textC('подпись', 140, 110, 22, '#8a8a8a', 700); g.restore(); vignette(.55); }
