@@ -1,13 +1,13 @@
 // «Путь наверх» · Серия 1 — a flat 2D sports-drama short about a fictional fighter (no real people, no league logos).
-// Seventeen, 12–0 in basement fights for 5,000; a scout in an expensive coat offers a debut in a month against the No. 10 in the rankings.
-// Las Vegas, twenty thousand people; the opponent «Акула» laughs in your face at the weigh-in; round one — he hits harder than you thought, and you go down.
+// Seventeen, 12–0 in basement fights; a scout offers a lightweight debut in a month against another debutant nicknamed «Мешок» — slow, but takes a punch like a concrete wall.
+// Las Vegas, round one: you hit him again and again, and he just smiles and walks forward. Choice: a takedown or keep striking.
 import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
 
 const EP = { title: 'ПУТЬ НАВЕРХ · СЕРИЯ 1', next: 'Серия 2 — по вашему выбору' };
-const BEATS = [['v1', 'pit'], ['v2', 'record'], ['v3', 'scout'], ['v4', 'offer'], ['v5', 'vegas'], ['v6', 'weigh'], ['v7', 'ko'], [null, 'floor', 2.4], ['v10', 'choice']];
-const CH = [['А', 'Встать и идти в размен', '#ff4a4a'], ['Б', 'Уйти в защиту и тянуть время', '#4ad0ff']];
-const RED = { v1: ['пять', 'тысяч.'], v2: ['нокаутом.'], v4: ['десятого'], v6: ['акула.'], v7: ['падаешь.'] };
+const BEATS = [['v1', 'pit'], ['v2', 'record'], ['v3', 'scout'], ['v4', 'offer'], ['v5', 'meshok'], ['v6', 'vegas'], ['v7', 'fight'], [null, 'stare', 2.4], ['v10', 'choice']];
+const CH = [['А', 'Проход в ноги', '#ff4a4a'], ['Б', 'Работать в стойке', '#4ad0ff']];
+const RED = { v1: ['пять', 'тысяч.'], v2: ['нокаутом.'], v4: ['дебютант».'], v5: ['мешок.', 'стена.'], v7: ['улыбается'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
 const J = async (u, d) => { try { return await (await fetch(u)).json(); } catch (e) { return d; } };
 const DURS = await J('vo/dur.json', {}), WORDS = await J('vo/words.json', {}), LINES = await J('vo/lines.json', []);
@@ -118,20 +118,22 @@ const talkM = (t, on) => on && Math.sin(t * 19) > -.1 ? 'o' : 'flat';
 const GLOVE = '#d8322a', SHORTS = '#1e2a4a';
 // ---------------------------------------------------------------- fighters: bare torso, shorts, gloves; punch = which glove comes at the camera
 function fighter(x, yf, s, o = {}) {
-  const sk = o.skin || SKIN, big = o.big ? 1.45 : o.tall ? .95 : 1, tall = o.big ? 1.1 : o.tall ? 1.12 : 1, ph = o.walk, bob = ph != null ? Math.abs(Math.sin(ph)) * 10 : 0, pu = o.punch || 0, side = o.side || 1;
+  const sk = o.skin || SKIN, big = o.big ? 1.45 : o.stocky ? 1.42 : o.tall ? .95 : 1, tall = o.big ? 1.1 : o.stocky ? .94 : o.tall ? 1.12 : 1, ph = o.walk, bob = ph != null ? Math.abs(Math.sin(ph)) * 10 : 0, pu = o.punch || 0, side = o.side || 1;
   g.save(); g.translate(x, yf - bob * s); g.scale(s * big, s * tall);
   for (const sx of [-1, 1]) { P(R(sx * 48 - 32, -230, 64, 225, 28), sk, 6); P(E(sx * 48, -12, 40, 18), '#1a1a1e', 6); }
   P(L([[-118, -170], [-122, -270], [122, -270], [118, -170], [96, -150], [-96, -150]]), o.shorts || SHORTS); line([[-118, -250], [118, -250]], 6, o.belt || '#e8e4dc');
   P(L([[-96, -260], [-128, -400], [-96, -450], [96, -450], [128, -400], [96, -260]]), sk);
   if (!o.back) { line([[-50, -390], [0, -372, 50, -390]], 4); line([[0, -360], [0, -280]], 3); line([[-36, -330], [36, -330]], 3); line([[-34, -296], [34, -296]], 3); }
   if (o.big) { P(E(-112, -420, 40, 34), sk, 6); P(E(112, -420, 40, 34), sk, 6); }
+  if (o.stocky) P(E(0, -300, 92, 70), sk, 5);
   if (o.shark) P(L([[-30, -300], [10, -390], [30, -300]]), '#2a3a5a', 5);
   if (o.tattoo) { P(L([[-100, -420], [-70, -380], [-110, -350]]), null, 6, '#2a2a4a'); P(E(80, -390, 22, 22), null, 5, '#2a2a4a'); }
   const arm = (sx, k) => { g.save(); g.translate(sx * 110, -430); const up = o.guard !== false; g.rotate(sx * (up ? -.25 : .1)); P(R(-30, 0, 60, 150, 30), sk, 6);
     const gx = up ? -sx * 40 * (1 - k) : 0, gy = up ? 120 - 230 * (1 - k * .3) : 170, gs = 1 + k * 1.6; P(E(gx, gy, 54 * gs, 50 * gs), o.glove || GLOVE, 6); line([[gx - 20 * gs, gy + 30 * gs], [gx + 20 * gs, gy + 30 * gs]], 5, '#f4f0e6'); g.restore(); };
   arm(-1, side < 0 ? pu : 0); arm(1, side > 0 ? pu : 0);
   g.restore();
-  if (o.back) { g.save(); g.translate(x, yf - (520 * tall + bob) * s); g.scale(s, s); P(E(-99, 14, 17, 24), sk, 6); P(E(99, 14, 17, 24), sk, 6); P(E(0, 0, 102, 106), o.hair || KIDHAIR); g.restore(); return; }
+  if (o.back) { g.save(); g.translate(x, yf - (520 * tall + bob) * s); g.scale(s, s); P(E(-99, 14, 17, 24), sk, 6); P(E(99, 14, 17, 24), sk, 6); P(E(0, 0, 102, 106), o.hair || KIDHAIR);
+    for (const sx of [-1, 1]) { const k = sx === side ? pu : 0, gx = sx * 120 + k * 140, gy = 40 - k * 120, gs = 1 - k * .4; P(E(gx, gy, 56 * gs, 60 * gs), o.glove || GLOVE, 6); } g.restore(); return; }
   head(x, yf - (520 + bob) * s, s * big, o);
 }
 // ---------------------------------------------------------------- places
@@ -162,6 +164,7 @@ function posterChamp(t, k) {
   g.font = '900 60px Rubik'; g.lineWidth = 12; g.strokeText('ЧЕМПИОН · 21–0', 540, 540); g.fillStyle = '#fff'; g.fillText('ЧЕМПИОН · 21–0', 540, 540); g.restore();
 }
 // ---------------------------------------------------------------- people of episode 1
+const MESHOK = { stocky: true, skin: '#f2b8a0', bald: true, beard: '#d88a4a', square: true, mean: true, pupil: .8, shorts: '#3a7a3a', glove: '#2a5ad8', brow: .1 };
 const ME = { mole: true }, AKULA = { tall: true, skin: '#a86a48', mohawk: '#141418', mean: true, scar: true, shorts: '#b8322a', shark: true, pupil: .7 };
 const BUM = { skin: '#e8c0a0', hair: '#c88a3a', shorts: '#4a6a3a', glove: '#2a5ad8' };
 function scout(x, yf, s, o = {}) {
@@ -199,37 +202,39 @@ function scene(t) {
       push(560, 1300, lerp(1.0, 1.08, u)); scout(lerp(890, 700, k), 1780, .95, { look: [-.6, 0] }); kid(300, 1380, 1.25, { ...ME, hood: '#f4f0e6', neck: '#d8d4cc', look: [.8, -.2], brow: .3, blink: blinkAt(t, 4), sweat: true }); P(R(100, 1650, 450, 60, 10), '#6a4a3a'); vignette(.55); break; }
     case 'offer': { basement(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); const talk = t > VO.find(v => v.id === 'v4').t && t < VEND('v4');
       scout(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
-      const ck = ss(seg(u, .45, .7)); g.save(); g.translate(540, lerp(2100, 1450, ck)); g.rotate(-.06); P(R(-260, -170, 520, 340, 12), '#f8f4e8', 6); textC('КОНТРАКТ', 0, -100, 56, INK, 900); textC('ДЕБЮТ: соперник №10', 0, -10, 36, '#b8322a', 900); line([[-200, 80], [200, 80]], 3); textC('подпись', 140, 110, 22, '#8a8a8a', 700); g.restore(); vignette(.55); break; }
+      const ck = ss(seg(u, .45, .7)); g.save(); g.translate(540, lerp(2100, 1450, ck)); g.rotate(-.06); P(R(-260, -170, 520, 340, 12), '#f8f4e8', 6); textC('КОНТРАКТ', 0, -100, 56, INK, 900); textC('ДЕБЮТ · ЛЁГКИЙ ВЕС', 0, -20, 36, '#b8322a', 900); textC('соперник: дебютант', 0, 30, 30, INK, 700); line([[-200, 80], [200, 80]], 3); textC('подпись', 140, 110, 22, '#8a8a8a', 700); g.restore(); vignette(.55); break; }
     case 'vegas': if (u < .55) { push(540, 900, lerp(1.0, 1.1, u / .55)); vegas(t); vignette(.4); } else { arena(t); push(540, 900, lerp(1.0, 1.06, seg(u, .55, 1))); vignette(.4); } break;
-    case 'weigh': { g.fillStyle = '#0c0e18'; g.fillRect(0, 0, W, H); P(R(0, 300, W, 600), '#1a2240', 0); for (let i = 0; i < 6; i++) textC('ВЗВЕШИВАНИЕ', 180 + i * 360 - ((t * 40) % 360), 420, 44, 'rgba(255,255,255,.25)', 900);
-      P(R(0, 1700, W, 220), '#2a2a34', 6); const laugh = t > WT('v6', 6) - .1; push(540, 1100, lerp(1.0, 1.06, u));
-      fighter(290, 2000, 1.25, { ...ME, guard: false, look: [.8, 0], brow: .2, mouth: 'flat', blink: blinkAt(t, 2) });
-      g.save(); if (laugh) { g.translate(790, 2000); g.rotate(-.04 * Math.sin(t * 14)); g.translate(-790, -2000); } fighter(790, 2000, 1.25, { ...AKULA, guard: false, look: [-.8, 0], mouth: laugh ? 'o' : 'smile', open: 1.3, tilt: laugh ? -.15 : 0 }); g.restore();
-      if (Math.sin(t * 13) > .93) { g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(0, 0, W, H); } vignette(.5); break; }
-    case 'ko': {
-      if (u < .45) { const k = seg(u, 0, .45), pu = ss(seg(k, .55, 1)); arena(t); push(540, 1100, lerp(1.4, 1.7, k), 8 * Math.sin(t * 30) * pu, 0); fighter(540, 2200, 1.7, { ...AKULA, punch: pu, side: 1, look: [0, 0] }); if (k > .95) { g.fillStyle = '#fff'; g.fillRect(-400, -400, W + 800, H + 800); } }
-      else { const k = seg(u, .45, 1); g.fillStyle = '#05060a'; g.fillRect(0, 0, W, H); g.save(); g.translate(540, 960); g.rotate(k * .6 + Math.sin(t * 3) * .05); g.translate(-540, -960);
-        for (const [x, y] of [[300, 500], [780, 520], [540, 820]]) { P(E(x, y, 90, 50), '#f4f6ff', 0); glowAt(x, y, 360, 'rgba(230,236,255,.6)'); }
-        for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; line([[540 + Math.cos(a) * 700, 960 + Math.sin(a) * 700], [540 + Math.cos(a) * 1400, 960 + Math.sin(a) * 1400]], 40, '#1a1a1e'); } g.restore();
-        g.fillStyle = `rgba(255,255,255,${Math.max(0, 1 - k * 4)})`; g.fillRect(0, 0, W, H); shade(.2 + .2 * k, '40,0,0'); }
-      vignette(.8); break; }
-    case 'floor': { g.fillStyle = '#d8d8dc'; g.fillRect(0, 0, W, H); push(540, 900, lerp(1.0, 1.15, eio(u)));
-      for (const [dx, a] of [[-22, .35], [22, .35], [0, 1]]) { g.save(); g.globalAlpha = a; head(540 + dx * (1 - u), 900, 3.2, { ...ME, closed: u < .5, blink: 0, look: [0, 0], pupil: .5, brow: .6, mouth: 'o', open: .5, tilt: .3 }); g.restore(); }
-      shade(.25 * (1 - u), '40,0,0'); vignette(.8); break; }
-    case 'choice': g.fillStyle = '#d8d8dc'; g.fillRect(0, 0, W, H); head(540, 900, 3.2, { ...ME, pupil: .7, brow: -.3, tilt: .3, look: [0, -.6] }); shade(.35); break;
+    case 'meshok': { g.fillStyle = '#2a2a34'; g.fillRect(0, 0, W, H); P(R(0, 1640, W, 300), '#3a3a44', 6); glowAt(540, 700, 900, 'rgba(255,240,200,.35)');
+      push(540, 1100, lerp(1.0, 1.08, u)); const hit = (t * 2.2) % 1, hk = hit < .25 ? Math.sin(hit / .25 * Math.PI) : 0;
+      g.save(); g.translate(540, 1900); g.rotate(-.03 * hk); g.translate(-540, -1900); fighter(540, 1900, 1.15, { ...MESHOK, guard: false, blink: hk > .5 ? 1 : 0, mouth: 'flat', look: [0, 0] }); g.restore();
+      const gx = lerp(1300, 760, hk); P(E(gx, 1900 - 1.15 * 0.94 * 520 + 10, 70, 64), '#d8322a', 6); line([[gx + 60, 1900 - 560], [gx + 400, 1900 - 520]], 70, INK); line([[gx + 60, 1900 - 560], [gx + 400, 1900 - 520]], 56, '#e8c0a0');
+      if (hk > .6) for (let i = 0; i < 5; i++) { const a = i / 5 * TAU; line([[700 + Math.cos(a) * 60, 1300 + Math.sin(a) * 60], [700 + Math.cos(a) * 110, 1300 + Math.sin(a) * 110]], 7, '#ffd23a'); }
+      const k = ss(seg(u, .25, .45)); g.save(); g.globalAlpha = k; g.font = '900 230px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 24; g.strokeStyle = '#000'; g.strokeText('МЕШОК', 540, 470); g.fillStyle = '#3ad06a'; g.fillText('МЕШОК', 540, 470);
+      g.font = '900 54px Rubik'; g.lineWidth = 12; g.strokeText('ДЕБЮТАНТ · 0–0', 540, 590); g.fillStyle = '#fff'; g.fillText('ДЕБЮТАНТ · 0–0', 540, 590); g.restore(); vignette(.5); break; }
+    case 'fight': { arena(t); const step = ss(seg(u, 0, 1)), beat = (t * 2.6) % 1, pu = beat < .3 ? Math.sin(beat / .3 * Math.PI) : 0, snap = Math.max(0, Math.sin((beat - .12) / .3 * Math.PI)) * (beat > .12 && beat < .42 ? 1 : 0);
+      push(560, 1300, lerp(1.25, 1.55, step)); g.save(); const mx = 620, my = lerp(1650, 1800, step); g.translate(mx, my); g.rotate(-.08 * snap); g.translate(-mx, -my);
+      fighter(mx, my, lerp(.9, 1.1, step), { ...MESHOK, walk: t * 4, mouth: 'smile', look: [-.2, .1], blink: snap > .7 ? 1 : 0, cut: true }); g.restore();
+      if (snap > .6) { g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(-400, -400, W + 800, H + 800); }
+      fighter(290, 2380, 1.4, { ...ME, back: true, punch: pu, side: 1 }); vignette(.6); break; }
+    case 'stare': { arena(t); shade(.35); push(540, 820, lerp(1.0, 1.2, eio(u))); fighter(540, 2500, 2.6, { ...MESHOK, guard: true, mouth: 'smile', look: [0, 0], pupil: .45, brow: -.4 });
+      P(L([[460, 450], [500, 470], [470, 500]]), '#c82a2a', 0); vignette(.75); break; }
+    case 'choice': arena(t); push(560, 1300, 1.5); fighter(620, 1800, 1.1, { ...MESHOK, mouth: 'smile' }); fighter(290, 2380, 1.4, { ...ME, back: true }); shade(.35); break;
   }
   g.restore();
 }
-const CAPY = t => ['record'].includes(shotAt(t)) ? .86 : .63;
+const CAPY = t => ['record', 'meshok'].includes(shotAt(t)) ? .86 : .63;
+const fmtR = t => { const r = Math.max(0, 300 - Math.round((t - b0('fight')) * 9)); return Math.floor(r / 60) + ':' + String(r % 60).padStart(2, '0'); };
 function clock(t) {
-  const txt = t < b0('vegas') ? '23:10' : '21:00'; g.save(); rr(W / 2 - 92, 92, 184, 64, 20); g.fillStyle = 'rgba(16,16,26,.78)'; g.fill(); textC(txt, W / 2, 125, 40, '#fff', 700); g.restore();
+  const txt = t < b0('vegas') ? '23:10' : t < b0('fight') ? '21:00' : 'Р1 · ' + fmtR(t); g.save(); rr(W / 2 - 92, 92, 184, 64, 20); g.fillStyle = 'rgba(16,16,26,.78)'; g.fill(); textC(txt, W / 2, 125, 40, '#fff', 700); g.restore();
   if (t < 3.0) { g.save(); g.globalAlpha = 1 - ss(seg(t, 2.4, 3.0)); textC(EP.title, W / 2, 196, 34, 'rgba(255,255,255,.9)', 700); g.restore(); }
 }
 function epEvents() {
   const ev = [{ t: b0('pit'), type: 'crowd', d: b1('pit') - b0('pit') }]; for (let k = 0; k < 4; k++) ev.push({ t: b0('pit') + .2 + k / 3, type: 'thud' });
-  ev.push({ t: b0('pit') + (b1('pit') - b0('pit')) * .6, type: 'thud' }, { t: b0('record') + (b1('record') - b0('record')) * .6, type: 'sting' }, { t: b0('scout'), type: 'steps', d: (b1('scout') - b0('scout')) * .7, slow: 1 },
-    { t: b0('vegas'), type: 'crowd', d: b1('weigh') - b0('vegas') }, { t: b0('ko'), type: 'crowd', d: b1('ko') - b0('ko'), chant: 1 }, { t: b0('ko') + (b1('ko') - b0('ko')) * .44, type: 'hit' }, { t: b0('ko') + (b1('ko') - b0('ko')) * .45, type: 'ring', d: 3.5 }, { t: b0('floor'), type: 'heart', d: b1('floor') - b0('floor') + 1 });
-  return ev;
+  ev.push({ t: b0('pit') + (b1('pit') - b0('pit')) * .6, type: 'thud' }, { t: b0('record') + (b1('record') - b0('record')) * .6, type: 'sting' }, { t: b0('scout'), type: 'steps', d: (b1('scout') - b0('scout')) * .7, slow: 1 });
+  for (let k = 0; k * (1 / 2.2) < b1('meshok') - b0('meshok'); k++) ev.push({ t: b0('meshok') + Math.ceil(b0('meshok') * 2.2) / 2.2 - b0('meshok') + k / 2.2 + .1, type: 'thud' });
+  ev.push({ t: b0('vegas'), type: 'crowd', d: b1('vegas') - b0('vegas') }, { t: b0('fight'), type: 'crowd', d: DUR - b0('fight'), chant: 1 });
+  for (let k = 0; k * (1 / 2.6) < b1('fight') - b0('fight'); k++) ev.push({ t: b0('fight') + Math.ceil(b0('fight') * 2.6) / 2.6 - b0('fight') + k / 2.6 + .12, type: 'thud' });
+  ev.push({ t: b0('stare') + .2, type: 'hit' }, { t: b0('fight'), type: 'heart', d: b1('stare') - b0('fight') }); return ev;
 }
 // ---------------------------------------------------------------- HUD: clock badge, captions, the choice
 const span = v => { const i = VO.indexOf(v), nx = VO[i + 1]; let b = v.t + Math.max(1.4, (DURS[v.id] ?? 2.5) + .35); if (nx) b = Math.min(b, nx.t - .05); return [v.t - .05, b]; };
