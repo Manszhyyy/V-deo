@@ -5,7 +5,7 @@ import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
 const EP = { title: '10 МИНУТ · СЕРИЯ 1', next: 'Серия 2 — по вашему выбору' };
 const BEATS = [['v1', 'timer'], ['v2', 'off'], ['v3', 'street'], ['v4', 'pod'], ['v5', 'snow'], ['v6', 'lift'], ['v7', 'door'], [null, 'zero', 2.6], ['v10', 'choice']];
-const CH = [['А', 'Открыть дверь', '#ff4a4a'], ['Б', 'Разбить телефон', '#4ad0ff']];
+const CH = [['А', 'Открыть дверь', '#ff4a4a'], ['Б', 'Посмотреть в глазок', '#4ad0ff']];
 const RED = { v1: ['«до', 'встречи».'], v2: ['снова.'], v3: ['улице».'], v4: ['подъезде».'], v5: ['свежие', 'следы.'], v6: ['сам'], v7: ['дверью.'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
 const J = async (u, d) => { try { return await (await fetch(u)).json(); } catch (e) { return d; } };
@@ -163,7 +163,6 @@ function flight(t, o = {}) {
   g.font = '900 120px Rubik'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#b8322a'; g.fillText(o.floor || '5', 380, 760); g.strokeStyle = INK; g.lineWidth = 4; g.strokeText(o.floor || '5', 380, 760);
   // graffiti and cables
   line([[40, 300], [1040, 280]], 6, '#2a2a2e'); line([[40, 330], [1040, 312]], 4, '#2a2a2e');
-  g.save(); g.translate(150, 1000); g.rotate(-.15); g.font = '900 54px Rubik'; g.fillStyle = 'rgba(30,30,40,.55)'; g.fillText('ЦОЙ ЖИВ', 0, 0); g.restore();
   // steps
   const N = 11; for (let i = N - 1; i >= 0; i--) { const z0 = i / N, z1 = (i + 1) / N, y0 = sy(z0), y1 = sy(z1), w0 = 520 * ssc(z0), w1 = 520 * ssc(z1);
     P(L([[540 - w0, y0], [540 + w0, y0], [540 + w1, y1 + (y0 - y1) * .45], [540 - w1, y1 + (y0 - y1) * .45]]), '#8a8a86', 5);
