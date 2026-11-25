@@ -271,7 +271,7 @@ function scene(t) {
   }
   g.restore();
 }
-const CAPY = t => ['record', 'intro'].includes(shotAt(t)) ? .86 : ['fight', 'stun'].includes(shotAt(t)) ? .22 : .63;
+const CAPY = t => ['fight', 'stun'].includes(shotAt(t)) ? .22 : .84;
 const fmtR = t => { const r = Math.max(0, 300 - Math.round((t - b0('fight')) * 9)); return Math.floor(r / 60) + ':' + String(r % 60).padStart(2, '0'); };
 function clock(t) {
   const txt = t < b0('fight') ? (t < b0('intro') ? '23:10' : '20:30') : 'Р1 · ' + fmtR(t);
