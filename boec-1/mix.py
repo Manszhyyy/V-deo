@@ -19,7 +19,7 @@ def U(d): return np.arange(int(d * SR)) / SR
 amb = np.zeros((N, 2), np.float32); fol = np.zeros((N, 2), np.float32); mus = np.zeros((N, 2), np.float32)
 # room tone + rain on the window (louder in the bedroom)
 rainL = bp(nz(DUR + 1)[:N], 900, 7000) * .03; rainR = bp(nz(DUR + 1)[:N], 900, 7000) * .03
-rv = np.interp(tt, [0, cue['hand'] - .01, cue['hand'], DUR], [0, 0, .5, .5])
+rv = np.interp(tt, [0, cue['ko'] - .01, cue['ko'], DUR], [0, 0, .5, .5])
 amb += np.stack([rainL * rv, rainR * rv], 1) + lp(nz(DUR + 1)[:N], 300)[:, None] * .02
 for e in EV:
     t, ty = e['t'], e['type']; d = e.get('d', 1)
@@ -37,6 +37,8 @@ for e in EV:
         u = U(d); x = bp(nz(d), 300, 3000) * .5 + lp(nz(d), 400)
         if e.get('chant'): x = x * (1 + 1.6 * (np.sin(2 * np.pi * 1.1 * u) > .3))
         place(amb, x * .06 * np.clip(u / .8, 0, 1)[:len(x)], t, 1.0, 0)
+    elif ty == 'ring':
+        u = U(d); place(fol, np.sin(2 * np.pi * 3400 * u) * np.exp(-u / 1.4) * .05, t, 1.0, 0)
     elif ty == 'steps':
         rate = 2.2 if e.get('slow') else 3.6; k = 0
         while k / rate < d:
@@ -71,8 +73,8 @@ def drone(t0, t1, notes, amp, cut=900):
     x = sum(np.sin(2 * np.pi * 440 * 2 ** ((m - 69) / 12) * (1 + dd) * u) for m in notes for dd in (-.004, .004))
     x = lp(x, cut) * np.clip(u / 1.5, 0, 1) * np.clip((t1 - t0 - u) / .3, 0, 1) * amp
     mus[i0:i1, 0] += x; mus[i0:i1, 1] += np.roll(x, 300)
-drone(0, cue['call'], [38, 45], .05); drone(cue['call'], cue['hand'], [37, 44, 49], .055, 1000)
-drone(cue['hand'], cue['choice'], [36, 43, 48, 51], .06, 1200); drone(cue['choice'] + .2, DUR, [36, 43, 48], .045)
+drone(0, cue['scout'], [38, 45], .05); drone(cue['scout'], cue['ko'], [37, 44, 49], .055, 1000)
+drone(cue['ko'], cue['choice'], [36, 43, 48, 51], .06, 1200); drone(cue['choice'] + .2, DUR, [36, 43, 48], .045)
 # narration, compressed; levels set from the speech
 vo = np.zeros((N, 2), np.float32); vm = np.zeros(N)
 for e in EV:

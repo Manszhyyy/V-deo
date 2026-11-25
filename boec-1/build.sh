@@ -11,7 +11,7 @@ cd "$LIB"
 node core/render/events.mjs "$HERE" --size 1080x1920 --out "$HERE/out/events.json"
 "$PY" "$HERE/mix.py"
 node core/render/video.mjs "$HERE" --size 1080x1920 --q "ssaa=${SSAA:-1.5}" --fps 24 --workers "${WORKERS:-4}" --out "$HERE/out/video.mp4"
-ffmpeg -v error -y -i "$HERE/out/mix.wav" -af "volume=3dB,aresample=192000,alimiter=limit=0.4:attack=1:release=80:level=false,aresample=48000" -c:a pcm_s24le "$HERE/out/mix_lim.wav"
+ffmpeg -v error -y -i "$HERE/out/mix.wav" -af "loudnorm=I=-14:TP=-1.5:LRA=9,aresample=48000" -c:a pcm_s24le "$HERE/out/mix_lim.wav"
 sh core/render/mux.sh "$HERE/out/video.mp4" "$HERE/out/mix_lim.wav" "$HERE/$NAME.mp4" 24 0
 # film grain makes the mux huge: re-encode to a phone-friendly size (GitHub limit is 100 MB)
 ffmpeg -v error -y -i "$HERE/$NAME.mp4" -c:v libx264 -preset slow -crf 24 -maxrate 9M -bufsize 18M -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart "$HERE/$NAME.small.mp4" && mv "$HERE/$NAME.small.mp4" "$HERE/$NAME.mp4"
