@@ -19,7 +19,7 @@ def U(d): return np.arange(int(d * SR)) / SR
 amb = np.zeros((N, 2), np.float32); fol = np.zeros((N, 2), np.float32); mus = np.zeros((N, 2), np.float32)
 # room tone + rain on the window (louder in the bedroom)
 rainL = bp(nz(DUR + 1)[:N], 900, 7000) * .03; rainR = bp(nz(DUR + 1)[:N], 900, 7000) * .03
-rv = np.interp(tt, [0, cue['night'] - .01, cue['night'], DUR], [0, 0, .5, .5])
+rv = np.interp(tt, [0, cue['pillow'] - .01, cue['pillow'], DUR], [0, 0, .5, .5])
 amb += np.stack([rainL * rv, rainR * rv], 1) + lp(nz(DUR + 1)[:N], 300)[:, None] * .02
 for e in EV:
     t, ty = e['t'], e['type']; d = e.get('d', 1)
@@ -32,6 +32,7 @@ for e in EV:
         while k * .6 < d:
             for o, gg in ((0, 1), (.15, .6)): u = U(.25); place(mus, np.sin(2 * np.pi * 50 * u) * np.exp(-u / .06) * .6 * gg, t + k * .6 + o, 1.0)
             k += 1
+    elif ty == 'thud': u = U(.4); place(fol, (np.sin(2 * np.pi * 75 * u) * np.exp(-u / .07) + bp(nz(.4), 300, 2500) * np.exp(-u / .02)) * .5, t, 1.0, 0)
     elif ty == 'write':
         u = U(d); x = bp(nz(d), 2500, 8000) * (np.abs(np.sin(2 * np.pi * 7 * u)) > .4) * np.clip((d - u) / .2, 0, 1); place(fol, x * .06, t, 1.0, .2)
     elif ty == 'doorbell':
@@ -53,8 +54,8 @@ def drone(t0, t1, notes, amp, cut=900):
     x = sum(np.sin(2 * np.pi * 440 * 2 ** ((m - 69) / 12) * (1 + dd) * u) for m in notes for dd in (-.004, .004))
     x = lp(x, cut) * np.clip(u / 1.5, 0, 1) * np.clip((t1 - t0 - u) / .3, 0, 1) * amp
     mus[i0:i1, 0] += x; mus[i0:i1, 1] += np.roll(x, 300)
-drone(0, cue['granny'], [38, 45], .05); drone(cue['granny'], cue['closer'], [37, 44, 49], .055, 1000)
-drone(cue['closer'], cue['choice'], [36, 43, 48, 51], .06, 1200); drone(cue['choice'] + .2, DUR, [36, 43, 48], .045)
+drone(0, cue['snatch'], [38, 45], .05); drone(cue['snatch'], cue['wave'], [37, 44, 49], .055, 1000)
+drone(cue['wave'], cue['choice'], [36, 43, 48, 51], .06, 1200); drone(cue['choice'] + .2, DUR, [36, 43, 48], .045)
 # narration, compressed; levels set from the speech
 vo = np.zeros((N, 2), np.float32); vm = np.zeros(N)
 for e in EV:

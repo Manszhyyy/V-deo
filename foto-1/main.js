@@ -1,12 +1,13 @@
-// «Фото 1962» · Серия 1 — a flat 2D mystery short: in an old photo from grandma's chest, taken in 1962, you are standing in the background.
-// Same jacket, same face, the same mole. "That boy was never found." At night he stands closer and looks into the lens; on the back: «Поменяемся?»
+// «Фото 1962» · Серия 1 — a flat 2D mystery short: in a photo from 1962 stands you, fourteen, with your headphones round your neck.
+// Grandma burned that photo sixty years ago; the boy lived with them a week and vanished with her brother. At night it is back on your pillow:
+// «Завтра в три ночи. Поменяемся» — and in the photo, where you stood, her brother now waves at you.
 import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
 
 const EP = { title: 'ФОТО 1962 · СЕРИЯ 1', next: 'Серия 2 — по вашему выбору' };
-const BEATS = [['v1', 'photo'], ['v2', 'attic'], ['v3', 'compare'], ['v4', 'granny'], ['v5', 'night'], ['v6', 'closer'], ['v7', 'back'], [null, 'gone', 2.4], ['v10', 'choice']];
-const CH = [['А', 'Сжечь фотографию', '#ff4a4a'], ['Б', 'Показать бабушке и узнать правду', '#4ad0ff']];
-const RED = { v1: ['ты.'], v3: ['родинка'], v4: ['не', 'нашли».'], v6: ['ближе.', 'камеру.'], v7: ['поменяемся?»'] };
+const BEATS = [['v1', 'photo'], ['v2', 'compare'], ['v3', 'snatch'], ['v4', 'flash'], ['v5', 'pillow'], ['v6', 'back'], ['v7', 'wave'], [null, 'stare', 2.2], ['v10', 'choice']];
+const CH = [['А', 'Сжечь фото, как бабушка', '#ff4a4a'], ['Б', 'Найти бабушкиного брата', '#4ad0ff']];
+const RED = { v1: ['ты.'], v2: ['наушники'], v3: ['сожгла'], v4: ['исчез.', 'братом».'], v5: ['снова'], v6: ['поменяемся».'], v7: ['брат.', 'машет'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
 const J = async (u, d) => { try { return await (await fetch(u)).json(); } catch (e) { return d; } };
 const DURS = await J('vo/dur.json', {}), WORDS = await J('vo/words.json', {}), LINES = await J('vo/lines.json', []);
@@ -84,6 +85,7 @@ function kid(x, y, s, o = {}) {        // hoodie, then the head; (x, y) is the h
   g.save(); g.translate(x, y); g.scale(s, s);
   P(L([[-175, 420], [-160, 190], [-150, 120, -70, 100], [70, 100], [150, 120, 160, 190], [175, 420]]), o.hood || HOOD);
   P(E(0, 104, 78, 26), o.neck || '#245a4c', 6); line([[-24, 120], [-30, 200]], 5); line([[24, 120], [30, 200]], 5);
+  if (o.phones) { line([[-78, 150], [0, 196, 78, 150]], 12, '#222'); P(E(-84, 146, 30, 36), '#e8443c', 6); P(E(84, 146, 30, 36), '#e8443c', 6); }
   g.restore(); head(x, y, s, o);
 }
 function mum(x, y, s, o = {}) {
@@ -108,22 +110,25 @@ const WALL = '#2c3866', WALL2 = '#232d55', FLOOR = '#3a2c46', WOOD = '#6e4b3b', 
 const WT = (id, i) => VO.find(v => v.id === id).t + (WORDS[id]?.[i]?.[1] ?? 0);
 const VEND = id => VO.find(v => v.id === id).t + (DURS[id] ?? 2);
 const talkM = (t, on) => on && Math.sin(t * 19) > -.1 ? 'o' : 'flat';
-const ME = { mole: true };
+const ME = { mole: true, phones: true };
 // ---------------------------------------------------------------- the photograph: drawn in colour, then turned sepia inside its own clip
-function photoContent(t, stage) {      // 600 × 440: a log house, a family of four; you in the back (0), close and staring (1), gone (2)
+function waveArm(x, y, s, t, col) { const a = Math.sin(t * 7) * .35; g.save(); g.translate(x + 120 * s, y + 140 * s); g.rotate(-2.3 + a); P(R(-22 * s, 0, 44 * s, 190 * s, 22 * s), col, 5); P(E(0, 205 * s, 30 * s, 30 * s), SKIN, 5); g.restore(); }
+function photoContent(t, stage, o = {}) {      // 600 × 440: a log house, a family; you at the back (0); you gone and the brother in your place, waving (3)
   g.fillStyle = '#c8d4dc'; g.fillRect(0, 0, 600, 440); g.fillStyle = '#7a8a5a'; g.fillRect(0, 300, 600, 140);
   P(R(40, 90, 330, 220), '#8a6a4a', 5); for (let i = 0; i < 9; i++) line([[40, 110 + i * 24], [370, 110 + i * 24]], 3); P(L([[20, 95], [205, 10], [390, 95]]), '#6a5a4a', 5);
   P(R(150, 150, 80, 70), '#2a3040', 5); line([[190, 150], [190, 220]], 4); line([[150, 185], [230, 185]], 4);
   for (let x = 400; x < 600; x += 26) P(R(x, 220, 12, 90), '#a08a6a', 3); line([[396, 245], [600, 245]], 4); line([[396, 285], [600, 285]], 4);
-  if (stage === 0) kid(500, 230, .3, { ...ME, look: [0, .1] });
-  const fam = [[110, 250, .62, 'man'], [210, 248, .6, 'wom'], [300, 300, .42, 'k1'], [370, 302, .4, 'k2']];
-  for (const [x, y, s, w] of fam) { if (w === 'wom') mum(x, y, s, { hc: '#5a4030', robe: '#7a6a8a', mouth: 'smile', blink: 0 }); else kid(x, y, s, { hair: w === 'k2' ? '#d8b060' : '#3a2a20', hood: w === 'man' ? '#4a4a5a' : '#8a6a5a', neck: '#6a6a6a', mouth: 'smile' }); }
-  if (stage === 1) kid(470, 300, .95, { ...ME, look: [0, 0], pupil: .45, mouth: 'flat', brow: 0 });
+  const v = 1 - (o.vanish || 0);
+  if (stage === 0) { g.save(); g.globalAlpha = v; kid(500, 230, .3, { ...ME, look: [0, .1] }); g.restore(); }
+  mum(110, 252, .62, { hc: '#3a2a20', robe: '#4a4a5a', mouth: 'smile' }); mum(210, 250, .6, { hc: '#5a4030', robe: '#7a6a8a', mouth: 'smile' });
+  kid(300, 300, .42, { girl: true, cute: true, pig: true, hc: '#5a3a20', hood: '#c88aa0', neck: '#a87088', mouth: 'smile' });
+  if (stage === 0) { g.save(); g.globalAlpha = v; kid(372, 302, .4, { hair: '#d8b060', hood: '#8a6a5a', neck: '#6a6a6a', mouth: 'smile' }); g.restore(); }
+  if (stage === 3) { kid(440, 250, .45, { hair: '#d8b060', hood: '#8a6a5a', neck: '#6a6a6a', mouth: o.creep ? 'creep' : 'smile', pupil: o.creep ? .4 : 1, creep: o.creep }); waveArm(440, 250, .45, t, '#8a6a5a'); }
 }
 function photo(t, cx, cy, k, rot, stage, o = {}) {
   g.save(); g.translate(cx, cy); g.rotate(rot); g.scale(k, k);
   g.save(); g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 30; g.shadowOffsetY = 14; P(R(-330, -250, 660, 500, 6), '#efe6d2', 6); g.restore();
-  g.save(); g.beginPath(); g.rect(-300, -220, 600, 440); g.clip(); g.translate(-300, -220); photoContent(t, stage);
+  g.save(); g.beginPath(); g.rect(-300, -220, 600, 440); g.clip(); g.translate(-300, -220); photoContent(t, stage, o);
   g.globalCompositeOperation = 'saturation'; g.fillStyle = '#808080'; g.fillRect(0, 0, 600, 440);
   g.globalCompositeOperation = 'multiply'; g.fillStyle = o.tint || '#e2c08e'; g.fillRect(0, 0, 600, 440);
   g.globalCompositeOperation = 'source-over'; g.strokeStyle = 'rgba(255,250,235,.35)'; g.lineWidth = 2; for (let i = 0; i < 7; i++) { g.beginPath(); const x = hash(i * 5) * 600; g.moveTo(x, 0); g.lineTo(x + 30 * (hash(i) - .5), 440); g.stroke(); }
@@ -134,7 +139,9 @@ function photoBack(t, cx, cy, k, rot, reveal) {
   g.save(); g.translate(cx, cy); g.rotate(rot); g.scale(k, k);
   g.save(); g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 30; g.shadowOffsetY = 14; P(R(-330, -250, 660, 500, 6), '#e8dcc0', 6); g.restore();
   P(E(-200, -150, 70, 70), null, 4, 'rgba(90,60,140,.55)'); textC('ФОТО', -200, -165, 26, 'rgba(90,60,140,.6)', 900); textC('1962', -200, -130, 30, 'rgba(90,60,140,.6)', 900);
-  g.save(); g.beginPath(); g.rect(-310, -80, 620 * reveal, 200); g.clip(); g.transform(1, 0, -.15, 1, 0, 0); g.font = '900 78px Rubik'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#7a1e1e'; g.fillText('Поменяемся?', 0, 30); g.restore();
+  g.save(); g.transform(1, 0, -.15, 1, 0, 0); g.font = '900 64px Rubik'; g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillStyle = '#7a1e1e';
+  [['Завтра в 3:00', -40], ['Поменяемся', 60]].forEach(([txt, y], i) => { const k = clamp(reveal * 2 - i, 0, 1); g.save(); g.beginPath(); g.rect(-280, y - 50, 600 * k, 100); g.clip(); g.fillText(txt, -250, y); g.restore(); });
+  g.restore();
   g.restore();
 }
 // ---------------------------------------------------------------- places
@@ -164,35 +171,41 @@ function nightDesk(t, stage, who) {
   photo(t, 560, 1430, .95, -.06, stage);
 }
 // ---------------------------------------------------------------- shots
+function pillowBed(t) {
+  g.fillStyle = '#141a3a'; g.fillRect(0, 0, W, H); P(L([[0, 900], [W, 820], [W, H], [0, H]]), '#2e4a7a'); P(E(560, 1080, 470, 260, -.06), '#ece8e0');
+  beam([[700, 0], [1000, 0], [900, 1500], [300, 1500]], '#9ab0f0', .1); photo(t, 560, 1060, .8, .12, 0);
+  shade(.25);
+}
 function scene(t) {
   const s = shotAt(t), u = clamp(seg(t, b0(s), b1(s)), 0, 1); g.save();
   switch (s) {
-    case 'photo': g.fillStyle = '#4a3428'; g.fillRect(0, 0, W, H); push(840, 905, lerp(1.0, 2.6, eio(seg(u, .25, 1)))); photo(t, 540, 900, 1.5, -.04, 0); break;
-    case 'attic': push(540, 1100, lerp(1.0, 1.06, u)); attic(t); vignette(.6); break;
+    case 'photo': g.fillStyle = '#4a3428'; g.fillRect(0, 0, W, H); push(840, 905, lerp(1.0, 2.8, eio(seg(u, .2, 1)))); photo(t, 540, 900, 1.5, -.04, 0); break;
     case 'compare':
       if (u < .5) { g.fillStyle = '#3e2a20'; g.fillRect(0, 0, W, H); push(700, 900, lerp(1.0, 1.15, u * 2)); kid(540, 900, 3.6, { ...ME, look: [.2, 0], blink: blinkAt(t, 8), brow: .4 }); glowAt(900, 700, 600, 'rgba(255,230,180,.35)'); vignette(.6); }
-      else { g.fillStyle = '#2a1c14'; g.fillRect(0, 0, W, H); const k = seg(u, .5, 1); push(540, 900, lerp(1.0, 1.1, k)); const K = 8.6; photo(t, 540 - 200 * K, 860 - 10 * K, K, 0, 0); vignette(.6); }
+      else { g.fillStyle = '#2a1c14'; g.fillRect(0, 0, W, H); const k = seg(u, .5, 1); push(540, 900, lerp(1.0, 1.1, k)); const K = 8.6; photo(t, 540 - 200 * K, 760 - 10 * K, K, 0, 0); vignette(.6); }
       break;
-    case 'granny': { kitchen(t); push(540, 1000, lerp(1.0, 1.06, u)); const talk = t > WT('v4', 2) - .05 && t < VEND('v4');
-      mum(540, 1000, 2.1, { hc: '#c8c8cc', robe: '#5a5a7a', glasses: true, skin: '#f2e2d6', look: [0, .2], brow: .8, blink: blinkAt(t, 4), mouth: talkM(t, talk), open: .7 });
-      line([[540 - 175, 1000 - 30], [540 - 150, 1000 - 20]], 4); line([[540 + 175, 1000 - 30], [540 + 150, 1000 - 20]], 4);
-      vignette(.45); break; }
-    case 'night': push(560, 1100, lerp(1.0, 1.08, u)); nightDesk(t, 0, () => kid(560, 640, 1.5, { ...ME, look: [0, .9], brow: u > .55 ? .9 : .3, pupil: u > .55 ? .55 : 1, blink: u > .55 ? 0 : blinkAt(t, 2), mouth: u > .55 ? 'o' : 'flat', open: .6 })); glowAt(110, 820, 500, 'rgba(255,200,110,.3)'); vignette(.65); break;
-    case 'closer': g.fillStyle = '#1a1210'; g.fillRect(0, 0, W, H); push(800, 960, lerp(1.0, 1.9, eio(u))); photo(t, 540, 900, 1.5, -.02, 1); vignette(.7); break;
-    case 'back': { g.fillStyle = '#1a1210'; g.fillRect(0, 0, W, H); const rv = ss(seg(t, WT('v7', 8) - .5, WT('v7', 9) + .5)); push(540, 900, lerp(1.0, 1.08, u)); photoBack(t, 540, 900, 1.5, .03, rv); vignette(.65); break; }
-    case 'gone': { g.fillStyle = '#140c0a'; g.fillRect(0, 0, W, H); push(800, 960, lerp(1.9, 1.5, eio(u))); photo(t, 540, 900, 1.5, -.02, 2, { tint: '#e0a888' }); shade(.25 * ss(seg(u, .4, .7)), '40,0,0'); vignette(.75); break; }
-    case 'choice': nightDesk(t, 2); shade(.2); break;
+    case 'snatch': { kitchen(t); push(540, 1000, lerp(1.0, 1.08, u)); const talk = t > WT('v3', 2) - .05 && t < VEND('v3');
+      mum(540, 960, 2.0, { hc: '#c8c8cc', robe: '#5a5a7a', glasses: true, skin: '#f2e2d6', look: [.3, .4], brow: .9, blink: blinkAt(t, 4), mouth: talkM(t, talk), open: .8 });
+      line([[365, 930], [390, 940]], 4); line([[715, 930], [690, 940]], 4);
+      const gr = ss(seg(u, 0, .25)); hand(lerp(900, 800, gr), 1350, .9, .3); photo(t, lerp(1000, 820, gr), lerp(1500, 1300, gr), .38, .25 - .2 * gr, 0); vignette(.45); break; }
+    case 'flash': { g.fillStyle = '#2a1c14'; g.fillRect(0, 0, W, H); const K = 4.2, v = ss(seg(u, .55, .9)); push(540, 900, lerp(1.0, 1.08, u)); photo(t, 540 - 100 * K, 860 - 60 * K, K, 0, 0, { vanish: v }); vignette(.7); break; }
+    case 'pillow': push(560, 1060, lerp(1.0, 1.35, eio(u))); pillowBed(t); vignette(.7); break;
+    case 'back': { g.fillStyle = '#1a1210'; g.fillRect(0, 0, W, H); const rv = ss(seg(t, WT('v6', 3) - .1, VEND('v6'))); push(540, 900, lerp(1.0, 1.08, u)); photoBack(t, 540, 900, 1.5, .03, rv); vignette(.65); break; }
+    case 'wave': g.fillStyle = '#1a1210'; g.fillRect(0, 0, W, H); push(750, 930, lerp(1.0, 1.9, eio(seg(u, .1, 1)))); photo(t, 540, 900, 1.5, -.02, 3); vignette(.7); break;
+    case 'stare': { g.fillStyle = '#140c0a'; g.fillRect(0, 0, W, H); const K = 8.0; push(540, 860, lerp(1.0, 1.25, eio(u))); photo(t, 540 - 140 * K, 880 - 30 * K, K, 0, 3, { tint: '#e0a888', creep: u > .35 }); shade(.25 * ss(seg(u, .3, .5)), '40,0,0'); vignette(.8); break; }
+    case 'choice': nightDesk(t, 3); shade(.2); break;
   }
   g.restore();
 }
-const CAPY = t => ['photo', 'closer', 'gone', 'back'].includes(shotAt(t)) ? .84 : .63;
+const CAPY = t => ['photo', 'flash', 'wave', 'back', 'stare'].includes(shotAt(t)) || (shotAt(t) === 'compare' && t > (b0('compare') + b1('compare')) / 2) ? .84 : .63;
 function clock(t) {
-  const txt = t < b0('night') ? '16:20' : '03:00'; g.save(); rr(W / 2 - 92, 92, 184, 64, 20); g.fillStyle = 'rgba(16,16,26,.78)'; g.fill(); textC(txt, W / 2, 125, 40, '#fff', 700); g.restore();
+  const txt = t < b0('pillow') ? '16:20' : '00:13'; g.save(); rr(W / 2 - 92, 92, 184, 64, 20); g.fillStyle = 'rgba(16,16,26,.78)'; g.fill(); textC(txt, W / 2, 125, 40, '#fff', 700); g.restore();
   if (t < 3.0) { g.save(); g.globalAlpha = 1 - ss(seg(t, 2.4, 3.0)); textC(EP.title, W / 2, 196, 34, 'rgba(255,255,255,.9)', 700); g.restore(); }
 }
 function epEvents() {
-  return [{ t: b0('photo') + .2, type: 'pulse' }, { t: b0('attic') + .2, type: 'creak', d: 1.0 }, { t: b0('compare') + (b1('compare') - b0('compare')) * .5, type: 'sting' },
-    { t: b0('night'), type: 'heart', d: b1('back') - b0('night') }, { t: b0('closer') + .3, type: 'hit' }, { t: WT('v7', 8) - .5, type: 'write', d: 1.6 }, { t: b0('gone') + (b1('gone') - b0('gone')) * .4, type: 'hit' }];
+  return [{ t: b0('photo') + .2, type: 'pulse' }, { t: b0('compare') + (b1('compare') - b0('compare')) * .5, type: 'sting' }, { t: b0('snatch') + .15, type: 'thud' },
+    { t: b0('flash') + (b1('flash') - b0('flash')) * .55, type: 'creak', d: 1.2 }, { t: b0('pillow'), type: 'heart', d: b1('stare') - b0('pillow') },
+    { t: WT('v6', 3) - .1, type: 'write', d: 2.2 }, { t: b0('wave') + .3, type: 'hit' }, { t: b0('stare') + (b1('stare') - b0('stare')) * .35, type: 'hit' }];
 }
 // ---------------------------------------------------------------- HUD: clock badge, captions, the choice
 const span = v => { const i = VO.indexOf(v), nx = VO[i + 1]; let b = v.t + Math.max(1.4, (DURS[v.id] ?? 2.5) + .35); if (nx) b = Math.min(b, nx.t - .05); return [v.t - .05, b]; };
