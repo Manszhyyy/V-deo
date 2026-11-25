@@ -1,5 +1,5 @@
 // «Путь наверх» · Серия 1 — a flat 2D sports-drama short about a fictional fighter (no real people; organisations named only, no logos).
-// Seventeen, 12–0 in basement fights; a Bellator scout offers a lightweight debut against another debutant, Derek Mason «Бульдозер».
+// Told by the hero in the first person. Seventeen, 12–0 in basement fights; a Bellator scout offers a lightweight debut against another debutant, Derek Mason «Бульдозер».
 // Inside the cage: you land one, two, three — he keeps walking forward; then his right hook, and your legs go. Choice: a takedown, or footwork.
 import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
