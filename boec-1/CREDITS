@@ -1,3 +1,3 @@
 «Путь наверх» · серия 1 — flat 2D sports drama short (a fictional fighter; no real people; no league logos) (vertical 1080×1920), drawn on a 2D canvas.
-Narration: Gemini TTS (voice «Puck»), sped up 1.12×. Font: Rubik (SIL OFL 1.1, via @fontsource/rubik).
+Narration: Gemini TTS (voice «Orus»), sped up 1.12×. Font: Rubik (SIL OFL 1.1, via @fontsource/rubik).
 Render pipeline: Lemo-Opuscar (MIT) — events.mjs / video.mjs / mux.sh / srt.py.

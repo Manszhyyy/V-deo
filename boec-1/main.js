@@ -1,5 +1,5 @@
 // «Путь наверх» · Серия 1 — a flat 2D sports-drama short about a fictional fighter (no real people, no league logos).
-// Seventeen, 12–0 in basement fights; a scout offers a lightweight debut in a month against another debutant nicknamed «Мешок» — slow, but takes a punch like a concrete wall.
+// Seventeen, 12–0 in basement fights; a scout offers a lightweight debut in a month against another debutant nicknamed «Бетон» — slow, but takes a punch like a concrete wall.
 // Las Vegas, round one: you hit him again and again, and he just smiles and walks forward. Choice: a takedown or keep striking.
 import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
@@ -7,7 +7,7 @@ import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 const EP = { title: 'ПУТЬ НАВЕРХ · СЕРИЯ 1', next: 'Серия 2 — по вашему выбору' };
 const BEATS = [['v1', 'pit'], ['v2', 'record'], ['v3', 'scout'], ['v4', 'offer'], ['v5', 'meshok'], ['v6', 'vegas'], ['v7', 'fight'], [null, 'stare', 2.4], ['v10', 'choice']];
 const CH = [['А', 'Проход в ноги', '#ff4a4a'], ['Б', 'Работать в стойке', '#4ad0ff']];
-const RED = { v1: ['пять', 'тысяч.'], v2: ['нокаутом.'], v4: ['дебютант».'], v5: ['мешок.', 'стена.'], v7: ['улыбается'] };
+const RED = { v1: ['пять', 'тысяч.'], v2: ['нокаутом.'], v4: ['дебютант».'], v5: ['бетон.', 'стена.'], v7: ['улыбается'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
 const J = async (u, d) => { try { return await (await fetch(u)).json(); } catch (e) { return d; } };
 const DURS = await J('vo/dur.json', {}), WORDS = await J('vo/words.json', {}), LINES = await J('vo/lines.json', []);
@@ -209,7 +209,7 @@ function scene(t) {
       g.save(); g.translate(540, 1900); g.rotate(-.03 * hk); g.translate(-540, -1900); fighter(540, 1900, 1.15, { ...MESHOK, guard: false, blink: hk > .5 ? 1 : 0, mouth: 'flat', look: [0, 0] }); g.restore();
       const gx = lerp(1300, 760, hk); P(E(gx, 1900 - 1.15 * 0.94 * 520 + 10, 70, 64), '#d8322a', 6); line([[gx + 60, 1900 - 560], [gx + 400, 1900 - 520]], 70, INK); line([[gx + 60, 1900 - 560], [gx + 400, 1900 - 520]], 56, '#e8c0a0');
       if (hk > .6) for (let i = 0; i < 5; i++) { const a = i / 5 * TAU; line([[700 + Math.cos(a) * 60, 1300 + Math.sin(a) * 60], [700 + Math.cos(a) * 110, 1300 + Math.sin(a) * 110]], 7, '#ffd23a'); }
-      const k = ss(seg(u, .25, .45)); g.save(); g.globalAlpha = k; g.font = '900 230px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 24; g.strokeStyle = '#000'; g.strokeText('МЕШОК', 540, 470); g.fillStyle = '#3ad06a'; g.fillText('МЕШОК', 540, 470);
+      const k = ss(seg(u, .25, .45)); g.save(); g.globalAlpha = k; g.font = '900 230px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 24; g.strokeStyle = '#000'; g.strokeText('БЕТОН', 540, 470); g.fillStyle = '#a8b0b8'; g.fillText('БЕТОН', 540, 470);
       g.font = '900 54px Rubik'; g.lineWidth = 12; g.strokeText('ДЕБЮТАНТ · 0–0', 540, 590); g.fillStyle = '#fff'; g.fillText('ДЕБЮТАНТ · 0–0', 540, 590); g.restore(); vignette(.5); break; }
     case 'fight': { arena(t); const step = ss(seg(u, 0, 1)), beat = (t * 2.6) % 1, pu = beat < .3 ? Math.sin(beat / .3 * Math.PI) : 0, snap = Math.max(0, Math.sin((beat - .12) / .3 * Math.PI)) * (beat > .12 && beat < .42 ? 1 : 0);
       push(560, 1300, lerp(1.25, 1.55, step)); g.save(); const mx = 620, my = lerp(1650, 1800, step); g.translate(mx, my); g.rotate(-.08 * snap); g.translate(-mx, -my);
