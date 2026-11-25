@@ -173,9 +173,9 @@ function posterChamp(t, k) {
   g.font = '900 60px Rubik'; g.lineWidth = 12; g.strokeText('ЧЕМПИОН · 21–0', 540, 540); g.fillStyle = '#fff'; g.fillText('ЧЕМПИОН · 21–0', 540, 540); g.restore();
 }
 // ---------------------------------------------------------------- people of episode 1
-const BULL = { stocky: true, skin: '#f2b8a0', bald: true, beard: '#d88a4a', square: true, mean: true, pupil: .8, shorts: '#3a7a3a', glove: '#2a5ad8', brow: .1 };
+const BULL = { tall: true, skin: '#f2b8a0', bald: true, beard: '#d88a4a', square: true, mean: true, pupil: .8, shorts: '#3a7a3a', glove: '#2a5ad8', brow: .1 };
 const ME = { mole: true }, AKULA = { tall: true, skin: '#a86a48', mohawk: '#141418', mean: true, scar: true, shorts: '#b8322a', shark: true, pupil: .7 };
-const BUM = { skin: '#e8c0a0', hair: '#c88a3a', shorts: '#4a6a3a', glove: '#2a5ad8' };
+const BUM = { skin: '#e8c0a0', hair: '#2a1a14', shorts: '#5a3a8a', glove: '#2a5ad8', mean: true, brow: -.3 };
 function scout(x, yf, s, o = {}) {
   g.save(); g.translate(x, yf); g.scale(s, s);
   for (const sx of [-1, 1]) { P(R(sx * 42 - 28, -230, 56, 222, 20), '#22242c', 6); P(E(sx * 44, -12, 40, 16), '#0c0c0e', 6); }
@@ -214,32 +214,41 @@ function fightPose(dt) {
     if (who === 'me') { me = v; meSide = side; himHit = Math.max(himHit, h); } else { him = v; himSide = side; meHit = Math.max(meHit, h); } if (v > .85) shake = 1; } }
   return { me: { punch: me, side: meSide }, him: { punch: him, side: himSide }, meHit, himHit, shake, himX: lerp(800, 730, clamp(dt / 3.5, 0, 1)), meX: lerp(300, 340, clamp(dt / 3.5, 0, 1)) };
 }
-function duo(t, p) {
-  const yf = 1860, bobA = Math.sin(t * 6) * 6, bobB = Math.sin(t * 6 + 1.5) * 6;
-  g.save(); g.translate(p.himX, yf); g.rotate(.12 * (p.himHit || 0)); g.translate(-p.himX, -yf);
-  fighter(p.himX, yf + bobB, 1.12, { ...BULL, dir: -1, punch: p.him.punch, side: p.him.side === 1 ? -1 : 1, turn: -.7, look: [-.8, 0], mouth: 'smile' }); g.restore();
+function duo(t, p, opp = BULL) {
+  const yf = 1860, bobA = Math.sin(t * 6) * 6, bobB = Math.sin(t * 6 + 1.5) * 6, fall = p.fall || 0;
+  g.save(); g.translate(p.himX, yf); g.rotate(.12 * (p.himHit || 0) + fall * 1.0); g.translate(-p.himX, -yf);
+  fighter(p.himX + fall * 60, yf + bobB * (1 - fall), 1.12, { ...opp, dir: -1, punch: p.him.punch, side: p.him.side === 1 ? -1 : 1, turn: -.7, look: [-.8, 0], mouth: fall > .3 ? 'o' : opp.mouth || 'smile', closed: fall > .3 }); g.restore();
   const st = p.stun ? 1 : 0, sway = st ? Math.sin(t * 2.4) * .1 : 0; g.save(); g.translate(p.meX, yf); g.rotate(-.18 * (p.meHit || 0) + sway); g.translate(-p.meX, -yf);
   fighter(p.meX, yf + bobA, 1.12, { ...ME, dir: 1, punch: p.me.punch, side: p.me.side, turn: .7, look: [.8, 0], brow: st ? .8 : -.4, mouth: st ? 'o' : 'flat', closed: st && Math.sin(t * 3) > .6, pupil: st ? .45 : 1 }); g.restore();
   if (st) stars(t, p.meX, yf - 640, 120, 5);
+}
+// the basement ring: people all round, arms up
+function crowdRow(t, y, n, sc, col, arms) { for (let i = 0; i < n; i++) { const x = (i + .5) * W / n + Math.sin(i * 3.1) * 20, b = Math.sin(t * 6 + i * 1.7) * 6 * sc; P(E(x, y + b, 46 * sc, 52 * sc), col, 0); P(R(x - 64 * sc, y + 40 * sc + b, 128 * sc, 260 * sc, 50 * sc), col, 0);
+  if (arms && Math.sin(t * 5 + i * 2.3) > .2) { line([[x - 50 * sc, y + 60 * sc + b], [x - 80 * sc, y - 70 * sc + b]], 26 * sc, col); line([[x + 50 * sc, y + 60 * sc + b], [x + 86 * sc, y - 60 * sc + b]], 26 * sc, col); } } }
+function pitRing(t, people, arms) {
+  basement(t); crowdRow(t, 1180, 8, 1.0, '#2a1c1e', arms); P(L([[0, 1400], [W, 1400], [W, H], [0, H]]), '#4a4a4c', 0); P(E(540, 1700, 460, 140), 'rgba(0,0,0,.18)', 0);
+  people && people(); crowdRow(t, 1960, 6, 1.5, '#120c0e', arms);
 }
 // ---------------------------------------------------------------- shots
 function scene(t) {
   const s = shotAt(t), u = clamp(seg(t, b0(s), b1(s)), 0, 1); g.save();
   switch (s) {
-    case 'pit': { basement(t); for (let i = 0; i < 9; i++) { const x = i * 130 - 20; P(E(x, 1380, 60, 70), '#1a1416', 0); P(R(x - 70, 1430, 140, 300, 50), '#1a1416', 0); }
-      push(540, 1200, lerp(1.0, 1.08, u)); const fall = ss(seg(u, .55, .85));
-      g.save(); g.translate(560, 1880); g.rotate(fall * 1.2); g.translate(-560, -1880); fighter(560, 1880, .9, { ...BUM, look: [0, 0], blink: fall > .2 ? 1 : 0, mouth: 'o', open: .5, guard: true }); g.restore();
-      const beat = (t * 3) % 1, pu = u < .55 && beat < .35 ? Math.sin(beat / .35 * Math.PI) : 0; fighter(400, 2050, 1.25, { ...ME, back: true, punch: pu });
-      for (let i = 0; i < 9; i++) { const x = i * 130 + 40; if (Math.sin(t * 8 + i) > .3) line([[x, 1340], [x + 10, 1250]], 14, '#1a1416'); }
-      vignette(.55); break; }
-    case 'record': { basement(t); push(540, 800, lerp(1.0, 1.06, u)); const n = Math.min(12, Math.floor(seg(u, .05, .85) * 12) + 1); tally(t, n);
-      g.save(); g.font = '900 220px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 24; g.strokeStyle = '#000'; const k = ss(seg(u, .6, .8)); g.globalAlpha = k; g.strokeText('12–0', 540, 1150); g.fillStyle = '#ffd23a'; g.fillText('12–0', 540, 1150); g.restore();
-      fighter(540, 1950, .9, { ...ME, guard: true, brow: -.4, mouth: 'smile' }); vignette(.55); break; }
-    case 'scout': { basement(t); P(R(760, 640, 260, 860), '#f4e6c0', 6); glowAt(890, 1000, 600, 'rgba(255,230,170,.5)'); const k = ss(seg(u, 0, .7));
-      push(560, 1300, lerp(1.0, 1.08, u)); scout(lerp(890, 700, k), 1780, .95, { look: [-.6, 0] }); kid(300, 1380, 1.25, { ...ME, hood: '#f4f0e6', neck: '#d8d4cc', look: [.8, -.2], brow: .3, blink: blinkAt(t, 4), sweat: true }); P(R(100, 1650, 450, 60, 10), '#6a4a3a'); vignette(.55); break; }
-    case 'offer': { basement(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); const talk = t > VO.find(v => v.id === 'v4').t && t < VEND('v4');
-      scout(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
-      const ck = ss(seg(u, .45, .7)); g.save(); g.translate(540, lerp(2100, 1450, ck)); g.rotate(-.06); P(R(-260, -170, 520, 340, 12), '#f8f4e8', 6); textC('КОНТРАКТ', 0, -100, 56, INK, 900); textC('BELLATOR · ДЕБЮТ', 0, -20, 36, '#b8322a', 900); textC('соперник: дебютант', 0, 30, 30, INK, 700); line([[-200, 80], [200, 80]], 3); textC('подпись', 140, 110, 22, '#8a8a8a', 700); g.restore(); vignette(.55); break; }
+    case 'pit': { const p = fightPose(t - b0('pit') + .2); push(540, 1450, lerp(1.0, 1.1, u), 6 * p.shake * Math.sin(t * 50), 0); pitRing(t, () => duo(t, p, BUM), u > .2); vignette(.55); break; }
+    case 'record': { const pu = ss(seg(u, .05, .2)) * (1 - ss(seg(u, .25, .4))), fall = ss(seg(u, .18, .45)); push(540, 1450, lerp(1.1, 1.0, u), 10 * (u > .17 && u < .25 ? 1 : 0) * Math.sin(t * 60), 0);
+      pitRing(t, () => { tally(t, Math.min(12, Math.floor(seg(u, .4, .8) * 12) + (u > .4 ? 1 : 0))); duo(t, { me: { punch: pu, side: 1 }, him: { punch: 0 }, himHit: pu, fall, himX: 700, meX: 360 }, BUM); }, true);
+      const k = ss(seg(u, .7, .85)); g.save(); g.globalAlpha = k; g.font = '900 220px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 24; g.strokeStyle = '#000'; g.strokeText('12–0', 540, 980); g.fillStyle = '#ffd23a'; g.fillText('12–0', 540, 980); g.restore(); vignette(.55); break; }
+    case 'scout': {
+      if (u < .62) { basement(t); push(540, 1100, lerp(1.0, 1.12, u / .62)); crowdRow(t, 1050, 7, 1.0, '#2a1c1e', true);
+        glowAt(560, 1150, 520, 'rgba(255,230,170,.4)'); scout(560, 1960, 1.35, { look: [0, .6] }); const pen = Math.sin(t * 9) * 10;
+        g.save(); g.translate(690, 1420); g.rotate(-.2); P(R(-60, -80, 120, 160, 6), '#f4efe0', 5); for (let i = 0; i < 5; i++) line([[-44, -50 + i * 26], [40, -50 + i * 26]], 3, 'rgba(0,0,0,.3)'); line([[20 + pen, -10], [70 + pen, -70]], 6, '#222'); g.restore();
+        crowdRow(t, 1600, 6, 1.5, '#120c0e', true); vignette(.6); }
+      else { basement(t); shade(.2); push(540, 900, lerp(1.0, 1.08, seg(u, .62, 1))); kid(540, 950, 3.0, { ...ME, hood: '#e8c0a0', neck: '#d8b090', look: [-.9, -.2], turn: -.4, brow: .5, blink: blinkAt(t, 4), sweat: true, mouth: 'flat' }); vignette(.6); }
+      break; }
+    case 'offer': { const talk = t > WT('v4', 3) - .05 && t < VEND('v4');
+      if (u < .3) { basement(t); P(R(760, 640, 260, 860), '#f4e6c0', 6); const k = ss(seg(u, 0, .3)); push(560, 1300, lerp(1.0, 1.06, u / .3)); scout(lerp(900, 680, k), 1780, .95, { look: [-.6, 0] }); kid(300, 1380, 1.25, { ...ME, hood: '#f4f0e6', neck: '#d8d4cc', look: [.8, -.2], brow: .3, blink: blinkAt(t, 4), sweat: true }); vignette(.55); }
+      else { basement(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); scout(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
+        const ck = ss(seg(u, .55, .8)); g.save(); g.translate(540, lerp(2100, 1450, ck)); g.rotate(-.06); P(R(-260, -170, 520, 340, 12), '#f8f4e8', 6); textC('КОНТРАКТ', 0, -100, 56, INK, 900); textC('BELLATOR · ДЕБЮТ', 0, -20, 36, '#b8322a', 900); textC('соперник: дебютант', 0, 30, 30, INK, 700); line([[-200, 80], [200, 80]], 3); textC('подпись', 140, 110, 22, '#8a8a8a', 700); g.restore(); vignette(.55); }
+      break; }
     case 'vegas': if (u < .55) { push(540, 900, lerp(1.0, 1.1, u / .55)); vegas(t); vignette(.4); } else { arena(t); push(540, 900, lerp(1.0, 1.06, seg(u, .55, 1))); vignette(.4); } break;
     case 'intro': { g.fillStyle = '#2a2a34'; g.fillRect(0, 0, W, H); P(R(0, 1640, W, 300), '#3a3a44', 6); glowAt(540, 700, 900, 'rgba(255,240,200,.35)');
       push(540, 1100, lerp(1.0, 1.08, u)); const hit = (t * 2.2) % 1, hk = hit < .25 ? Math.sin(hit / .25 * Math.PI) : 0;
