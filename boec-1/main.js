@@ -1,13 +1,13 @@
-// «Путь наверх» · Серия 1 — a flat 2D sports-drama short about a fictional fighter (no real people, no league logos).
-// Seventeen, 12–0 in basement fights; a scout offers a lightweight debut in a month against another debutant nicknamed «Бетон» — slow, but takes a punch like a concrete wall.
-// Las Vegas, round one: you hit him again and again, and he just smiles and walks forward. Choice: a takedown or keep striking.
+// «Путь наверх» · Серия 1 — a flat 2D sports-drama short about a fictional fighter (no real people; organisations named only, no logos).
+// Seventeen, 12–0 in basement fights; a Bellator scout offers a lightweight debut against another debutant, Derek Mason «Бульдозер».
+// Inside the cage: you land one, two, three — he keeps walking forward; then his right hook, and your legs go. Choice: a takedown, or footwork.
 import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
 
 const EP = { title: 'ПУТЬ НАВЕРХ · СЕРИЯ 1', next: 'Серия 2 — по вашему выбору' };
-const BEATS = [['v1', 'pit'], ['v2', 'record'], ['v3', 'scout'], ['v4', 'offer'], ['v5', 'meshok'], ['v6', 'vegas'], ['v7', 'fight'], [null, 'stare', 2.4], ['v10', 'choice']];
-const CH = [['А', 'Проход в ноги', '#ff4a4a'], ['Б', 'Работать в стойке', '#4ad0ff']];
-const RED = { v1: ['пять', 'тысяч.'], v2: ['нокаутом.'], v4: ['дебютант».'], v5: ['бетон.', 'стена.'], v7: ['улыбается'] };
+const BEATS = [['v1', 'pit'], ['v2', 'record'], ['v3', 'scout'], ['v4', 'offer'], ['v5', 'intro'], ['v6', 'fight'], ['v7', 'stun'], [null, 'wobble', 2.4], ['v10', 'choice']];
+const CH = [['А', 'Проход в ноги', '#ff4a4a'], ['Б', 'Работать ногами', '#4ad0ff']];
+const RED = { v1: ['пять', 'тысяч.'], v2: ['нокаутом.'], v4: ['дебютант».'], v5: ['бульдозер.'], v6: ['вперёд.'], v7: ['правый', 'боковой.'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
 const J = async (u, d) => { try { return await (await fetch(u)).json(); } catch (e) { return d; } };
 const DURS = await J('vo/dur.json', {}), WORDS = await J('vo/words.json', {}), LINES = await J('vo/lines.json', []);
@@ -42,7 +42,7 @@ function head(x, y, s, o = {}) {
   const skin = o.skin || SKIN, mom = o.mom;
   const MH = o.hc || MOMHAIR; if (o.pig) { P(E(-118, 22, 30, 40), MH); P(E(118, 22, 30, 40), MH); }
   if ((mom || o.girl) && !o.cute) { if (mom && !o.girl) P(E(0, -112, 46, 40), MH); P(L([[-104, 20], [-112, 120, -70, 150], [70, 150], [112, 120, 104, 20]]), MH); }
-  P(E(-99, 10, 17, 24), skin, 6); P(E(99, 10, 17, 24), skin, 6);
+  if (!(o.turn < -.3)) P(E(-99, 10, 17, 24), skin, 6); if (!(o.turn > .3)) P(E(99, 10, 17, 24), skin, 6);
   if (o.square) P(R(-104, -100, 208, 214, 56), skin); else P(E(0, 0, 100, 106), skin);
   if (o.beard) P(L([[-98, 10], [-96, 110, 0, 132], [96, 110, 98, 10], [60, 60], [0, 92, -60, 60]]), o.beard);
   if (o.faceless) { if (o.smile > 0) { g.save(); g.beginPath(); g.rect(-60, 30, 120 * o.smile, 60); g.clip(); line([[-50, 48], [0, 72, 50, 48]], 5, '#3a2a2a'); g.restore(); } }
@@ -51,7 +51,7 @@ function head(x, y, s, o = {}) {
   // eyes
   const bl = o.closed ? 1 : (o.blink || 0), lk = o.look || [0, 0], pu = o.pupil ?? 1, creep = o.creep;
   for (const sx of [-1, 1]) {
-    const ex = sx * 38, ey = -6, rx = creep || o.cute ? 35 : 31, ry = (creep ? 40 : o.cute ? 39 : 35) * (o.mean ? .5 : 1) * (1 - .92 * bl);
+    const ex = sx * 38 * (1 - .2 * Math.abs(o.turn || 0)) + (o.turn || 0) * 32, ey = -6, rx = creep || o.cute ? 35 : 31, ry = (creep ? 40 : o.cute ? 39 : 35) * (o.mean ? .5 : 1) * (1 - .92 * bl);
     if (bl > .85) line([[ex - 26, ey + 2], [ex, ey + 12, ex + 26, ey + 2]], 6);
     else { P(E(ex, ey, rx, ry), '#fbf8f1', 6); const tr = o.tremble ? [Math.sin(o.tremble * 37 + sx) * 3, Math.cos(o.tremble * 29) * 2] : [0, 0];
       g.save(); g.beginPath(); g.ellipse(ex, ey, rx, ry, 0, 0, TAU); g.clip();
@@ -62,6 +62,7 @@ function head(x, y, s, o = {}) {
     // brows: worried lifts the inner end, angry drops it
     const bw = o.brow ?? 0; if (o.cute) line([[ex + sx * 18, ey - 56 + bw * 3], [ex - sx * 14, ey - 58 - bw * 10]], 4); else line([[ex + sx * 26, ey - 46 + bw * 4 + (o.mean ? 22 : 0)], [ex - sx * 24, ey - 48 - bw * 16 + (o.mean ? 22 : 0)]], o.mean ? 13 : 7);
   }
+  g.save(); g.translate((o.turn || 0) * 44, 0);
   // nose
   if (o.cute) P(E(0, 30, 6, 4.5), '#e0907a', 0); else line([[-8, 26], [0, 34, 8, 26]], 5);
   // mouth
@@ -71,6 +72,7 @@ function head(x, y, s, o = {}) {
   else if (m === 'smile') o.cute ? line([[-17, 58], [0, 70, 17, 58]], 5) : line([[-26, 56], [0, 76, 26, 56]], 6);
   else if (m === 'sleep') P(E(0, 64, 9, 7 + 3 * Math.sin((o.t || 0) * 2.4)), '#5a1e26', 5);
   else if (m === 'creep') { P(L([[-66, 40], [0, 112, 66, 40], [0, 70, -66, 40]]), '#fbf8f1', 6); for (let i = -3; i <= 3; i++) line([[i * 15, 50 + Math.abs(i) * -2], [i * 15, 70 - Math.abs(i) * 4]], 3); }
+  g.restore();
   if (o.glasses) { P(E(-38, -6, 40, 38), null, 6); P(E(38, -6, 40, 38), null, 6); line([[-2, -8], [2, -8]], 6); }
   }
   // hair
@@ -118,23 +120,30 @@ const talkM = (t, on) => on && Math.sin(t * 19) > -.1 ? 'o' : 'flat';
 const GLOVE = '#d8322a', SHORTS = '#1e2a4a';
 // ---------------------------------------------------------------- fighters: bare torso, shorts, gloves; punch = which glove comes at the camera
 function fighter(x, yf, s, o = {}) {
-  const sk = o.skin || SKIN, big = o.big ? 1.45 : o.stocky ? 1.42 : o.tall ? .95 : 1, tall = o.big ? 1.1 : o.stocky ? .94 : o.tall ? 1.12 : 1, ph = o.walk, bob = ph != null ? Math.abs(Math.sin(ph)) * 10 : 0, pu = o.punch || 0, side = o.side || 1;
-  g.save(); g.translate(x, yf - bob * s); g.scale(s * big, s * tall);
+  // body types: big (champion), stocky (short and wide), tall (lean); dir = facing ±1 (punches go sideways), else front (punches come at the camera)
+  const sk = o.skin || SKIN, bw = o.big ? 1.45 : o.stocky ? 1.42 : o.tall ? .95 : 1, bh = o.big ? 1.1 : o.stocky ? .94 : o.tall ? 1.12 : 1;
+  const ph = o.walk, bob = ph != null ? Math.abs(Math.sin(ph)) * 8 : 0, pu = o.punch || 0, side = o.side || 1, dir = o.dir || 0;
+  const gp = sx => { const k = sx === side ? pu : 0;
+    if (dir) { const lead = sx === dir; return [lerp(sx * 70 + dir * 40, dir * (200 + 280 * k), lead ? k : k * .7), lerp(-470, -500, k), 1]; }
+    if (o.guard === false) return [sx * 120, -230, 1];
+    return [lerp(sx * 92, sx * 18, k), lerp(-462, -500, k), 1 + k * 1.7]; };
+  const T = () => { g.translate(x, yf - bob * s); g.scale(s * bw, s * bh); };
+  g.save(); T();
   for (const sx of [-1, 1]) { P(R(sx * 48 - 32, -230, 64, 225, 28), sk, 6); P(E(sx * 48, -12, 40, 18), '#1a1a1e', 6); }
   P(L([[-118, -170], [-122, -270], [122, -270], [118, -170], [96, -150], [-96, -150]]), o.shorts || SHORTS); line([[-118, -250], [118, -250]], 6, o.belt || '#e8e4dc');
   P(L([[-96, -260], [-128, -400], [-96, -450], [96, -450], [128, -400], [96, -260]]), sk);
   if (!o.back) { line([[-50, -390], [0, -372, 50, -390]], 4); line([[0, -360], [0, -280]], 3); line([[-36, -330], [36, -330]], 3); line([[-34, -296], [34, -296]], 3); }
   if (o.big) { P(E(-112, -420, 40, 34), sk, 6); P(E(112, -420, 40, 34), sk, 6); }
-  if (o.stocky) P(E(0, -300, 92, 70), sk, 5);
+  if (o.stocky && !o.back) P(E(0, -300, 92, 70), sk, 5);
   if (o.shark) P(L([[-30, -300], [10, -390], [30, -300]]), '#2a3a5a', 5);
   if (o.tattoo) { P(L([[-100, -420], [-70, -380], [-110, -350]]), null, 6, '#2a2a4a'); P(E(80, -390, 22, 22), null, 5, '#2a2a4a'); }
-  const arm = (sx, k) => { g.save(); g.translate(sx * 110, -430); const up = o.guard !== false; g.rotate(sx * (up ? -.25 : .1)); P(R(-30, 0, 60, 150, 30), sk, 6);
-    const gx = up ? -sx * 40 * (1 - k) : 0, gy = up ? 120 - 230 * (1 - k * .3) : 170, gs = 1 + k * 1.6; P(E(gx, gy, 54 * gs, 50 * gs), o.glove || GLOVE, 6); line([[gx - 20 * gs, gy + 30 * gs], [gx + 20 * gs, gy + 30 * gs]], 5, '#f4f0e6'); g.restore(); };
-  arm(-1, side < 0 ? pu : 0); arm(1, side > 0 ? pu : 0);
+  for (const sx of [-1, 1]) { const [gx, gy] = gp(sx); line([[sx * 118, -420], [sx * 130, -330, gx, gy + 30]], 64, INK); line([[sx * 118, -420], [sx * 130, -330, gx, gy + 30]], 50, sk); }
   g.restore();
-  if (o.back) { g.save(); g.translate(x, yf - (520 * tall + bob) * s); g.scale(s, s); P(E(-99, 14, 17, 24), sk, 6); P(E(99, 14, 17, 24), sk, 6); P(E(0, 0, 102, 106), o.hair || KIDHAIR);
-    for (const sx of [-1, 1]) { const k = sx === side ? pu : 0, gx = sx * 120 + k * 140, gy = 40 - k * 120, gs = 1 - k * .4; P(E(gx, gy, 56 * gs, 60 * gs), o.glove || GLOVE, 6); } g.restore(); return; }
-  head(x, yf - (520 + bob) * s, s * big, o);
+  if (o.back) { g.save(); g.translate(x, yf - (520 * bh + bob) * s); g.scale(s, s); P(E(-99, 14, 17, 24), sk, 6); P(E(99, 14, 17, 24), sk, 6); P(E(0, 0, 102, 106), o.hair || KIDHAIR); g.restore(); }
+  else head(x, yf - (520 * bh + bob) * s, s, o);
+  g.save(); T(); const order = dir ? [-dir, dir] : (side > 0 ? [-1, 1] : [1, -1]);
+  for (const sx of order) { const [gx, gy, gs] = gp(sx); P(E(gx, gy, 50 * gs, 56 * gs), o.glove || GLOVE, 6); line([[gx - 26 * gs, gy + 34 * gs], [gx + 26 * gs, gy + 34 * gs]], 6, '#f4f0e6'); }
+  g.restore();
 }
 // ---------------------------------------------------------------- places
 function basement(t) {
@@ -164,7 +173,7 @@ function posterChamp(t, k) {
   g.font = '900 60px Rubik'; g.lineWidth = 12; g.strokeText('ЧЕМПИОН · 21–0', 540, 540); g.fillStyle = '#fff'; g.fillText('ЧЕМПИОН · 21–0', 540, 540); g.restore();
 }
 // ---------------------------------------------------------------- people of episode 1
-const MESHOK = { stocky: true, skin: '#f2b8a0', bald: true, beard: '#d88a4a', square: true, mean: true, pupil: .8, shorts: '#3a7a3a', glove: '#2a5ad8', brow: .1 };
+const BULL = { stocky: true, skin: '#f2b8a0', bald: true, beard: '#d88a4a', square: true, mean: true, pupil: .8, shorts: '#3a7a3a', glove: '#2a5ad8', brow: .1 };
 const ME = { mole: true }, AKULA = { tall: true, skin: '#a86a48', mohawk: '#141418', mean: true, scar: true, shorts: '#b8322a', shark: true, pupil: .7 };
 const BUM = { skin: '#e8c0a0', hair: '#c88a3a', shorts: '#4a6a3a', glove: '#2a5ad8' };
 function scout(x, yf, s, o = {}) {
@@ -185,6 +194,34 @@ function vegas(t) {
   g.fillStyle = '#0c0a14'; g.fillRect(0, 1400, W, 520); for (let i = 0; i < 12; i++) { const k = (t * .4 + i / 12) % 1; P(E(lerp(-100, 1180, k), 1560 + (i % 3) * 60, 18, 8), i % 2 ? '#fff6c0' : '#ff4a3a', 0); }
 }
 function tally(t, n) { for (let i = 0; i < n; i++) { const grp = Math.floor(i / 5), k = i % 5, x = 160 + grp * 300 + k * 40, y = 640; if (k === 4) line([[x - 170, y + 120], [x - 10, y - 10]], 10, '#f4f0e6'); else line([[x, y - 20], [x + 6, y + 140]], 10, '#f4f0e6'); } }
+// ---------------------------------------------------------------- inside the cage
+function cage(t, people) {
+  g.fillStyle = '#07080e'; g.fillRect(0, 0, W, H);
+  for (let r = 0; r < 7; r++) for (let i = 0; i < 18; i++) { const x = i * 64 + (r % 2) * 32 - 20, y = 360 + r * 66; P(E(x, y, 24, 28), `rgba(${30 + r * 6},${30 + r * 6},${46 + r * 6},1)`, 0); if (hash(i * 9 + r) > .82 && Math.sin(t * 9 + i) > .6) P(E(x, y - 8, 5, 5), '#fff', 0); }
+  for (const [x, ph] of [[200, 0], [540, 2], [880, 4]]) { const sw = Math.sin(t * 1.1 + ph) * 120; beam([[x - 20, 0], [x + 20, 0], [540 + sw + 220, 1500], [540 + sw - 220, 1500]], '#dce6ff', .12); }
+  P(R(0, 820, W, 380), 'rgba(20,20,26,.35)', 0); g.save(); g.strokeStyle = 'rgba(160,165,175,.45)'; g.lineWidth = 2; for (let x = -400; x < W + 400; x += 34) { g.beginPath(); g.moveTo(x, 820); g.lineTo(x + 380, 1200); g.stroke(); g.beginPath(); g.moveTo(x + 380, 820); g.lineTo(x, 1200); g.stroke(); } g.restore();
+  for (const x of [60, 380, 700, 1020]) P(R(x - 14, 800, 28, 420), '#1a1a20', 5); P(R(0, 1190, W, 30), '#1a1a20', 5); P(R(0, 790, W, 22), '#1a1a20', 5);
+  P(L([[0, 1220], [W, 1220], [W, H], [0, H]]), '#e4e4e8', 0); P(E(540, 1600, 300, 110), null, 10, 'rgba(200,40,40,.35)'); textC('★', 540, 1600, 90, 'rgba(200,40,40,.35)', 900);
+  people && people();
+  g.save(); g.strokeStyle = 'rgba(20,20,26,.28)'; g.lineWidth = 4; for (let x = -1200; x < W + 1200; x += 70) { g.beginPath(); g.moveTo(x, 1300); g.lineTo(x + 640, H); g.stroke(); g.beginPath(); g.moveTo(x + 640, 1300); g.lineTo(x, H); g.stroke(); } g.restore();
+  P(R(-10, 1280, W + 20, 34), '#14141a', 5); P(R(-20, 1180, 70, 760), '#14141a', 5); P(R(W - 50, 1180, 70, 760), '#14141a', 5);
+}
+function stars(t, x, y, r, n) { for (let i = 0; i < n; i++) { const a = t * 2.5 + i / n * TAU; textC('★', x + Math.cos(a) * r, y + Math.sin(a) * r * .35, 70, '#ffd23a', 900); } }
+// the exchange: you land three, he walks through them and answers once; then you again
+function fightPose(dt) {
+  const beats = [[.3, 'me', -1], [1.0, 'me', 1], [1.7, 'me', -1], [2.4, 'him', 1], [3.0, 'me', 1]]; let me = 0, him = 0, meSide = 1, himSide = 1, meHit = 0, himHit = 0, shake = 0;
+  for (const [at, who, side] of beats) { const k = dt - at; if (k > 0 && k < .4) { const v = Math.sin(k / .4 * Math.PI), h = k > .15 ? Math.sin((k - .15) / .25 * Math.PI) : 0;
+    if (who === 'me') { me = v; meSide = side; himHit = Math.max(himHit, h); } else { him = v; himSide = side; meHit = Math.max(meHit, h); } if (v > .85) shake = 1; } }
+  return { me: { punch: me, side: meSide }, him: { punch: him, side: himSide }, meHit, himHit, shake, himX: lerp(800, 730, clamp(dt / 3.5, 0, 1)), meX: lerp(300, 340, clamp(dt / 3.5, 0, 1)) };
+}
+function duo(t, p) {
+  const yf = 1860, bobA = Math.sin(t * 6) * 6, bobB = Math.sin(t * 6 + 1.5) * 6;
+  g.save(); g.translate(p.himX, yf); g.rotate(.12 * (p.himHit || 0)); g.translate(-p.himX, -yf);
+  fighter(p.himX, yf + bobB, 1.12, { ...BULL, dir: -1, punch: p.him.punch, side: p.him.side === 1 ? -1 : 1, turn: -.7, look: [-.8, 0], mouth: 'smile' }); g.restore();
+  const st = p.stun ? 1 : 0, sway = st ? Math.sin(t * 2.4) * .1 : 0; g.save(); g.translate(p.meX, yf); g.rotate(-.18 * (p.meHit || 0) + sway); g.translate(-p.meX, -yf);
+  fighter(p.meX, yf + bobA, 1.12, { ...ME, dir: 1, punch: p.me.punch, side: p.me.side, turn: .7, look: [.8, 0], brow: st ? .8 : -.4, mouth: st ? 'o' : 'flat', closed: st && Math.sin(t * 3) > .6, pupil: st ? .45 : 1 }); g.restore();
+  if (st) stars(t, p.meX, yf - 640, 120, 5);
+}
 // ---------------------------------------------------------------- shots
 function scene(t) {
   const s = shotAt(t), u = clamp(seg(t, b0(s), b1(s)), 0, 1); g.save();
@@ -202,39 +239,40 @@ function scene(t) {
       push(560, 1300, lerp(1.0, 1.08, u)); scout(lerp(890, 700, k), 1780, .95, { look: [-.6, 0] }); kid(300, 1380, 1.25, { ...ME, hood: '#f4f0e6', neck: '#d8d4cc', look: [.8, -.2], brow: .3, blink: blinkAt(t, 4), sweat: true }); P(R(100, 1650, 450, 60, 10), '#6a4a3a'); vignette(.55); break; }
     case 'offer': { basement(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); const talk = t > VO.find(v => v.id === 'v4').t && t < VEND('v4');
       scout(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
-      const ck = ss(seg(u, .45, .7)); g.save(); g.translate(540, lerp(2100, 1450, ck)); g.rotate(-.06); P(R(-260, -170, 520, 340, 12), '#f8f4e8', 6); textC('КОНТРАКТ', 0, -100, 56, INK, 900); textC('ДЕБЮТ · ЛЁГКИЙ ВЕС', 0, -20, 36, '#b8322a', 900); textC('соперник: дебютант', 0, 30, 30, INK, 700); line([[-200, 80], [200, 80]], 3); textC('подпись', 140, 110, 22, '#8a8a8a', 700); g.restore(); vignette(.55); break; }
+      const ck = ss(seg(u, .45, .7)); g.save(); g.translate(540, lerp(2100, 1450, ck)); g.rotate(-.06); P(R(-260, -170, 520, 340, 12), '#f8f4e8', 6); textC('КОНТРАКТ', 0, -100, 56, INK, 900); textC('BELLATOR · ДЕБЮТ', 0, -20, 36, '#b8322a', 900); textC('соперник: дебютант', 0, 30, 30, INK, 700); line([[-200, 80], [200, 80]], 3); textC('подпись', 140, 110, 22, '#8a8a8a', 700); g.restore(); vignette(.55); break; }
     case 'vegas': if (u < .55) { push(540, 900, lerp(1.0, 1.1, u / .55)); vegas(t); vignette(.4); } else { arena(t); push(540, 900, lerp(1.0, 1.06, seg(u, .55, 1))); vignette(.4); } break;
-    case 'meshok': { g.fillStyle = '#2a2a34'; g.fillRect(0, 0, W, H); P(R(0, 1640, W, 300), '#3a3a44', 6); glowAt(540, 700, 900, 'rgba(255,240,200,.35)');
+    case 'intro': { g.fillStyle = '#2a2a34'; g.fillRect(0, 0, W, H); P(R(0, 1640, W, 300), '#3a3a44', 6); glowAt(540, 700, 900, 'rgba(255,240,200,.35)');
       push(540, 1100, lerp(1.0, 1.08, u)); const hit = (t * 2.2) % 1, hk = hit < .25 ? Math.sin(hit / .25 * Math.PI) : 0;
-      g.save(); g.translate(540, 1900); g.rotate(-.03 * hk); g.translate(-540, -1900); fighter(540, 1900, 1.15, { ...MESHOK, guard: false, blink: hk > .5 ? 1 : 0, mouth: 'flat', look: [0, 0] }); g.restore();
-      const gx = lerp(1300, 760, hk); P(E(gx, 1900 - 1.15 * 0.94 * 520 + 10, 70, 64), '#d8322a', 6); line([[gx + 60, 1900 - 560], [gx + 400, 1900 - 520]], 70, INK); line([[gx + 60, 1900 - 560], [gx + 400, 1900 - 520]], 56, '#e8c0a0');
-      if (hk > .6) for (let i = 0; i < 5; i++) { const a = i / 5 * TAU; line([[700 + Math.cos(a) * 60, 1300 + Math.sin(a) * 60], [700 + Math.cos(a) * 110, 1300 + Math.sin(a) * 110]], 7, '#ffd23a'); }
-      const k = ss(seg(u, .25, .45)); g.save(); g.globalAlpha = k; g.font = '900 230px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 24; g.strokeStyle = '#000'; g.strokeText('БЕТОН', 540, 470); g.fillStyle = '#a8b0b8'; g.fillText('БЕТОН', 540, 470);
-      g.font = '900 54px Rubik'; g.lineWidth = 12; g.strokeText('ДЕБЮТАНТ · 0–0', 540, 590); g.fillStyle = '#fff'; g.fillText('ДЕБЮТАНТ · 0–0', 540, 590); g.restore(); vignette(.5); break; }
-    case 'fight': { arena(t); const step = ss(seg(u, 0, 1)), beat = (t * 2.6) % 1, pu = beat < .3 ? Math.sin(beat / .3 * Math.PI) : 0, snap = Math.max(0, Math.sin((beat - .12) / .3 * Math.PI)) * (beat > .12 && beat < .42 ? 1 : 0);
-      push(560, 1300, lerp(1.25, 1.55, step)); g.save(); const mx = 620, my = lerp(1650, 1800, step); g.translate(mx, my); g.rotate(-.08 * snap); g.translate(-mx, -my);
-      fighter(mx, my, lerp(.9, 1.1, step), { ...MESHOK, walk: t * 4, mouth: 'smile', look: [-.2, .1], blink: snap > .7 ? 1 : 0, cut: true }); g.restore();
-      if (snap > .6) { g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(-400, -400, W + 800, H + 800); }
-      fighter(290, 2380, 1.4, { ...ME, back: true, punch: pu, side: 1 }); vignette(.6); break; }
-    case 'stare': { arena(t); shade(.35); push(540, 820, lerp(1.0, 1.2, eio(u))); fighter(540, 2500, 2.6, { ...MESHOK, guard: true, mouth: 'smile', look: [0, 0], pupil: .45, brow: -.4 });
-      P(L([[460, 450], [500, 470], [470, 500]]), '#c82a2a', 0); vignette(.75); break; }
-    case 'choice': arena(t); push(560, 1300, 1.5); fighter(620, 1800, 1.1, { ...MESHOK, mouth: 'smile' }); fighter(290, 2380, 1.4, { ...ME, back: true }); shade(.35); break;
+      g.save(); g.translate(540, 1900); g.rotate(-.03 * hk); g.translate(-540, -1900); fighter(540, 1900, 1.15, { ...BULL, blink: hk > .5 ? 1 : 0, mouth: 'flat', look: [0, 0] }); g.restore();
+      const k = ss(seg(u, .25, .45)); g.save(); g.globalAlpha = k; g.font = '900 150px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 22; g.strokeStyle = '#000'; g.strokeText('БУЛЬДОЗЕР', 540, 440); g.fillStyle = '#ffb02a'; g.fillText('БУЛЬДОЗЕР', 540, 440);
+      g.font = '900 54px Rubik'; g.lineWidth = 12; g.strokeText('ДЕРЕК МЕЙСОН · 0–0', 540, 560); g.fillStyle = '#fff'; g.fillText('ДЕРЕК МЕЙСОН · 0–0', 540, 560); g.restore(); vignette(.5); break; }
+    case 'fight': { const p = fightPose(t - b0('fight')); push(540, 1500, lerp(1.05, 1.18, u), 6 * p.shake * Math.sin(t * 50), 0); cage(t, () => duo(t, p)); vignette(.55); break; }
+    case 'stun': { const k = seg(u, 0, .35), hit = ss(seg(k, .55, 1));
+      if (u < .35) { push(560, 1450, lerp(1.2, 1.6, k), 10 * hit * Math.sin(t * 60), 0); cage(t, () => duo(t, { me: { punch: 0 }, him: { punch: hit, side: -1 }, meHit: hit, himX: 720, meX: 350 })); if (k > .97) { g.fillStyle = '#fff'; g.fillRect(-400, -400, W + 800, H + 800); } }
+      else { const w = seg(u, .35, 1), P2 = { me: { punch: 0 }, him: { punch: 0 }, stun: 1, himX: 760, meX: 330 };
+        g.save(); g.translate(540, 960); g.rotate(Math.sin(t * 2.4) * .1); g.translate(-540, -960); push(470, 1300, 1.6); cage(t, () => duo(t, P2)); g.restore();
+        g.save(); g.globalAlpha = .3; g.translate(36 * Math.sin(t * 2), 0); g.translate(540, 960); g.rotate(Math.sin(t * 2.4) * .1); g.translate(-540, -960); push(470, 1300, 1.6); cage(t, () => duo(t, P2)); g.restore(); shade(.2 * w); }
+      vignette(.8); break; }
+    case 'wobble': { g.fillStyle = '#0c0e18'; g.fillRect(0, 0, W, H); g.save(); g.translate(540, 900); g.rotate(Math.sin(t * 2.2) * .15); g.translate(-540, -900); push(540, 900, lerp(1.0, 1.15, u));
+      head(540, 900, 3.4, { ...ME, closed: Math.sin(t * 3) > .6, pupil: .4, brow: .7, mouth: 'o', open: .6, tilt: .25 }); stars(t, 540, 520, 300, 6); g.restore(); shade(.15, '40,0,0'); vignette(.85); break; }
+    case 'choice': push(540, 1500, 1.15); cage(t, () => duo(t, { me: { punch: 0 }, him: { punch: 0 }, stun: 1, himX: 760, meX: 330 })); shade(.35); break;
   }
   g.restore();
 }
-const CAPY = t => ['record', 'meshok'].includes(shotAt(t)) ? .86 : .63;
+const CAPY = t => ['record', 'intro'].includes(shotAt(t)) ? .86 : ['fight', 'stun'].includes(shotAt(t)) ? .22 : .63;
 const fmtR = t => { const r = Math.max(0, 300 - Math.round((t - b0('fight')) * 9)); return Math.floor(r / 60) + ':' + String(r % 60).padStart(2, '0'); };
 function clock(t) {
-  const txt = t < b0('vegas') ? '23:10' : t < b0('fight') ? '21:00' : 'Р1 · ' + fmtR(t); g.save(); rr(W / 2 - 92, 92, 184, 64, 20); g.fillStyle = 'rgba(16,16,26,.78)'; g.fill(); textC(txt, W / 2, 125, 40, '#fff', 700); g.restore();
+  const txt = t < b0('fight') ? (t < b0('intro') ? '23:10' : '20:30') : 'Р1 · ' + fmtR(t);
+  g.save(); const bw2 = txt.length > 6 ? 130 : 92; rr(W / 2 - bw2, 92, bw2 * 2, 64, 20); g.fillStyle = 'rgba(16,16,26,.78)'; g.fill(); textC(txt, W / 2, 125, 40, '#fff', 700); g.restore();
   if (t < 3.0) { g.save(); g.globalAlpha = 1 - ss(seg(t, 2.4, 3.0)); textC(EP.title, W / 2, 196, 34, 'rgba(255,255,255,.9)', 700); g.restore(); }
 }
 function epEvents() {
   const ev = [{ t: b0('pit'), type: 'crowd', d: b1('pit') - b0('pit') }]; for (let k = 0; k < 4; k++) ev.push({ t: b0('pit') + .2 + k / 3, type: 'thud' });
   ev.push({ t: b0('pit') + (b1('pit') - b0('pit')) * .6, type: 'thud' }, { t: b0('record') + (b1('record') - b0('record')) * .6, type: 'sting' }, { t: b0('scout'), type: 'steps', d: (b1('scout') - b0('scout')) * .7, slow: 1 });
-  for (let k = 0; k * (1 / 2.2) < b1('meshok') - b0('meshok'); k++) ev.push({ t: b0('meshok') + Math.ceil(b0('meshok') * 2.2) / 2.2 - b0('meshok') + k / 2.2 + .1, type: 'thud' });
-  ev.push({ t: b0('vegas'), type: 'crowd', d: b1('vegas') - b0('vegas') }, { t: b0('fight'), type: 'crowd', d: DUR - b0('fight'), chant: 1 });
-  for (let k = 0; k * (1 / 2.6) < b1('fight') - b0('fight'); k++) ev.push({ t: b0('fight') + Math.ceil(b0('fight') * 2.6) / 2.6 - b0('fight') + k / 2.6 + .12, type: 'thud' });
-  ev.push({ t: b0('stare') + .2, type: 'hit' }, { t: b0('fight'), type: 'heart', d: b1('stare') - b0('fight') }); return ev;
+  for (let k = 0; k * (1 / 2.2) < b1('intro') - b0('intro'); k++) ev.push({ t: b0('intro') + Math.ceil(b0('intro') * 2.2) / 2.2 - b0('intro') + k / 2.2 + .1, type: 'thud' });
+  ev.push({ t: b0('fight'), type: 'crowd', d: DUR - b0('fight'), chant: 1 });
+  for (const at of [.3, 1.0, 1.7, 2.4, 3.0]) ev.push({ t: b0('fight') + at + .18, type: 'thud' });
+  const hk = b0('stun') + (b1('stun') - b0('stun')) * .35; ev.push({ t: hk - .05, type: 'hit' }, { t: hk, type: 'ring', d: 3.5 }, { t: hk, type: 'heart', d: b1('wobble') - hk + .5 }); return ev;
 }
 // ---------------------------------------------------------------- HUD: clock badge, captions, the choice
 const span = v => { const i = VO.indexOf(v), nx = VO[i + 1]; let b = v.t + Math.max(1.4, (DURS[v.id] ?? 2.5) + .35); if (nx) b = Math.min(b, nx.t - .05); return [v.t - .05, b]; };
