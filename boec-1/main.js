@@ -5,9 +5,9 @@ import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
 
 const EP = { title: 'ПУТЬ НАВЕРХ · СЕРИЯ 1', next: 'Серия 2 — по вашему выбору' };
-const BEATS = [['v1', 'pit'], ['v2', 'record'], ['v3', 'scout'], ['v4', 'offer'], ['v4b', 'reply'], ['v5', 'intro'], ['v6', 'fight'], ['v7', 'stun'], [null, 'wobble', 2.4], ['v10', 'choice']];
+const BEATS = [['v1', 'pit'], ['v2', 'record'], ['v3', 'scout'], ['v4', 'offer'], ['v5', 'intro'], ['v6', 'fight'], ['v7', 'stun'], [null, 'wobble', 2.4], ['v10', 'choice']];
 const CH = [['А', 'Проход в ноги', '#ff4a4a'], ['Б', 'Работать ногами', '#4ad0ff']];
-const RED = { v1: ['пять', 'тысяч.'], v2: ['нокаутом.'], v4b: ['вызов».'], v5: ['бульдозер.'], v6: ['вперёд.'], v7: ['правый', 'боковой.'] };
+const RED = { v1: ['пять', 'тысяч.'], v2: ['нокаутом.'], v4: ['дебютант».'], v5: ['бульдозер.'], v6: ['вперёд.'], v7: ['правый', 'боковой.'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
 const J = async (u, d) => { try { return await (await fetch(u)).json(); } catch (e) { return d; } };
 const DURS = await J('vo/dur.json', {}), WORDS = await J('vo/words.json', {}), LINES = await J('vo/lines.json', []);
