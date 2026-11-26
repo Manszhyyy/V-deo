@@ -253,7 +253,7 @@ function scene(t) {
         const ck = ss(seg(u, .55, .8)); g.save(); g.translate(540, lerp(2100, 1450, ck)); g.rotate(-.06); P(R(-260, -170, 520, 340, 12), '#f8f4e8', 6); textC('КОНТРАКТ', 0, -100, 56, INK, 900); textC('BELLATOR · ДЕБЮТ', 0, -20, 36, '#b8322a', 900); textC('соперник: дебютант', 0, 30, 30, INK, 700); line([[-200, 80], [200, 80]], 3); textC('подпись', 140, 110, 22, '#8a8a8a', 700); g.restore(); vignette(.55); }
       break; }
     case 'vegas': if (u < .55) { push(540, 900, lerp(1.0, 1.1, u / .55)); vegas(t); vignette(.4); } else { arena(t); push(540, 900, lerp(1.0, 1.06, seg(u, .55, 1))); vignette(.4); } break;
-    case 'reply': { basement(t); shade(.2); const talk = t > WT('v4b', 3) - .05 && t < VEND('v4b'), nod = Math.sin(Math.max(0, t - b0('reply')) * 5) * .05 * (talk ? 1 : 0), sh = ss(seg(u, .72, .9));
+    case 'reply': { basement(t); shade(.2); const talk = t > VO.find(v => v.id === 'v4b').t && t < VEND('v4b'), nod = Math.sin(Math.max(0, t - b0('reply')) * 5) * .05 * (talk ? 1 : 0), sh = ss(seg(u, .72, .9));
       push(540, 900, lerp(1.0, 1.08, u)); kid(540, 950, 3.0, { ...ME, hood: '#e8c0a0', neck: '#d8b090', look: [.3, 0], brow: -.6, tilt: nod, mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'flat', open: .7, sweat: true });
       if (sh > 0) { const x = lerp(1300, 760, sh); line([[x + 400, 1700], [x, 1560]], 90, INK); line([[x + 400, 1700], [x, 1560]], 76, '#6a5a48'); P(E(x - 20, 1550, 60, 44), SKIN, 6); line([[x - 300, 1700], [x - 70, 1560]], 90, INK); line([[x - 300, 1700], [x - 70, 1560]], 76, '#e8c0a0'); P(E(x - 70, 1560, 56, 42), SKIN, 6); }
       vignette(.55); break; }
