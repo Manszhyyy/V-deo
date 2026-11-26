@@ -257,11 +257,20 @@ function scene(t) {
       push(540, 900, lerp(1.0, 1.08, u)); kid(540, 950, 3.0, { ...ME, hood: '#e8c0a0', neck: '#d8b090', look: [.3, 0], brow: -.6, tilt: nod, mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'flat', open: .7, sweat: true });
       if (sh > 0) { const x = lerp(1300, 760, sh); line([[x + 400, 1700], [x, 1560]], 90, INK); line([[x + 400, 1700], [x, 1560]], 76, '#6a5a48'); P(E(x - 20, 1550, 60, 44), SKIN, 6); line([[x - 300, 1700], [x - 70, 1560]], 90, INK); line([[x - 300, 1700], [x - 70, 1560]], 76, '#e8c0a0'); P(E(x - 70, 1560, 56, 42), SKIN, 6); }
       vignette(.55); break; }
-    case 'intro': { g.fillStyle = '#2a2a34'; g.fillRect(0, 0, W, H); P(R(0, 1640, W, 300), '#3a3a44', 6); glowAt(540, 700, 900, 'rgba(255,240,200,.35)');
-      push(540, 1100, lerp(1.0, 1.08, u)); const hit = (t * 2.2) % 1, hk = hit < .25 ? Math.sin(hit / .25 * Math.PI) : 0;
-      g.save(); g.translate(540, 1900); g.rotate(-.03 * hk); g.translate(-540, -1900); fighter(540, 1900, 1.15, { ...BULL, blink: hk > .5 ? 1 : 0, mouth: 'flat', look: [0, 0] }); g.restore();
-      const k = ss(seg(u, .25, .45)); g.save(); g.globalAlpha = k; g.font = '900 150px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 22; g.strokeStyle = '#000'; g.strokeText('БУЛЬДОЗЕР', 540, 440); g.fillStyle = '#ffb02a'; g.fillText('БУЛЬДОЗЕР', 540, 440);
-      g.font = '900 54px Rubik'; g.lineWidth = 12; g.strokeText('ДЕРЕК МЕЙСОН · 0–0', 540, 560); g.fillStyle = '#fff'; g.fillText('ДЕРЕК МЕЙСОН · 0–0', 540, 560); g.restore(); vignette(.5); break; }
+    case 'intro': {   // a fight-card face-off: red half and blue half, the fighters slide in, a big VS slams down with sparks
+      const kin = eo(seg(u, 0, .22)), vs = ss(seg(u, .2, .3)), slam = Math.max(0, 1 - Math.abs(u - .3) * 14);
+      push(540, 960, 1 + .04 * slam, 14 * slam * Math.sin(t * 70), 0);
+      P(L([[0, 0], [620, 0], [460, H], [0, H]]), '#8a1a1a', 0); P(L([[620, 0], [W, 0], [W, H], [460, H]]), '#14306a', 0);
+      for (let i = 0; i < 14; i++) { const y = ((t * 300 + i * 160) % (H + 200)) - 100; line([[0, y], [520, y - 60]], 3, 'rgba(255,120,100,.18)'); line([[560, y + 80], [W, y + 20]], 3, 'rgba(120,170,255,.18)'); }
+      glowAt(260, 900, 700, 'rgba(255,80,60,.35)'); glowAt(820, 900, 700, 'rgba(80,140,255,.35)');
+      fighter(lerp(-300, 290, kin), 2150, 1.35, { ...ME, turn: .5, look: [.7, 0], brow: -.5, mouth: 'flat' });
+      fighter(lerp(1400, 800, kin), 2150, 1.35, { ...BULL, turn: -.5, look: [-.7, 0], mouth: 'smile' });
+      line([[620, 0], [460, H]], 14, '#fff'); line([[620, 0], [460, H]], 6, INK);
+      if (vs > 0) { g.save(); g.translate(540, 900); g.scale(lerp(3, 1, vs), lerp(3, 1, vs)); g.globalAlpha = vs; g.font = '900 230px Rubik'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.lineWidth = 26; g.strokeStyle = '#000'; g.strokeText('VS', 0, 0); g.fillStyle = '#ffd23a'; g.fillText('VS', 0, 0); g.restore();
+        for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, r = 160 + 260 * seg(u, .3, .45); if (u > .3 && u < .5) line([[540 + Math.cos(a) * r, 900 + Math.sin(a) * r], [540 + Math.cos(a) * (r + 60), 900 + Math.sin(a) * (r + 60)]], 8, '#ffd23a'); } }
+      const nk = ss(seg(u, .35, .5)); g.save(); g.globalAlpha = nk; g.textAlign = 'center'; g.lineJoin = 'round';
+      for (const [x, name, rec, col] of [[270, 'ТЫ', '12–0 · ПОДВАЛ', '#ff6a5a'], [810, 'БУЛЬДОЗЕР', 'ДЕБЮТАНТ · 0–0', '#6aa8ff']]) { g.font = `900 ${name.length > 4 ? 72 : 96}px Rubik`; g.lineWidth = 14; g.strokeStyle = '#000'; g.strokeText(name, x, 400); g.fillStyle = '#fff'; g.fillText(name, x, 400); g.font = '900 38px Rubik'; g.lineWidth = 8; g.strokeText(rec, x, 470); g.fillStyle = col; g.fillText(rec, x, 470); }
+      g.restore(); vignette(.45); break; }
     case 'fight': { const p = fightPose(t - b0('fight')); push(540, 1500, lerp(1.05, 1.18, u), 6 * p.shake * Math.sin(t * 50), 0); cage(t, () => duo(t, p)); vignette(.55); break; }
     case 'stun': { const k = seg(u, 0, .35), hit = ss(seg(k, .55, 1));
       if (u < .35) { push(560, 1450, lerp(1.2, 1.6, k), 10 * hit * Math.sin(t * 60), 0); cage(t, () => duo(t, { me: { punch: 0 }, him: { punch: hit, side: -1 }, meHit: hit, himX: 720, meX: 350 })); if (k > .97) { g.fillStyle = '#fff'; g.fillRect(-400, -400, W + 800, H + 800); } }
@@ -275,7 +284,7 @@ function scene(t) {
   }
   g.restore();
 }
-const CAPY = t => ['fight', 'stun'].includes(shotAt(t)) ? .22 : .84;
+const CAPY = t => ['fight', 'stun'].includes(shotAt(t)) ? .22 : shotAt(t) === 'intro' ? .33 : .84;
 const fmtR = t => { const r = Math.max(0, 300 - Math.round((t - b0('fight')) * 9)); return Math.floor(r / 60) + ':' + String(r % 60).padStart(2, '0'); };
 function clock(t) {
   const txt = t < b0('fight') ? (t < b0('intro') ? '23:10' : '20:30') : 'Р1 · ' + fmtR(t);
