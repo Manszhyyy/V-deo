@@ -83,6 +83,7 @@ for e in EV:
     if x.ndim > 1: x = x.mean(1)
     x = soxr.resample(x, sr, SR); x = hp(x, 80) / (np.abs(x).max() + 1e-9) * .7
     x = compress(x, thr=.2, ratio=3.0, att=.003, rel=.12)
+    fl = int(.012 * SR); x[:fl] *= np.linspace(0, 1, fl); x[-fl:] *= np.linspace(1, 0, fl)   # no clicks where a line starts or stops
     place(vo, x, e['t'], 1.0, 0.0); vm[int(e['t'] * SR):int(e['t'] * SR) + len(x)] = 1
 m_ = vm > 0
 vo *= 10 ** ((-16.0 - 20 * np.log10(rms(vo[m_]))) / 20)
