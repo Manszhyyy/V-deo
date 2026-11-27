@@ -128,6 +128,7 @@ function fighter(x, yf, s, o = {}) {
       if (k > 0 && o.style === 'hook') return [lerp(sx * 70 + dir * 40, dir * (170 + 230 * k), k), -470 - 150 * Math.sin(Math.PI * Math.min(1, k * 1.2)) + 40 * k, 1];
       if (k > 0 && o.style === 'upper') return [lerp(sx * 60 + dir * 30, dir * 190, k), lerp(-280, -620, k), 1];
       return [lerp(sx * 70 + dir * 40, dir * (200 + 280 * k), lead ? k : k * .7), lerp(-470, -500, k), 1]; }
+    if (o.raise === sx) return [sx * 150, -880, 1];
     if (o.guard === false) return [sx * 120, -230, 1];
     return [lerp(sx * 92, sx * 18, k), lerp(-462, -500, k), 1 + k * 1.7]; };
   const T = () => { g.translate(x, yf - bob * s); g.scale(s * bw, s * bh); };
@@ -278,8 +279,9 @@ function scene(t) {
     case 'choke': { const c = ss(seg(u, 0, .5)), tap = WT('v3', 5); push(560, 1000, lerp(1.0, 1.08, u)); cage(t, () => backTake(560, 1100, 2.4, .4 + .6 * c, t));
       const tp = t > tap ? Math.abs(Math.sin((t - tap) * 9)) : 0; g.save(); g.translate(880, 1760 - 90 * tp); P(E(0, 0, 90, 60), '#2a5ad8', 7); g.restore(); if (tp > .85) for (let i = 0; i < 3; i++) line([[790 - i * 30, 1820], [760 - i * 50, 1880]], 7, '#ffd23a');
       vignette(.6); break; }
-    case 'win': { push(540, 1400, lerp(1.05, 1.0, u)); cage(t, () => { fighter(330, 1860, 1.12, { ...ME, guard: false, mouth: 'smile', brow: .2 }); line([[300, 1350], [250, 1000]], 64, INK); line([[300, 1350], [250, 1000]], 50, SKIN); P(E(250, 970, 54, 58), GLOVE, 6);
-        referee(560, 1860, 1.08, true); line([[460, 1400], [290, 1030]], 52, INK); line([[460, 1400], [290, 1030]], 40, '#1a1a1e'); g.save(); g.translate(820, 1950); g.rotate(1.4); fighter(0, 0, 1.0, { ...BULL, closed: true, mouth: 'o' }); g.restore(); });
+    case 'win': { push(540, 1400, lerp(1.05, 1.0, u)); cage(t, () => { fighter(330, 1860, 1.12, { ...ME, guard: false, raise: 1, mouth: 'smile', brow: .2 });
+        referee(600, 1860, 1.08, true); line([[600 - 110 * 1.08, 1860 - 430 * 1.08], [330 + 150 * 1.12 + 20, 1860 - 880 * 1.12 + 40]], 52, INK); line([[600 - 110 * 1.08, 1860 - 430 * 1.08], [330 + 150 * 1.12 + 20, 1860 - 880 * 1.12 + 40]], 40, '#1a1a1e'); P(E(330 + 150 * 1.12 + 20, 1860 - 880 * 1.12 + 40, 30, 30), SKIN, 5);
+        g.save(); g.translate(860, 1950); g.rotate(1.4); fighter(0, 0, 1.0, { ...BULL, closed: true, mouth: 'o' }); g.restore(); });
       const k = ss(seg(u, .25, .4)); g.save(); g.globalAlpha = k; g.font = '900 170px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 22; g.strokeStyle = '#000'; g.strokeText('ПОБЕДА!', 540, 520); g.fillStyle = '#ffd23a'; g.fillText('ПОБЕДА!', 540, 520);
       g.font = '900 56px Rubik'; g.lineWidth = 12; g.strokeText('BELLATOR · 1–0', 540, 640); g.fillStyle = '#fff'; g.fillText('BELLATOR · 1–0', 540, 640); g.restore(); vignette(.5); break; }
     case 'montage': {   // four finishes, each 2.1 s: step in, a slow-motion strike, the impact (flash + push-in), the fall
