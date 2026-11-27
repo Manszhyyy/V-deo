@@ -5,7 +5,7 @@ import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
 
 const EP = { title: 'ПУТЬ НАВЕРХ · СЕРИЯ 2', next: 'Серия 3 — по вашему выбору' };
-const BEATS = [['v1', 'shoot'], ['v2', 'back'], ['v3', 'choke'], ['v4', 'win'], ['v5', 'montage', 6.0], ['v6', 'locker'], ['v7', 'pres'], [null, 'sign', 2.2], ['v10', 'choice']];
+const BEATS = [['v1', 'shoot'], ['v2', 'back'], ['v3', 'choke'], ['v4', 'win'], ['v5', 'montage', 8.4], ['v6', 'locker'], ['v7', 'pres'], [null, 'sign', 2.2], ['v10', 'choice']];
 const CH = [['А', 'Подписать контракт сразу', '#ff4a4a'], ['Б', 'Сначала взять пояс Bellator', '#4ad0ff']];
 const RED = { v1: ['а.'], v3: ['стучит.'], v4: ['победа'], v5: ['пять', 'побед'], v6: ['президент', 'ufc.'], v7: ['ufc».'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
@@ -124,12 +124,16 @@ function fighter(x, yf, s, o = {}) {
   const sk = o.skin || SKIN, bw = o.big ? 1.45 : o.stocky ? 1.42 : o.tall ? .95 : 1, bh = o.big ? 1.1 : o.stocky ? .94 : o.tall ? 1.12 : 1;
   const ph = o.walk, bob = ph != null ? Math.abs(Math.sin(ph)) * 8 : 0, pu = o.punch || 0, side = o.side || 1, dir = o.dir || 0;
   const gp = sx => { const k = sx === side ? pu : 0;
-    if (dir) { const lead = sx === dir; return [lerp(sx * 70 + dir * 40, dir * (200 + 280 * k), lead ? k : k * .7), lerp(-470, -500, k), 1]; }
+    if (dir) { const lead = sx === dir;
+      if (k > 0 && o.style === 'hook') return [lerp(sx * 70 + dir * 40, dir * (170 + 230 * k), k), -470 - 150 * Math.sin(Math.PI * Math.min(1, k * 1.2)) + 40 * k, 1];
+      if (k > 0 && o.style === 'upper') return [lerp(sx * 60 + dir * 30, dir * 190, k), lerp(-280, -620, k), 1];
+      return [lerp(sx * 70 + dir * 40, dir * (200 + 280 * k), lead ? k : k * .7), lerp(-470, -500, k), 1]; }
     if (o.guard === false) return [sx * 120, -230, 1];
     return [lerp(sx * 92, sx * 18, k), lerp(-462, -500, k), 1 + k * 1.7]; };
   const T = () => { g.translate(x, yf - bob * s); g.scale(s * bw, s * bh); };
   g.save(); T();
-  for (const sx of [-1, 1]) { const kk = o.kick && sx === (dir || 1) ? o.kick : 0; if (kk) { g.save(); g.translate(sx * 48, -230); g.rotate(-(dir || 1) * 2.45 * kk); P(R(-32, 0, 64, 225, 28), sk, 6); P(E(0, 218, 40, 18), '#1a1a1e', 6); g.restore(); } else { P(R(sx * 48 - 32, -230, 64, 225, 28), sk, 6); P(E(sx * 48, -12, 40, 18), '#1a1a1e', 6); } }
+  for (const sx of [-1, 1]) { const kn = o.knee && sx === (dir || 1) ? o.knee : 0; if (kn) { g.save(); g.translate(sx * 48, -230); g.rotate(-(dir || 1) * 1.7 * kn); P(R(-32, 0, 64, 125, 28), sk, 6); g.translate(0, 115); g.rotate((dir || 1) * 1.9 * kn); P(R(-30, 0, 60, 115, 26), sk, 6); P(E(0, 112, 38, 17), '#1a1a1e', 6); g.restore(); continue; }
+    const kk = o.kick && sx === (dir || 1) ? o.kick : 0; if (kk) { g.save(); g.translate(sx * 48, -230); g.rotate(-(dir || 1) * 2.45 * kk); const LL = 225 * (1 + .55 * kk); P(R(-32, 0, 64, LL, 28), sk, 6); P(E(0, LL - 7, 40, 18), '#1a1a1e', 6); g.restore(); } else { P(R(sx * 48 - 32, -230, 64, 225, 28), sk, 6); P(E(sx * 48, -12, 40, 18), '#1a1a1e', 6); } }
   P(L([[-118, -170], [-122, -270], [122, -270], [118, -170], [96, -150], [-96, -150]]), o.shorts || SHORTS); line([[-118, -250], [118, -250]], 6, o.belt || '#e8e4dc');
   P(L([[-96, -260], [-128, -400], [-96, -450], [96, -450], [128, -400], [96, -260]]), sk);
   if (!o.back) { line([[-50, -390], [0, -372, 50, -390]], 4); line([[0, -360], [0, -280]], 3); line([[-36, -330], [36, -330]], 3); line([[-34, -296], [34, -296]], 3); }
@@ -198,7 +202,7 @@ function vegas(t) {
 }
 function tally(t, n) { for (let i = 0; i < n; i++) { const grp = Math.floor(i / 5), k = i % 5, x = 160 + grp * 300 + k * 40, y = 640; if (k === 4) line([[x - 170, y + 120], [x - 10, y - 10]], 10, '#f4f0e6'); else line([[x, y - 20], [x + 6, y + 140]], 10, '#f4f0e6'); } }
 // ---------------------------------------------------------------- inside the cage
-function cage(t, people) {
+function cage(t, people, o = {}) {
   g.fillStyle = '#07080e'; g.fillRect(0, 0, W, H);
   for (let r = 0; r < 7; r++) for (let i = 0; i < 18; i++) { const x = i * 64 + (r % 2) * 32 - 20, y = 360 + r * 66; P(E(x, y, 24, 28), `rgba(${30 + r * 6},${30 + r * 6},${46 + r * 6},1)`, 0); if (hash(i * 9 + r) > .82 && Math.sin(t * 9 + i) > .6) P(E(x, y - 8, 5, 5), '#fff', 0); }
   for (const [x, ph] of [[200, 0], [540, 2], [880, 4]]) { const sw = Math.sin(t * 1.1 + ph) * 120; beam([[x - 20, 0], [x + 20, 0], [540 + sw + 220, 1500], [540 + sw - 220, 1500]], '#dce6ff', .12); }
@@ -207,7 +211,7 @@ function cage(t, people) {
   P(L([[0, 1220], [W, 1220], [W, H], [0, H]]), '#e4e4e8', 0); P(E(540, 1600, 300, 110), null, 10, 'rgba(200,40,40,.35)'); textC('★', 540, 1600, 90, 'rgba(200,40,40,.35)', 900);
   people && people();
   g.save(); g.strokeStyle = 'rgba(20,20,26,.28)'; g.lineWidth = 4; for (let x = -1200; x < W + 1200; x += 70) { g.beginPath(); g.moveTo(x, 1300); g.lineTo(x + 640, H); g.stroke(); g.beginPath(); g.moveTo(x + 640, 1300); g.lineTo(x, H); g.stroke(); } g.restore();
-  P(R(-10, 1280, W + 20, 34), '#14141a', 5); P(R(-20, 1180, 70, 760), '#14141a', 5); P(R(W - 50, 1180, 70, 760), '#14141a', 5);
+  if (!o.noBar) { P(R(-10, 1280, W + 20, 34), '#14141a', 5); P(R(-20, 1180, 70, 760), '#14141a', 5); P(R(W - 50, 1180, 70, 760), '#14141a', 5); }
 }
 function stars(t, x, y, r, n) { for (let i = 0; i < n; i++) { const a = t * 2.5 + i / n * TAU; textC('★', x + Math.cos(a) * r, y + Math.sin(a) * r * .35, 70, '#ffd23a', 900); } }
 // the exchange: you land three, he walks through them and answers once; then you again
@@ -222,7 +226,7 @@ function duo(t, p, opp = BULL) {
   g.save(); g.translate(p.himX, yf); g.rotate(.12 * (p.himHit || 0) + fall * 1.0); g.translate(-p.himX, -yf);
   fighter(p.himX + fall * 60, yf + bobB * (1 - fall), 1.12, { ...opp, dir: -1, punch: p.him.punch, side: p.him.side === 1 ? -1 : 1, turn: -.7, look: [-.8, 0], mouth: fall > .3 ? 'o' : opp.mouth || 'smile', closed: fall > .3 }); g.restore();
   const st = p.stun ? 1 : 0, sway = st ? Math.sin(t * 2.4) * .1 : 0; g.save(); g.translate(p.meX, yf); g.rotate(-.18 * (p.meHit || 0) + sway); g.translate(-p.meX, -yf);
-  fighter(p.meX, yf + bobA - (p.me.jump || 0) * 140, 1.12, { ...ME, dir: 1, punch: p.me.punch, side: p.me.side, kick: p.me.kick || 0, turn: .7, look: [.8, 0], brow: st ? .8 : -.4, mouth: st ? 'o' : 'flat', closed: st && Math.sin(t * 3) > .6, pupil: st ? .45 : 1 }); g.restore();
+  fighter(p.meX, yf + bobA - (p.me.jump || 0) * 160, 1.12, { ...ME, dir: 1, punch: p.me.punch, side: p.me.side, kick: p.me.kick || 0, knee: p.me.knee || 0, style: p.me.style, turn: .7, look: [.8, 0], brow: st ? .8 : -.4, mouth: st ? 'o' : 'flat', closed: st && Math.sin(t * 3) > .6, pupil: st ? .45 : 1 }); g.restore();
   if (st) stars(t, p.meX, yf - 640, 120, 5);
 }
 // the basement ring: people all round, arms up
@@ -278,13 +282,18 @@ function scene(t) {
         referee(560, 1860, 1.08, true); line([[460, 1400], [290, 1030]], 52, INK); line([[460, 1400], [290, 1030]], 40, '#1a1a1e'); g.save(); g.translate(820, 1950); g.rotate(1.4); fighter(0, 0, 1.0, { ...BULL, closed: true, mouth: 'o' }); g.restore(); });
       const k = ss(seg(u, .25, .4)); g.save(); g.globalAlpha = k; g.font = '900 170px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 22; g.strokeStyle = '#000'; g.strokeText('ПОБЕДА!', 540, 520); g.fillStyle = '#ffd23a'; g.fillText('ПОБЕДА!', 540, 520);
       g.font = '900 56px Rubik'; g.lineWidth = 12; g.strokeText('BELLATOR · 1–0', 540, 640); g.fillStyle = '#fff'; g.fillText('BELLATOR · 1–0', 540, 640); g.restore(); vignette(.5); break; }
-    case 'montage': { const n = Math.min(3, Math.floor(u * 4)), k = (u * 4) % 1, opp = [{ ...BUM, hair: '#c88a3a', shorts: '#8a3a3a' }, { ...AKULA }, { ...BUM, hair: '#1a1a1a', shorts: '#3a6a8a', skin: '#c89070' }, { ...BUM, hair: '#7a4a2a', shorts: '#6a6a2a', mean: false }][n];
-      const hitK = k < .38 ? Math.sin(k / .38 * Math.PI) : 0, me = [{ kick: hitK }, { punch: hitK, side: 1 }, { punch: hitK, side: -1 }, { kick: hitK * .65, jump: hitK }][n];
-      push(540, 1500, 1.15, 10 * (k > .28 && k < .4 ? 1 : 0) * Math.sin(t * 60), 0); cage(t, () => duo(t, { me, him: { punch: 0 }, himHit: k > .2 && k < .45 ? 1 : 0, fall: ss(seg(k, .32, .7)), himX: 740, meX: 330 }, opp));
-      if (k > .3 && k < .42) { g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(0, 0, W, H); }
-      const lab = ['НОКАУТ НОГОЙ', 'НОКАУТ БОКОВЫМ', 'АППЕРКОТ', 'КОЛЕНО В ПРЫЖКЕ'][n], rec = `${2 + n}–0`, a2 = ss(seg(k, .35, .5));
+    case 'montage': {   // four finishes, each 2.1 s: step in, a slow-motion strike, the impact (flash + push-in), the fall
+      const n = Math.min(3, Math.floor(u * 4)), k = (u * 4) % 1, opp = [{ ...BUM, hair: '#c88a3a', shorts: '#8a3a3a' }, { ...AKULA }, { ...BUM, hair: '#1a1a1a', shorts: '#3a6a8a', skin: '#c89070' }, { ...BUM, hair: '#7a4a2a', shorts: '#6a6a2a', mean: false }][n];
+      const st = ss(seg(k, .18, .58)), imp = k > .56 && k < .66, fall = ss(seg(k, .6, .95));
+      const me = [{ kick: st }, { punch: st, side: 1, style: 'hook' }, { punch: st, side: 1, style: 'upper' }, { knee: st, jump: st * (1 - fall) * 1.3 }][n];
+      const zoom = 1.08 + .2 * ss(seg(k, .4, .6)) * (1 - ss(seg(k, .75, .95))), step = st * (n === 0 || n === 3 ? 150 : 90), fx = 560, fy = 1360;
+      push(fx, fy, zoom, (imp ? 14 : 0) * Math.sin(t * 70), 0);
+      cage(t, () => { duo(t, { me, him: { punch: 0 }, himHit: st > .8 ? 1 : 0, fall, himX: 740, meX: 330 + step }, opp);
+        if (imp) { const ix = 650, iy = n === 3 ? 1270 : 1230; for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; line([[ix + Math.cos(a) * 60, iy + Math.sin(a) * 60], [ix + Math.cos(a) * 150, iy + Math.sin(a) * 150]], 10, '#ffd23a'); } } }, { noBar: true });
+      if (imp) { g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(0, 0, W, H); }
+      g.setTransform(1, 0, 0, 1, 0, 0); const lab = ['НОКАУТ НОГОЙ В ГОЛОВУ', 'НОКАУТ БОКОВЫМ', 'НОКАУТ АППЕРКОТОМ', 'КОЛЕНО В ПРЫЖКЕ'][n], rec = `${2 + n}–0`, a2 = ss(seg(k, .6, .72));
       g.save(); g.globalAlpha = a2; g.textAlign = 'center'; g.lineJoin = 'round'; g.font = '900 150px Rubik'; g.lineWidth = 20; g.strokeStyle = '#000'; g.strokeText(rec, 540, 520); g.fillStyle = '#ffd23a'; g.fillText(rec, 540, 520);
-      g.font = '900 64px Rubik'; g.lineWidth = 12; g.strokeText(lab, 540, 640); g.fillStyle = '#fff'; g.fillText(lab, 540, 640); g.restore(); vignette(.5); break; }
+      g.font = '900 60px Rubik'; g.lineWidth = 12; g.strokeText(lab, 540, 640); g.fillStyle = '#fff'; g.fillText(lab, 540, 640); g.restore(); vignette(.5); break; }
     case 'locker': { lockers(t); push(540, 1300, lerp(1.0, 1.06, u)); const op = ss(seg(u, .25, .55)); P(R(820, 340, 240, 960), '#0e1016', 6); P(L([[820, 340], [820 + 240 * (1 - op), 360], [820 + 240 * (1 - op), 1280], [820, 1300]]), '#7a8a9e', 6); if (op > .05) glowAt(940, 800, 500 * op, 'rgba(255,240,210,.5)');
       if (op > .5) boss(lerp(980, 820, ss(seg(u, .5, 1))), 1880, 1.15, { look: [-.6, 0], mouth: 'smile' }); P(E(200, 1560, 60, 66), GLOVE, 6); P(E(450, 1560, 60, 66), GLOVE, 6); kid(330, 1300, 1.3, { ...ME, hood: SKIN, bare: true, sweat: true, look: [.8, 0], brow: op > .5 ? .6 : .2, blink: blinkAt(t, 2), mouth: op > .6 ? 'o' : 'flat' }); vignette(.55); break; }
     case 'pres': { lockers(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); const talk = t > VO.find(v => v.id === 'v7').t && t < VEND('v7'); boss(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
@@ -304,7 +313,7 @@ function epEvents() {
   const ev = [{ t: 0, type: 'crowd', d: b1('montage'), chant: 1 }, { t: b0('shoot') + (b1('shoot') - b0('shoot')) * .5, type: 'thud' }, { t: b0('shoot') + (b1('shoot') - b0('shoot')) * .7, type: 'hit' },
     { t: b0('choke'), type: 'heart', d: b1('choke') - b0('choke') }];
   for (let i = 0; i < 4; i++) ev.push({ t: WT('v3', 5) + i * .35, type: 'thud' });
-  ev.push({ t: b0('win') + .3, type: 'sting' }); for (let i = 0; i < 4; i++) ev.push({ t: b0('montage') + (b1('montage') - b0('montage')) * (i + .3) / 4, type: 'hit' });
+  ev.push({ t: b0('win') + .3, type: 'sting' }); for (let i = 0; i < 4; i++) ev.push({ t: b0('montage') + (b1('montage') - b0('montage')) * (i + .58) / 4, type: 'hit' });
   ev.push({ t: b0('locker') + (b1('locker') - b0('locker')) * .3, type: 'creak', d: 1.0 }, { t: b0('pres') + (b1('pres') - b0('pres')) * .5, type: 'sting' }); return ev;
 }
 // ---------------------------------------------------------------- HUD: clock badge, captions, the choice
