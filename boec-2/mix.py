@@ -35,7 +35,7 @@ for e in EV:
     elif ty == 'thud': u = U(.4); place(fol, (np.sin(2 * np.pi * 75 * u) * np.exp(-u / .07) + bp(nz(.4), 300, 2500) * np.exp(-u / .02)) * .5, t, 1.0, 0)
     elif ty == 'crowd':
         u = U(d); x = bp(nz(d), 300, 3000) * .5 + lp(nz(d), 400)
-        if e.get('chant'): x = x * (1 + 1.6 * (np.sin(2 * np.pi * 1.1 * u) > .3))
+        if e.get('chant'): x = x * (1 + 1.2 * (.5 + .5 * np.sin(2 * np.pi * .9 * u)) ** 2)   # a smooth swell, no hard gating (it buzzed)
         place(amb, x * .06 * np.clip(u / .8, 0, 1)[:len(x)], t, 1.0, 0)
     elif ty == 'ring':
         u = U(d); place(fol, np.sin(2 * np.pi * 3400 * u) * np.exp(-u / 1.4) * .05, t, 1.0, 0)

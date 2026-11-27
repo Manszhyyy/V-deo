@@ -316,6 +316,7 @@ function epEvents() {
     { t: b0('choke'), type: 'heart', d: b1('choke') - b0('choke') }];
   for (let i = 0; i < 4; i++) ev.push({ t: WT('v3', 5) + i * .35, type: 'thud' });
   ev.push({ t: b0('win') + .3, type: 'sting' }); for (let i = 0; i < 4; i++) ev.push({ t: b0('montage') + (b1('montage') - b0('montage')) * (i + .58) / 4, type: 'hit' });
+  ['k2', 'k3', 'k4'].forEach((id, i) => ev.push({ t: b0('montage') + (b1('montage') - b0('montage')) * (i + 1.42) / 4, type: 'vo', id }));
   ev.push({ t: b0('locker') + (b1('locker') - b0('locker')) * .3, type: 'creak', d: 1.0 }, { t: b0('pres') + (b1('pres') - b0('pres')) * .5, type: 'sting' }); return ev;
 }
 // ---------------------------------------------------------------- HUD: clock badge, captions, the choice
