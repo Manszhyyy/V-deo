@@ -73,7 +73,7 @@ def drone(t0, t1, notes, amp, cut=900):
     x = sum(np.sin(2 * np.pi * 440 * 2 ** ((m - 69) / 12) * (1 + dd) * u) for m in notes for dd in (-.004, .004))
     x = lp(x, cut) * np.clip(u / 1.5, 0, 1) * np.clip((t1 - t0 - u) / .3, 0, 1) * amp
     mus[i0:i1, 0] += x; mus[i0:i1, 1] += np.roll(x, 300)
-drone(0, cue['locker'], [38, 45], .04); drone(cue['locker'], cue['choice'], [37, 44, 49], .05, 1000)
+drone(0, cue["locker"], [38, 45], .04); drone(cue['locker'], cue['choice'], [37, 44, 49], .05, 1000)
 drone(cue['choice'] + .2, DUR, [36, 43, 48], .045)
 # narration, compressed; levels set from the speech
 vo = np.zeros((N, 2), np.float32); vm = np.zeros(N)

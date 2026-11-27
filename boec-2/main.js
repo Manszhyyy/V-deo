@@ -5,7 +5,7 @@ import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
 
 const EP = { title: 'ПУТЬ НАВЕРХ · СЕРИЯ 2', next: 'Серия 3 — по вашему выбору' };
-const BEATS = [['v1', 'shoot'], ['v2', 'back'], ['v3', 'choke'], ['v4', 'win'], ['v5', 'montage', 8.4], ['v6', 'locker'], ['v7', 'pres'], [null, 'sign', 2.2], ['v10', 'choice']];
+const BEATS = [['v1', 'shoot'], ['v2', 'back'], ['v3', 'choke'], ['v4', 'win'], ['v5', 'prelude'], [null, 'montage', 17.6], ['v6', 'locker'], ['v7', 'pres'], [null, 'sign', 2.2], ['v10', 'choice']];
 const CH = [['А', 'Подписать контракт сразу', '#ff4a4a'], ['Б', 'Сначала взять пояс Bellator', '#4ad0ff']];
 const RED = { v1: ['а.'], v3: ['стучит.'], v4: ['победа'], v5: ['пять', 'побед'], v6: ['президент', 'ufc.'], v7: ['ufc».'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
@@ -286,16 +286,23 @@ function scene(t) {
       g.font = '900 56px Rubik'; g.lineWidth = 12; g.strokeText('BELLATOR · 1–0', 540, 640); g.fillStyle = '#fff'; g.fillText('BELLATOR · 1–0', 540, 640); g.restore(); vignette(.5); break; }
     case 'montage': {   // four finishes, each 2.1 s: step in, a slow-motion strike, the impact (flash + push-in), the fall
       const n = Math.min(3, Math.floor(u * 4)), k = (u * 4) % 1, opp = [{ ...BUM, hair: '#c88a3a', shorts: '#8a3a3a' }, { ...AKULA }, { ...BUM, hair: '#1a1a1a', shorts: '#3a6a8a', skin: '#c89070' }, { ...BUM, hair: '#7a4a2a', shorts: '#6a6a2a', mean: false }][n];
-      const st = ss(seg(k, .18, .58)), imp = k > .56 && k < .66, fall = ss(seg(k, .6, .95));
-      const me = [{ kick: st }, { punch: st, side: 1, style: 'hook' }, { punch: st, side: 1, style: 'upper' }, { knee: st, jump: st * (1 - fall) * 1.3 }][n];
-      const zoom = 1.08 + .2 * ss(seg(k, .4, .6)) * (1 - ss(seg(k, .75, .95))), step = st * (n === 0 || n === 3 ? 150 : 90), fx = 560, fy = 1360;
+      const st = ss(seg(k, .1, .3)), imp = k > .29 && k < .36, fall = ss(seg(k, .32, .52));
+      const sr = st * (1 - ss(seg(k, .38, .52))), me = [{ kick: sr }, { punch: sr, side: 1, style: 'hook' }, { punch: sr, side: 1, style: 'upper' }, { knee: sr, jump: sr * 1.3 }][n];
+      const zoom = 1.08 + .2 * ss(seg(k, .2, .3)) * (1 - ss(seg(k, .5, .7))), step = sr * (n === 0 || n === 3 ? 150 : 90), fx = 560, fy = 1360;
       push(fx, fy, zoom, (imp ? 14 : 0) * Math.sin(t * 70), 0);
       cage(t, () => { duo(t, { me, him: { punch: 0 }, himHit: st > .8 ? 1 : 0, fall, himX: 740, meX: 330 + step }, opp);
         if (imp) { const ix = 650, iy = n === 3 ? 1270 : 1230; for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; line([[ix + Math.cos(a) * 60, iy + Math.sin(a) * 60], [ix + Math.cos(a) * 150, iy + Math.sin(a) * 150]], 10, '#ffd23a'); } } }, { noBar: true });
       if (imp) { g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(0, 0, W, H); }
-      g.setTransform(1, 0, 0, 1, 0, 0); const lab = ['НОКАУТ НОГОЙ В ГОЛОВУ', 'НОКАУТ БОКОВЫМ', 'НОКАУТ АППЕРКОТОМ', 'КОЛЕНО В ПРЫЖКЕ'][n], rec = `${2 + n}–0`, a2 = ss(seg(k, .6, .72));
+      g.setTransform(1, 0, 0, 1, 0, 0); const lab = ['НОКАУТ НОГОЙ В ГОЛОВУ', 'НОКАУТ БОКОВЫМ', 'НОКАУТ АППЕРКОТОМ', 'КОЛЕНО В ПРЫЖКЕ'][n], rec = `${2 + n}–0`, a2 = ss(seg(k, .32, .42));
       g.save(); g.globalAlpha = a2; g.textAlign = 'center'; g.lineJoin = 'round'; g.font = '900 150px Rubik'; g.lineWidth = 20; g.strokeStyle = '#000'; g.strokeText(rec, 540, 520); g.fillStyle = '#ffd23a'; g.fillText(rec, 540, 520);
-      g.font = '900 60px Rubik'; g.lineWidth = 12; g.strokeText(lab, 540, 640); g.fillStyle = '#fff'; g.fillText(lab, 540, 640); g.restore(); vignette(.5); break; }
+      g.font = '900 60px Rubik'; g.lineWidth = 12; g.strokeText(lab, 540, 640); g.fillStyle = '#fff'; g.fillText(lab, 540, 640); g.restore();
+      const cq = ['«Очень интересный стиль боя!»', '«Такого новичка лига давно не видела!»', '«Он заканчивает каждый бой досрочно!»', '«Пять побед — пять финишей!»'][n], ck = ss(seg(k, .42, .5)) * (1 - ss(seg(k, .95, 1)));
+      if (ck > 0) { g.save(); g.globalAlpha = ck; const y = 1480; P(R(50, y, W - 100, 190, 18), 'rgba(12,14,24,.88)', 5, '#ffd23a'); P(R(50, y - 46, 330, 56, 12), '#ffd23a', 5); textC('КОММЕНТАТОР', 215, y - 18, 34, '#10101a', 900);
+        g.font = '900 48px Rubik'; g.textAlign = 'center'; g.fillStyle = '#fff'; const ws = cq.split(' '), ls = []; let c = ''; for (const w of ws) { const tr = c ? c + ' ' + w : w; if (g.measureText(tr).width > W - 180 && c) { ls.push(c); c = w; } else c = tr; } ls.push(c);
+        ls.forEach((l, j) => g.fillText(l, 540, y + 95 + (j - (ls.length - 1) / 2) * 58)); g.restore(); }
+      vignette(.5); break; }
+    case 'prelude': { push(540, 1500, 1.12); cage(t, () => duo(t, { me: { punch: 0 }, him: { punch: 0 }, himX: 740, meX: 330 }, { ...BUM, hair: '#c88a3a', shorts: '#8a3a3a' }), { noBar: true });
+      g.save(); g.textAlign = 'center'; g.lineJoin = 'round'; g.font = '900 120px Rubik'; g.lineWidth = 18; g.strokeStyle = '#000'; g.strokeText('BELLATOR', 540, 520); g.fillStyle = '#fff'; g.fillText('BELLATOR', 540, 520); g.restore(); vignette(.5); break; }
     case 'locker': { lockers(t); push(540, 1300, lerp(1.0, 1.06, u)); const op = ss(seg(u, .25, .55)); P(R(820, 340, 240, 960), '#0e1016', 6); P(L([[820, 340], [820 + 240 * (1 - op), 360], [820 + 240 * (1 - op), 1280], [820, 1300]]), '#7a8a9e', 6); if (op > .05) glowAt(940, 800, 500 * op, 'rgba(255,240,210,.5)');
       if (op > .5) boss(lerp(980, 820, ss(seg(u, .5, 1))), 1880, 1.15, { look: [-.6, 0], mouth: 'smile' }); P(E(200, 1560, 60, 66), GLOVE, 6); P(E(450, 1560, 60, 66), GLOVE, 6); kid(330, 1300, 1.3, { ...ME, hood: SKIN, bare: true, sweat: true, look: [.8, 0], brow: op > .5 ? .6 : .2, blink: blinkAt(t, 2), mouth: op > .6 ? 'o' : 'flat' }); vignette(.55); break; }
     case 'pres': { lockers(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); const talk = t > VO.find(v => v.id === 'v7').t && t < VEND('v7'); boss(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
@@ -307,7 +314,7 @@ function scene(t) {
 }
 const CAPY = t => ['choke', 'pres', 'sign'].includes(shotAt(t)) ? .2 : .84;
 function clock(t) {
-  const sh = shotAt(t), txt = ['shoot', 'back', 'choke'].includes(sh) ? 'Р1 · 2:' + String(Math.max(0, 41 - Math.round((t - b0('shoot')) * 2))).padStart(2, '0') : sh === 'win' ? 'Р1 · ФИНИШ' : sh === 'montage' ? String(2027 + Math.min(1, Math.floor(seg(t, b0('montage'), b1('montage')) * 2))) : '23:40';
+  const sh = shotAt(t), txt = ['shoot', 'back', 'choke'].includes(sh) ? 'Р1 · 2:' + String(Math.max(0, 41 - Math.round((t - b0('shoot')) * 2))).padStart(2, '0') : sh === 'win' ? 'Р1 · ФИНИШ' : ['montage', 'prelude'].includes(sh) ? String(2027 + Math.min(1, Math.floor(seg(t, b0('montage'), b1('montage')) * 2))) : '23:40';
   g.save(); const bw2 = txt.length > 6 ? 150 : 92; rr(W / 2 - bw2, 92, bw2 * 2, 64, 20); g.fillStyle = 'rgba(16,16,26,.78)'; g.fill(); textC(txt, W / 2, 125, 40, '#fff', 700); g.restore();
   if (t < 3.0) { g.save(); g.globalAlpha = 1 - ss(seg(t, 2.4, 3.0)); textC(EP.title, W / 2, 196, 34, 'rgba(255,255,255,.9)', 700); g.restore(); }
 }
@@ -315,8 +322,9 @@ function epEvents() {
   const ev = [{ t: 0, type: 'crowd', d: b1('montage'), chant: 1 }, { t: b0('shoot') + (b1('shoot') - b0('shoot')) * .5, type: 'thud' }, { t: b0('shoot') + (b1('shoot') - b0('shoot')) * .7, type: 'hit' },
     { t: b0('choke'), type: 'heart', d: b1('choke') - b0('choke') }];
   for (let i = 0; i < 4; i++) ev.push({ t: WT('v3', 5) + i * .35, type: 'thud' });
-  ev.push({ t: b0('win') + .3, type: 'sting' }); for (let i = 0; i < 4; i++) ev.push({ t: b0('montage') + (b1('montage') - b0('montage')) * (i + .58) / 4, type: 'hit' });
-  ['k2', 'k3', 'k4'].forEach((id, i) => ev.push({ t: b0('montage') + (b1('montage') - b0('montage')) * (i + 1.42) / 4, type: 'vo', id }));
+  ev.push({ t: b0('win') + .3, type: 'sting' }); for (let i = 0; i < 4; i++) ev.push({ t: b0('montage') + (b1('montage') - b0('montage')) * (i + .3) / 4, type: 'hit' });
+  const SEG = (b1('montage') - b0('montage')) / 4; ['k1', 'k2', 'k3', 'k4'].forEach((id, i) => ev.push({ t: b0('montage') + SEG * (i + .1), type: 'vo', id }));
+  ['c1', 'c2', 'c3', 'c4'].forEach((id, i) => ev.push({ t: b0('montage') + SEG * (i + .42), type: 'vo', id }));
   ev.push({ t: b0('locker') + (b1('locker') - b0('locker')) * .3, type: 'creak', d: 1.0 }, { t: b0('pres') + (b1('pres') - b0('pres')) * .5, type: 'sting' }); return ev;
 }
 // ---------------------------------------------------------------- HUD: clock badge, captions, the choice
