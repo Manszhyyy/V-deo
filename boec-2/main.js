@@ -5,7 +5,7 @@ import { clamp, seg, ss, eio, eo, lerp, hash, TAU } from '/core/lib.js';
 
 
 const EP = { title: 'ПУТЬ НАВЕРХ · СЕРИЯ 2', next: 'Серия 3 — по вашему выбору' };
-const BEATS = [['v1', 'shoot'], ['v2', 'back'], ['v3', 'choke'], ['v4', 'win'], ['v5', 'montage'], ['v6', 'locker'], ['v7', 'pres'], [null, 'sign', 2.2], ['v10', 'choice']];
+const BEATS = [['v1', 'shoot'], ['v2', 'back'], ['v3', 'choke'], ['v4', 'win'], ['v5', 'montage', 6.0], ['v6', 'locker'], ['v7', 'pres'], [null, 'sign', 2.2], ['v10', 'choice']];
 const CH = [['А', 'Подписать контракт сразу', '#ff4a4a'], ['Б', 'Сначала взять пояс Bellator', '#4ad0ff']];
 const RED = { v1: ['а.'], v3: ['стучит.'], v4: ['победа'], v5: ['пять', 'побед'], v6: ['президент', 'ufc.'], v7: ['ufc».'] };
 const W = 1080, H = 1920, QS = new URLSearchParams(location.search);
@@ -91,7 +91,7 @@ function head(x, y, s, o = {}) {
 function kid(x, y, s, o = {}) {        // hoodie, then the head; (x, y) is the head's centre
   g.save(); g.translate(x, y); g.scale(s, s);
   P(L([[-175, 420], [-160, 190], [-150, 120, -70, 100], [70, 100], [150, 120, 160, 190], [175, 420]]), o.hood || HOOD);
-  P(E(0, 104, 78, 26), o.neck || '#245a4c', 6); line([[-24, 120], [-30, 200]], 5); line([[24, 120], [30, 200]], 5);
+  if (!o.bare) { P(E(0, 104, 78, 26), o.neck || '#245a4c', 6); line([[-24, 120], [-30, 200]], 5); line([[24, 120], [30, 200]], 5); } else { line([[-70, 190], [0, 214, 70, 190]], 4); line([[0, 214], [0, 300]], 3); }
   if (o.phones) { line([[-78, 150], [0, 196, 78, 150]], 12, '#222'); P(E(-84, 146, 30, 36), '#e8443c', 6); P(E(84, 146, 30, 36), '#e8443c', 6); }
   g.restore(); head(x, y, s, o);
 }
@@ -129,7 +129,7 @@ function fighter(x, yf, s, o = {}) {
     return [lerp(sx * 92, sx * 18, k), lerp(-462, -500, k), 1 + k * 1.7]; };
   const T = () => { g.translate(x, yf - bob * s); g.scale(s * bw, s * bh); };
   g.save(); T();
-  for (const sx of [-1, 1]) { P(R(sx * 48 - 32, -230, 64, 225, 28), sk, 6); P(E(sx * 48, -12, 40, 18), '#1a1a1e', 6); }
+  for (const sx of [-1, 1]) { const kk = o.kick && sx === (dir || 1) ? o.kick : 0; if (kk) { g.save(); g.translate(sx * 48, -230); g.rotate(-(dir || 1) * 2.45 * kk); P(R(-32, 0, 64, 225, 28), sk, 6); P(E(0, 218, 40, 18), '#1a1a1e', 6); g.restore(); } else { P(R(sx * 48 - 32, -230, 64, 225, 28), sk, 6); P(E(sx * 48, -12, 40, 18), '#1a1a1e', 6); } }
   P(L([[-118, -170], [-122, -270], [122, -270], [118, -170], [96, -150], [-96, -150]]), o.shorts || SHORTS); line([[-118, -250], [118, -250]], 6, o.belt || '#e8e4dc');
   P(L([[-96, -260], [-128, -400], [-96, -450], [96, -450], [128, -400], [96, -260]]), sk);
   if (!o.back) { line([[-50, -390], [0, -372, 50, -390]], 4); line([[0, -360], [0, -280]], 3); line([[-36, -330], [36, -330]], 3); line([[-34, -296], [34, -296]], 3); }
@@ -185,7 +185,7 @@ function scout(x, yf, s, o = {}) {
   P(L([[-120, -150], [-118, -400], [-80, -450], [80, -450], [118, -400], [120, -150]]), o.coat || '#6a5a48'); P(L([[-40, -450], [0, -330], [40, -450]]), '#f4f0e6', 5); line([[0, -440], [0, -330]], 8, o.tie || '#8a1a1a');
   line([[-40, -450], [-20, -200]], 5); line([[40, -450], [20, -200]], 5);
   for (const sx of [-1, 1]) { P(R(sx * 120 - 26, -430, 52, 210, 24), o.coat || '#6a5a48', 6); P(E(sx * 120, -212, 22, 22), SKIN, 5); }
-  g.restore(); head(x, yf - 520 * s, s, { hair: o.hair || '#9a9a9a', glasses: o.glasses !== false, mouth: o.mouth || 'smile', look: o.look || [0, 0], blink: o.blink || 0, brow: .1, open: .5 });
+  g.restore(); head(x, yf - 520 * s, s, { hair: o.hair || '#9a9a9a', bald: o.bald, glasses: o.glasses !== false, mouth: o.mouth || 'smile', look: o.look || [0, 0], blink: o.blink || 0, brow: .1, open: .5 });
 }
 function vegas(t) {
   const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#120a2a'); gr.addColorStop(1, '#3a1a4a'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
@@ -222,7 +222,7 @@ function duo(t, p, opp = BULL) {
   g.save(); g.translate(p.himX, yf); g.rotate(.12 * (p.himHit || 0) + fall * 1.0); g.translate(-p.himX, -yf);
   fighter(p.himX + fall * 60, yf + bobB * (1 - fall), 1.12, { ...opp, dir: -1, punch: p.him.punch, side: p.him.side === 1 ? -1 : 1, turn: -.7, look: [-.8, 0], mouth: fall > .3 ? 'o' : opp.mouth || 'smile', closed: fall > .3 }); g.restore();
   const st = p.stun ? 1 : 0, sway = st ? Math.sin(t * 2.4) * .1 : 0; g.save(); g.translate(p.meX, yf); g.rotate(-.18 * (p.meHit || 0) + sway); g.translate(-p.meX, -yf);
-  fighter(p.meX, yf + bobA, 1.12, { ...ME, dir: 1, punch: p.me.punch, side: p.me.side, turn: .7, look: [.8, 0], brow: st ? .8 : -.4, mouth: st ? 'o' : 'flat', closed: st && Math.sin(t * 3) > .6, pupil: st ? .45 : 1 }); g.restore();
+  fighter(p.meX, yf + bobA - (p.me.jump || 0) * 140, 1.12, { ...ME, dir: 1, punch: p.me.punch, side: p.me.side, kick: p.me.kick || 0, turn: .7, look: [.8, 0], brow: st ? .8 : -.4, mouth: st ? 'o' : 'flat', closed: st && Math.sin(t * 3) > .6, pupil: st ? .45 : 1 }); g.restore();
   if (st) stars(t, p.meX, yf - 640, 120, 5);
 }
 // the basement ring: people all round, arms up
@@ -234,7 +234,7 @@ function pitRing(t, people, arms) {
 }
 // ---------------------------------------------------------------- episode 2 pieces
 const PRES = { coat: '#17181f', hair: '#3a3a3a', glasses: false };
-function boss(x, yf, s, o = {}) { scout(x, yf, s, { ...o, coat: '#17181f', hair: '#8a8a8e', glasses: false, tie: '#b8322a' }); const hy = yf - 520 * s; g.save(); g.translate(x, hy); g.scale(s, s); P(L([[-42, 50], [0, 38, 42, 50], [0, 60, -42, 50]]), '#6a6a6e', 5); line([[-70, 18], [-50, 24]], 4); line([[70, 18], [50, 24]], 4); line([[-20, -66], [20, -66]], 3, 'rgba(0,0,0,.35)'); g.restore(); }
+function boss(x, yf, s, o = {}) { scout(x, yf, s, { ...o, coat: '#17181f', hair: '#8a8a8e', bald: true, glasses: false, tie: '#b8322a' }); const hy = yf - 520 * s; g.save(); g.translate(x, hy); g.scale(s, s); P(L([[-42, 50], [0, 38, 42, 50], [0, 60, -42, 50]]), '#6a6a6e', 5); line([[-70, 18], [-50, 24]], 4); line([[70, 18], [50, 24]], 4); line([[-20, -66], [20, -66]], 3, 'rgba(0,0,0,.35)'); g.restore(); }
 function referee(x, yf, s, armUp) {
   g.save(); g.translate(x, yf); g.scale(s, s);
   for (const sx of [-1, 1]) { P(R(sx * 42 - 28, -230, 56, 222, 20), '#22242c', 6); P(E(sx * 44, -12, 40, 16), '#0c0c0e', 6); }
@@ -278,14 +278,18 @@ function scene(t) {
         referee(560, 1860, 1.08, true); line([[460, 1400], [290, 1030]], 52, INK); line([[460, 1400], [290, 1030]], 40, '#1a1a1e'); g.save(); g.translate(820, 1950); g.rotate(1.4); fighter(0, 0, 1.0, { ...BULL, closed: true, mouth: 'o' }); g.restore(); });
       const k = ss(seg(u, .25, .4)); g.save(); g.globalAlpha = k; g.font = '900 170px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 22; g.strokeStyle = '#000'; g.strokeText('ПОБЕДА!', 540, 520); g.fillStyle = '#ffd23a'; g.fillText('ПОБЕДА!', 540, 520);
       g.font = '900 56px Rubik'; g.lineWidth = 12; g.strokeText('BELLATOR · 1–0', 540, 640); g.fillStyle = '#fff'; g.fillText('BELLATOR · 1–0', 540, 640); g.restore(); vignette(.5); break; }
-    case 'montage': { const n = Math.min(3, Math.floor(u * 4)), opp = [{ ...BUM, hair: '#c88a3a', shorts: '#8a3a3a' }, { ...AKULA }, { ...BUM, hair: '#1a1a1a', shorts: '#3a6a8a', skin: '#c89070' }, { ...BULL }][n], k = (u * 4) % 1;
-      push(540, 1500, 1.15, 8 * (k > .3 && k < .4 ? 1 : 0) * Math.sin(t * 60), 0); cage(t, () => duo(t, { me: { punch: k < .35 ? Math.sin(k / .35 * Math.PI) : 0, side: 1 }, him: { punch: 0 }, himHit: k > .2 && k < .4 ? 1 : 0, fall: ss(seg(k, .3, .7)), himX: 740, meX: 330 }, opp));
-      const rec = `${2 + Math.min(3, Math.floor(u * 4))}–0`; g.save(); g.font = '900 150px Rubik'; g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = 20; g.strokeStyle = '#000'; g.strokeText(rec, 540, 560); g.fillStyle = '#ffd23a'; g.fillText(rec, 540, 560); g.restore(); vignette(.5); break; }
+    case 'montage': { const n = Math.min(3, Math.floor(u * 4)), k = (u * 4) % 1, opp = [{ ...BUM, hair: '#c88a3a', shorts: '#8a3a3a' }, { ...AKULA }, { ...BUM, hair: '#1a1a1a', shorts: '#3a6a8a', skin: '#c89070' }, { ...BUM, hair: '#7a4a2a', shorts: '#6a6a2a', mean: false }][n];
+      const hitK = k < .38 ? Math.sin(k / .38 * Math.PI) : 0, me = [{ kick: hitK }, { punch: hitK, side: 1 }, { punch: hitK, side: -1 }, { kick: hitK * .65, jump: hitK }][n];
+      push(540, 1500, 1.15, 10 * (k > .28 && k < .4 ? 1 : 0) * Math.sin(t * 60), 0); cage(t, () => duo(t, { me, him: { punch: 0 }, himHit: k > .2 && k < .45 ? 1 : 0, fall: ss(seg(k, .32, .7)), himX: 740, meX: 330 }, opp));
+      if (k > .3 && k < .42) { g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(0, 0, W, H); }
+      const lab = ['НОКАУТ НОГОЙ', 'НОКАУТ БОКОВЫМ', 'АППЕРКОТ', 'КОЛЕНО В ПРЫЖКЕ'][n], rec = `${2 + n}–0`, a2 = ss(seg(k, .35, .5));
+      g.save(); g.globalAlpha = a2; g.textAlign = 'center'; g.lineJoin = 'round'; g.font = '900 150px Rubik'; g.lineWidth = 20; g.strokeStyle = '#000'; g.strokeText(rec, 540, 520); g.fillStyle = '#ffd23a'; g.fillText(rec, 540, 520);
+      g.font = '900 64px Rubik'; g.lineWidth = 12; g.strokeText(lab, 540, 640); g.fillStyle = '#fff'; g.fillText(lab, 540, 640); g.restore(); vignette(.5); break; }
     case 'locker': { lockers(t); push(540, 1300, lerp(1.0, 1.06, u)); const op = ss(seg(u, .25, .55)); P(R(820, 340, 240, 960), '#0e1016', 6); P(L([[820, 340], [820 + 240 * (1 - op), 360], [820 + 240 * (1 - op), 1280], [820, 1300]]), '#7a8a9e', 6); if (op > .05) glowAt(940, 800, 500 * op, 'rgba(255,240,210,.5)');
-      if (op > .5) boss(lerp(980, 820, ss(seg(u, .5, 1))), 1880, 1.15, { look: [-.6, 0], mouth: 'smile' }); kid(330, 1300, 1.3, { ...ME, hood: '#f4f0e6', neck: '#d8d4cc', look: [.8, 0], brow: op > .5 ? .6 : .2, blink: blinkAt(t, 2), mouth: op > .6 ? 'o' : 'flat' }); vignette(.55); break; }
+      if (op > .5) boss(lerp(980, 820, ss(seg(u, .5, 1))), 1880, 1.15, { look: [-.6, 0], mouth: 'smile' }); P(E(200, 1560, 60, 66), GLOVE, 6); P(E(450, 1560, 60, 66), GLOVE, 6); kid(330, 1300, 1.3, { ...ME, hood: SKIN, bare: true, sweat: true, look: [.8, 0], brow: op > .5 ? .6 : .2, blink: blinkAt(t, 2), mouth: op > .6 ? 'o' : 'flat' }); vignette(.55); break; }
     case 'pres': { lockers(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); const talk = t > VO.find(v => v.id === 'v7').t && t < VEND('v7'); boss(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
       contract(540, lerp(2100, 1450, ss(seg(u, .45, .75))), 1, -.06, ss(seg(u, .45, .6))); vignette(.55); break; }
-    case 'sign': { lockers(t); shade(.3); push(540, 900, lerp(1.0, 1.1, eio(u))); kid(540, 950, 3.0, { ...ME, hood: '#f4f0e6', neck: '#d8d4cc', look: [0, .6], brow: -.3, mouth: 'smile' }); contract(540, 1650, .9, .05, 1); vignette(.6); break; }
+    case 'sign': { lockers(t); shade(.3); push(540, 900, lerp(1.0, 1.1, eio(u))); kid(540, 950, 3.0, { ...ME, hood: SKIN, bare: true, sweat: true, look: [0, .6], brow: -.3, mouth: 'smile' }); P(E(300, 1500, 110, 120), GLOVE, 7); P(E(780, 1500, 110, 120), GLOVE, 7); contract(540, 1700, .8, .05, 1); vignette(.6); break; }
     case 'choice': lockers(t); shade(.35); contract(540, 1650, .9, .05, 1); break;
   }
   g.restore();
