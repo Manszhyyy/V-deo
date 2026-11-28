@@ -129,7 +129,7 @@ function fighter(x, yf, s, o = {}) {
       if (k > 0 && o.style === 'hook') return [lerp(sx * 70 + dir * 40, dir * (170 + 230 * k), k), -470 - 150 * Math.sin(Math.PI * Math.min(1, k * 1.2)) + 40 * k, 1];
       if (k > 0 && o.style === 'upper') return [lerp(sx * 60 + dir * 30, dir * 190, k), lerp(-280, -620, k), 1];
       return [lerp(sx * 70 + dir * 40, dir * (200 + 280 * k), lead ? k : k * .7), lerp(-470, -500, k), 1]; }
-    if (o.raise === sx) return [sx * 150, -880, 1];
+    if (o.raise === sx) return [sx * 175, -700, 1];
     if (o.guard === false) return [sx * 120, -230, 1];
     return [lerp(sx * 92, sx * 18, k), lerp(-462, -500, k), 1 + k * 1.7]; };
   const T = () => { g.translate(x, yf - bob * s); g.scale(s * bw, s * bh); };
@@ -324,14 +324,24 @@ function gym(t) {
   g.fillStyle = '#2a3a6a'; g.fillRect(0, 1350, W, 570); line([[0, 1350], [W, 1350]], 7); P(R(0, 1350, W, 24), '#b8322a', 0);
   g.font = '900 54px Rubik'; g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.18)'; g.fillText('НЕТ БОЛИ — НЕТ ПОБЕДЫ', 540, 1240);
 }
-function runner(x, yf, s, ph) {   // running in a hoodie: legs and arms swing
-  const sw = Math.sin(ph), bob = Math.abs(Math.cos(ph)) * 14; g.save(); g.translate(x, yf - bob * s); g.scale(s, s);
-  const leg = (a, front) => { g.save(); g.translate(0, -230); g.rotate(a); P(R(-32, 0, 64, 230, 28), SKIN, 6); P(R(-40, -10, 80, 90, 22), '#1e2a4a', 6); P(E(18, 226, 44, 18), front ? '#f4f0e6' : '#d8d4cc', 6); g.restore(); };
-  const arm = (a) => { g.save(); g.translate(0, -420); g.rotate(a); line([[0, 0], [0, 150], [60, 230]], 60, INK); line([[0, 0], [0, 150], [60, 230]], 46, '#3a3a46'); P(E(60, 236, 26, 26), SKIN, 5); g.restore(); };
-  leg(-.75 * sw, false); arm(.8 * sw);
-  P(L([[-96, -200], [-108, -420], [-70, -460], [70, -460], [108, -420], [96, -200]]), '#3a3a46'); P(L([[-80, -300], [80, -300], [70, -230], [-70, -230]]), '#33333e', 4);
-  leg(.75 * sw, true); arm(-.8 * sw); g.restore();
-  head(x + 6 * s, yf - (520 + bob) * s, s, { ...ME, turn: .7, look: [1, 0], brow: -.3, mouth: 'o', open: .6, sweat: true, hood: '#3a3a46' });
+function runner(x, yf, s, ph) {   // running, seen from the side (facing right): bent knees and elbows, a forward lean, opposite arm and leg
+  const bob = Math.abs(Math.sin(ph)) * 18; g.save(); g.translate(x, yf - bob * s); g.scale(s, s); g.translate(0, -230); g.rotate(.14); g.translate(0, 230);
+  const leg = (p, back) => { const th = -.75 * Math.sin(p), kn = .25 + 1.15 * Math.max(0, Math.cos(p)), col = back ? '#d8a888' : SKIN;
+    g.save(); g.translate(0, -235); g.rotate(th); P(R(-30, 0, 60, 128, 26), col, 6); P(R(-38, -12, 76, 80, 22), back ? '#18223c' : '#1e2a4a', 6);
+    g.translate(0, 120); g.rotate(kn); P(R(-26, 0, 52, 122, 22), col, 6); P(L([[-24, 104], [48, 106], [52, 130], [-26, 130]]), back ? '#c8c4bc' : '#f4f0e6', 6); g.restore(); };
+  const arm = (p, back) => { const ua = .85 * Math.sin(p), col = back ? '#2e2e38' : '#3a3a46';
+    g.save(); g.translate(6, -415); g.rotate(ua); P(R(-24, 0, 48, 118, 22), col, 6); g.translate(0, 108); g.rotate(-1.55); P(R(-22, 0, 44, 104, 20), col, 6); P(E(0, 112, 26, 26), back ? '#d8a888' : SKIN, 5); g.restore(); };
+  leg(ph + Math.PI, true); arm(ph, true);
+  P(L([[-70, -215], [-84, -420], [-50, -462], [56, -462], [84, -420], [70, -215]]), '#3a3a46'); P(L([[-20, -330], [80, -330], [72, -250], [-20, -250]]), '#33333e', 4);
+  P(L([[-80, -455], [-118, -430], [-110, -360], [-76, -380]]), '#33333e', 5);
+  leg(ph, false); arm(ph + Math.PI, false); g.restore();
+  head(x + 50 * s, yf - (530 + bob) * s, s, { ...ME, turn: .8, look: [1, 0], brow: -.4, mouth: 'o', open: .55, sweat: true });
+}
+function bag2(t, x, y, hit) {   // a heavy bag on a chain from the ceiling beam; it swings from the top
+  const a = Math.sin(t * 3) * .015 + hit * .05; g.save(); g.translate(x, 0); g.rotate(a);
+  for (let yy = 30; yy < y - 430; yy += 34) P(E(0, yy, 9, 16), null, 5, '#8a8a90'); line([[0, y - 440], [-60, y - 420]], 5, '#8a8a90'); line([[0, y - 440], [60, y - 420]], 5, '#8a8a90');
+  P(R(-110, y - 430, 220, 620, 70), '#2a2a30', 7); line([[-110, y - 300], [110, y - 300]], 5, '#8a2a22'); line([[-110, y + 80], [110, y + 80]], 5, '#8a2a22'); g.restore();
+  P(R(-20, 0, W + 40, 44, 0), '#2a2e38', 6);
 }
 function dawn(t) {
   const gr = g.createLinearGradient(0, 0, 0, 1400); gr.addColorStop(0, '#2a2a5a'); gr.addColorStop(.6, '#e87a5a'); gr.addColorStop(1, '#f8c070'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
@@ -389,8 +399,8 @@ function scene(t) {
       g.font = '900 170px Rubik'; g.lineWidth = 20; g.strokeText('VS', 540, 1000); g.fillStyle = '#ff3b2b'; g.fillText('VS', 540, 1000); g.restore(); vignette(.45); break; }
     case 'camp': { const t1 = WT('v3', 4) - .1, t2 = t1 + 1.4, t3 = t2 + 1.4;
       if (t < t1) alarm(t);
-      else if (t < t2) { dawn(t); runner(470, 1780, 1.1, t * 11); }
-      else if (t < t3) { gym(t); const ph = t * 10, pu = Math.max(0, Math.sin(ph)), sd = Math.floor(ph / Math.PI) % 2 ? 1 : -1; bag(t, 720, 1540, pu * .6);
+      else if (t < t2) { dawn(t); runner(470, 1530, 1.15, t * 11); }
+      else if (t < t3) { gym(t); const ph = t * 10, pu = Math.max(0, Math.sin(ph)), sd = Math.floor(ph / Math.PI) % 2 ? 1 : -1; bag2(t, 720, 1540, pu);
         fighter(380, 1860, 1.12, { ...ME, dir: 1, punch: pu, side: sd, turn: .7, look: [.8, 0], brow: -.5, mouth: 'flat', sweat: true }); }
       else { gym(t); const dt = (t - t3) % 1.6, p = exchange(dt, [[.1, 'me', 1], [.5, 'him', -1], [.9, 'me', -1], [1.2, 'me', 1]]); duo(t, p, PARTNER); }
       vignette(.45); break; }
@@ -406,10 +416,11 @@ function scene(t) {
       P(R(250, 300, 580, 220, 26), '#0a0a0e', 8); g.save(); g.font = '900 150px Rubik'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = done ? '#3aff7a' : '#ff3b2b'; g.shadowBlur = 30; g.fillStyle = done ? '#5aff8a' : '#ff5a4a'; g.fillText(w.toFixed(1), 470, 412); g.font = '900 60px Rubik'; g.fillText('КГ', 730, 430); g.restore();
       if (done) bigLabel('ЛЁГКИЙ ВЕС', '', ss(seg(u, .64, .75)), '#5aff8a', 680); vignette(.5); break; }
     case 'press': { pressWall(t); const tg = WT('v6', 2), k = ss(seg(t, tg, tg + .5));
-      kid(300, 1030, 1.35, { ...ME, hood: '#1e2a4a', look: [.7, 0], brow: -.3, mouth: 'flat', blink: blinkAt(t, 3) });
-      kid(780, 1030, 1.35, { ...SCORP, hood: '#141414', look: [-.6, 0], mouth: k > .5 ? 'smile' : 'flat', turn: -.2 });
-      P(R(40, 1330, 1000, 330, 10), '#101018', 7); g.save(); g.font = '900 52px Rubik'; g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText('ПРЕСС-КОНФЕРЕНЦИЯ', 540, 1410); g.restore();
-      mic(300, 1240, 1.0); mic(lerp(780, 730, k), lerp(1240, 1090, k), 1.0, -.3 * k); if (k > 0) { P(E(lerp(780, 750, k), lerp(1400, 1250, k), 40, 36), SCORP.skin, 5); }
+      kid(205, 1050, 1.2, { ...ME, hood: '#1e2a4a', look: [.7, 0], brow: -.3, mouth: 'flat', blink: blinkAt(t, 3) });
+      kid(875, 1050, 1.2, { ...SCORP, hood: '#141414', look: [-.6, 0], mouth: k > .5 ? 'smile' : 'flat', turn: -.2 });
+      boss(540, 1050 + 520 * 1.05, 1.05, { look: [k > .3 ? .6 : 0, 0], mouth: 'flat' });
+      P(R(20, 1330, 1040, 330, 10), '#101018', 7); g.save(); g.font = '900 52px Rubik'; g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText('ПРЕСС-КОНФЕРЕНЦИЯ', 540, 1410); g.restore();
+      mic(205, 1240, 1.0); mic(540, 1240, 1.0); mic(lerp(875, 830, k), lerp(1240, 1100, k), 1.0, -.3 * k); if (k > 0) { P(E(lerp(875, 850, k), lerp(1400, 1260, k), 40, 36), SCORP.skin, 5); }
       flashes(t, 8); vignette(.45); break; }
     case 'talk': { pressWall(t); push(540, 900, lerp(1.0, 1.06, u)); const on = t > VO.find(v => v.id === 'v7').t && t < VEND('v7');
       kid(540, 980, 2.5, { ...SCORP, hood: '#141414', look: [0, .1], mouth: talkM(t, on), open: .8, brow: -.5 }); mic(700, 1220, 2.0, -.5); P(E(760, 1420, 70, 64), SCORP.skin, 6);
