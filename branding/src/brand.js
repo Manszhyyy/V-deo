@@ -1,7 +1,7 @@
 // «Нейро выбор» — channel art (avatar and banner pieces), drawn with the same 2D kit as the series.
 //@@CFG
 const EP = { title: '', next: '' };
-const BEATS = [[null, 's0', 1], [null, 's1', 1], [null, 's2', 1], [null, 's3', 1], [null, 's4', 1], [null, 's5', 1], ['v10', 'choice']];
+const BEATS = [[null, 's0', 1], [null, 's1', 1], [null, 's2', 1], [null, 's3', 1], [null, 's4', 1], [null, 's5', 1], [null, 's6', 1], [null, 's7', 1], [null, 's8', 1], ['v10', 'choice']];
 const CH = [['А', '', '#ff4a4a'], ['Б', '', '#4ad0ff']];
 const RED = {};
 //@@SCENES
@@ -72,6 +72,17 @@ function chip(x, y, sc) {   // a little "AI" microchip badge
   glowAt(0, 0, 150, 'rgba(80,230,255,.45)', 1); P(R(-80, -80, 160, 160, 24), '#10213f', 8, '#9ff3ff'); bigText('AI', 0, 6, 86, '#9ff3ff', 10);
   g.restore();
 }
+function neon(fn, col, w, blur = 40) { g.save(); g.shadowColor = col; g.shadowBlur = blur; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = col; g.lineWidth = w; g.beginPath(); fn(); g.stroke(); g.shadowBlur = 0; g.strokeStyle = '#fff'; g.lineWidth = w * .35; g.beginPath(); fn(); g.stroke(); g.restore(); }
+function hemi(cx, cy, sx, col, dark) {   // one half of a brain, seen from above: a lobed blob with folds
+  const hx = cx + sx * 160, bumps = []; for (let i = 0; i <= 8; i++) { const a = -Math.PI / 2 + i * Math.PI / 8; bumps.push([hx + sx * Math.cos(a) * 140, cy + Math.sin(a) * 270]); }
+  for (const yy of [-180, 0, 180]) bumps.push([cx + sx * 75, cy + yy]);
+  const shape = () => { g.beginPath(); g.ellipse(hx, cy, 165, 300, 0, 0, TAU); for (const [x, y] of bumps) { g.moveTo(x + 72, y); g.arc(x, y, 72, 0, TAU); } };
+  g.save(); g.shadowColor = col; g.shadowBlur = 70; shape(); g.lineWidth = 22; g.strokeStyle = col; g.stroke(); g.shadowBlur = 0; shape(); g.fillStyle = dark; g.fill(); g.restore();
+  g.save(); shape(); g.clip(); g.lineCap = 'round'; g.strokeStyle = col; g.lineWidth = 12; g.shadowColor = col; g.shadowBlur = 20;
+  const F = [[[30, -230], [140, -300], [250, -190]], [[60, -120], [190, -170], [300, -60]], [[20, -20], [120, 40], [200, -30]], [[40, 110], [170, 60], [300, 160]], [[30, 230], [150, 180], [240, 290]], [[200, 60], [240, -20], [320, -10]]];
+  for (const f of F) { g.beginPath(); g.moveTo(cx + sx * f[0][0], cy + f[0][1]); g.quadraticCurveTo(cx + sx * f[1][0], cy + f[1][1], cx + sx * f[2][0], cy + f[2][1]); g.stroke(); }
+  g.restore();
+}
 function scene(t) {
   const s = Math.floor(t); g.save(); g.fillStyle = BG; g.fillRect(0, 0, W, H);
   if (s === 0) {   // avatar: split red | blue, a big glowing AI chip
@@ -97,6 +108,30 @@ function scene(t) {
   } else if (s === 5) {   // a creepy mum through the peephole
     g.save(); g.beginPath(); g.arc(540, 960, 470, 0, TAU); g.clip(); g.fillStyle = '#3d5a4a'; g.fillRect(0, 0, W, H); mum(540, 940, 1.9, { creep: true, mouth: 'creep', pupil: .35, tilt: .1 }); g.restore();
     g.lineWidth = 12; g.strokeStyle = '#111'; g.beginPath(); g.arc(540, 960, 474, 0, TAU); g.stroke();
+  }
+  else if (s === 6) {   // variant 1: a neon brain, pink | cyan halves, on black
+    const gr = g.createRadialGradient(540, 960, 50, 540, 960, 700); gr.addColorStop(0, '#1d1035'); gr.addColorStop(1, '#05040c'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    net(540, 960, 520, 520, 34, 'rgba(140,120,255,.7)', 3);
+    hemi(530, 960, -1, '#ff3fb4', '#2a0a26'); hemi(550, 960, 1, '#2fe6ff', '#08263a');
+    
+  } else if (s === 7) {   // variant 2: an AI eye
+    g.fillStyle = '#04070d'; g.fillRect(0, 0, W, H); const cx = 540, cy = 960;
+    g.save(); g.strokeStyle = 'rgba(47,230,255,.12)'; g.lineWidth = 3; for (let i = -10; i <= 10; i++) { g.beginPath(); g.moveTo(cx + i * 60, cy - 600); g.lineTo(cx + i * 60, cy + 600); g.stroke(); g.beginPath(); g.moveTo(cx - 600, cy + i * 60); g.lineTo(cx + 600, cy + i * 60); g.stroke(); } g.restore();
+    neon(() => { g.moveTo(cx - 470, cy); g.quadraticCurveTo(cx, cy - 430, cx + 470, cy); g.quadraticCurveTo(cx, cy + 430, cx - 470, cy); }, '#2fe6ff', 22, 60);
+    const ir = g.createRadialGradient(cx, cy, 30, cx, cy, 215); ir.addColorStop(0, '#d9fbff'); ir.addColorStop(.35, '#2fe6ff'); ir.addColorStop(.8, '#0a5f9a'); ir.addColorStop(1, '#06223f');
+    g.save(); g.shadowColor = '#2fe6ff'; g.shadowBlur = 80; P(E(cx, cy, 215, 215), ir, 10, '#9ff3ff'); g.restore();
+    for (let i = 0; i < 48; i++) { const a = i / 48 * TAU, r1 = 140, r2 = i % 4 ? 175 : 200; line([[cx + Math.cos(a) * r1, cy + Math.sin(a) * r1], [cx + Math.cos(a) * r2, cy + Math.sin(a) * r2]], 5, 'rgba(4,20,40,.7)'); }
+    P(E(cx, cy, 92, 92), '#03060c', 0); glowAt(cx, cy, 70, 'rgba(255,40,90,.9)', 1); P(E(cx, cy, 18, 18), '#ff4a7a', 0);
+    P(E(cx - 70, cy - 80, 34, 22, -.5), 'rgba(255,255,255,.85)', 0); P(E(cx + 60, cy + 70, 12, 8), 'rgba(255,255,255,.5)', 0);
+  } else if (s === 8) {   // variant 3: neon monogram «НВ» with a glitch
+    const gr = g.createLinearGradient(0, 400, 0, 1500); gr.addColorStop(0, '#1a0638'); gr.addColorStop(1, '#03030a'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.save(); g.strokeStyle = 'rgba(255,63,180,.25)'; g.lineWidth = 3; for (let i = 0; i < 12; i++) { const y = 1150 + i * i * 6; g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); } for (let i = -12; i <= 12; i++) { g.beginPath(); g.moveTo(540 + i * 20, 1150); g.lineTo(540 + i * 160, 1500); g.stroke(); } g.restore();
+    glowAt(540, 900, 520, 'rgba(255,63,180,.25)', 1);
+    g.save(); g.font = '900 470px Rubik'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,40,80,.85)'; g.fillText('НВ', 525, 935); g.fillStyle = 'rgba(40,230,255,.85)'; g.fillText('НВ', 555, 945); g.globalCompositeOperation = 'source-over';
+    g.shadowColor = '#ff3fb4'; g.shadowBlur = 60; g.lineWidth = 14; g.strokeStyle = '#ff7ad0'; g.strokeText('НВ', 540, 940); g.shadowBlur = 0; g.fillStyle = '#fff'; g.fillText('НВ', 540, 940); g.restore();
+    for (const [y, h, dx] of [[820, 26, 40], [990, 18, -50], [1060, 12, 30]]) { const im = g.getImageData(0, y, W, h); g.putImageData(im, dx, y); }
+    g.save(); g.font = '900 64px Rubik'; g.textAlign = 'center'; g.fillStyle = '#9ff3ff'; g.shadowColor = '#2fe6ff'; g.shadowBlur = 25; g.fillText('НЕЙРО ВЫБОР', 540, 1260); g.restore();
   }
   g.restore();
 }
