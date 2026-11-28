@@ -297,8 +297,13 @@ function scene(t) {
       g.save(); g.globalAlpha = a2; g.textAlign = 'center'; g.lineJoin = 'round'; g.font = '900 150px Rubik'; g.lineWidth = 20; g.strokeStyle = '#000'; g.strokeText(rec, 540, 520); g.fillStyle = '#ffd23a'; g.fillText(rec, 540, 520);
       g.font = '900 60px Rubik'; g.lineWidth = 12; g.strokeText(lab, 540, 640); g.fillStyle = '#fff'; g.fillText(lab, 540, 640); g.restore();
       vignette(.5); break; }
-    case 'prelude': { push(540, 1500, 1.12); cage(t, () => duo(t, { me: { punch: 0 }, him: { punch: 0 }, himX: 740, meX: 330 }, { ...BUM, hair: '#c88a3a', shorts: '#8a3a3a' }), { noBar: true });
-      g.save(); g.textAlign = 'center'; g.lineJoin = 'round'; g.font = '900 120px Rubik'; g.lineWidth = 18; g.strokeStyle = '#000'; g.strokeText('BELLATOR', 540, 520); g.fillStyle = '#fff'; g.fillText('BELLATOR', 540, 520); g.restore(); vignette(.5); break; }
+    case 'prelude': {   // the walk-out: you stride into the cage, lights sweep, the crowd roars, BELLATOR · 2027 slides in
+      const w = ss(seg(u, 0, .85)); push(540, 1400, lerp(1.0, 1.25, eio(u)));
+      cage(t, () => { for (let i = 0; i < 6; i++) { const x = 120 + i * 170, a = Math.sin(t * 7 + i * 1.3); if (a > 0) { line([[x, 1180], [x - 30, 1080 - 40 * a]], 18, '#2a2a34'); line([[x + 40, 1180], [x + 70, 1080 - 40 * a]], 18, '#2a2a34'); } }
+        fighter(lerp(200, 540, w), lerp(1700, 1900, w), lerp(.85, 1.2, w), { ...ME, walk: w < .98 ? t * 7 : null, guard: w > .9, raise: w < .9 ? 1 : 0, mouth: 'smile', brow: -.3, look: [0, 0] }); }, { noBar: true });
+      for (const [x, ph] of [[150, 0], [930, 2]]) { const sw = Math.sin(t * 2.2 + ph) * 300; beam([[x - 30, 0], [x + 30, 0], [540 + sw + 160, 1900], [540 + sw - 160, 1900]], '#fff2c8', .16); }
+      const tk = eo(seg(u, .05, .3)); g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.translate(lerp(-700, 0, tk), 0); g.textAlign = 'center'; g.lineJoin = 'round'; g.font = '900 120px Rubik'; g.lineWidth = 18; g.strokeStyle = '#000'; g.strokeText('BELLATOR', 540, 470); g.fillStyle = '#fff'; g.fillText('BELLATOR', 540, 470);
+      g.font = '900 80px Rubik'; g.lineWidth = 14; g.strokeText('2027', 540, 580); g.fillStyle = '#ffd23a'; g.fillText('2027', 540, 580); g.restore(); vignette(.5); break; }
     case 'locker': { lockers(t); push(540, 1300, lerp(1.0, 1.06, u)); const op = ss(seg(u, .25, .55)); P(R(820, 340, 240, 960), '#0e1016', 6); P(L([[820, 340], [820 + 240 * (1 - op), 360], [820 + 240 * (1 - op), 1280], [820, 1300]]), '#7a8a9e', 6); if (op > .05) glowAt(940, 800, 500 * op, 'rgba(255,240,210,.5)');
       if (op > .5) boss(lerp(980, 820, ss(seg(u, .5, 1))), 1880, 1.15, { look: [-.6, 0], mouth: 'smile' }); P(E(200, 1560, 60, 66), GLOVE, 6); P(E(450, 1560, 60, 66), GLOVE, 6); kid(330, 1300, 1.3, { ...ME, hood: SKIN, bare: true, sweat: true, look: [.8, 0], brow: op > .5 ? .6 : .2, blink: blinkAt(t, 2), mouth: op > .6 ? 'o' : 'flat' }); vignette(.55); break; }
     case 'pres': { lockers(t); shade(.25); push(540, 900, lerp(1.0, 1.08, u)); const talk = t > VO.find(v => v.id === 'v7').t && t < VEND('v7'); boss(540, 2300, 2.0, { mouth: talk && Math.sin(t * 19) > -.1 ? 'o' : 'smile', look: [0, .1] });
