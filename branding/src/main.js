@@ -181,11 +181,12 @@ function chip(x, y, sc) {   // a little "AI" microchip badge
 }
 function scene(t) {
   const s = Math.floor(t); g.save(); g.fillStyle = BG; g.fillRect(0, 0, W, H);
-  if (s === 0) {   // avatar: split red | blue, the hero's face, А and Б
+  if (s === 0) {   // avatar: split red | blue, a glowing AI chip, А and Б
     P(L([[0, 0], [600, 0], [480, H], [0, H]]), '#c8322a', 0); P(L([[600, 0], [W, 0], [W, H], [480, H]]), '#2a5ad8', 0);
-    glowAt(540, 960, 700, 'rgba(255,255,255,.18)'); net(540, 900, 520, 480, 26, 'rgba(160,240,255,.9)'); line([[600, 0], [480, H]], 16, '#fff'); line([[600, 0], [480, H]], 8, INK);
-    kid(540, 930, 2.55, { ...ME, look: [0, 0], brow: -.3, mouth: 'smile', hood: '#1e2a4a', neck: '#162040' });
-    bigText('А', 210, 690, 230, '#fff', 26); bigText('Б', 870, 690, 230, '#fff', 26); chip(540, 1335, .82);
+    glowAt(540, 960, 700, 'rgba(255,255,255,.18)'); line([[600, 0], [480, H]], 16, '#fff'); line([[600, 0], [480, H]], 8, INK);
+    net(540, 940, 500, 500, 30, 'rgba(160,240,255,.9)', 5);
+    chip(540, 950, 2.5);
+    bigText('А', 165, 950, 230, '#fff', 26); bigText('Б', 915, 950, 230, '#fff', 26);
   } else if (s === 1) {   // the fighter
     fighter(540, 1820, 1.55, { ...ME, guard: true, look: [0, 0], brow: -.6, mouth: 'flat' });
   } else if (s === 2) {   // the horror kid with his phone
