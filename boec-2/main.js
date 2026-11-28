@@ -315,11 +315,10 @@ function clock(t) {
   if (t < 3.0) { g.save(); g.globalAlpha = 1 - ss(seg(t, 2.4, 3.0)); textC(EP.title, W / 2, 196, 34, 'rgba(255,255,255,.9)', 700); g.restore(); }
 }
 function epEvents() {
-  const ev = [{ t: 0, type: 'crowd', d: b1('montage'), chant: 1 }, { t: b0('shoot') + (b1('shoot') - b0('shoot')) * .5, type: 'thud' }, { t: b0('shoot') + (b1('shoot') - b0('shoot')) * .7, type: 'hit' },
-    { t: b0('choke'), type: 'heart', d: b1('choke') - b0('choke') }];
-  for (let i = 0; i < 4; i++) ev.push({ t: WT('v3', 5) + i * .35, type: 'thud' });
+  // a light soundtrack before the first win: the crowd, one thud for the takedown, soft taps on the mat
+  const ev = [{ t: 0, type: 'crowd', d: b1('montage'), chant: 1 }, { t: b0('shoot') + (b1('shoot') - b0('shoot')) * .55, type: 'thud' }];
+  for (let i = 0; i < 3; i++) ev.push({ t: WT('v3', 5) + i * .4, type: 'click' });
   ev.push({ t: b0('win') + .3, type: 'sting' }); for (let i = 0; i < 4; i++) ev.push({ t: b0('montage') + (b1('montage') - b0('montage')) * (i + .45) / 4, type: 'hit' });
-  const SEG = (b1('montage') - b0('montage')) / 4; ['k1', 'k2', 'k3', 'k4'].forEach((id, i) => ev.push({ t: b0('montage') + SEG * (i + .16), type: 'vo', id }));
   ev.push({ t: b0('locker') + (b1('locker') - b0('locker')) * .3, type: 'creak', d: 1.0 }, { t: b0('pres') + (b1('pres') - b0('pres')) * .5, type: 'sting' }); return ev;
 }
 // ---------------------------------------------------------------- HUD: clock badge, captions, the choice
